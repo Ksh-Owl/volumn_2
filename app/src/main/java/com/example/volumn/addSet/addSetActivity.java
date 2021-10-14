@@ -90,17 +90,6 @@ public class addSetActivity extends AppCompatActivity {
                     JSONObject jsonObject = new JSONObject(response);
                     JSONArray jsonArray = jsonObject.getJSONArray("workout");
 
-//                    if(jsonArray.length() <=0)
-//                    {
-//                        //운동추가(운동종류추가 화면)
-//                        Intent intent = new Intent(context, addWorkoutActivity.class);//명시적 인텐트
-//
-//
-//                        intent.putExtra("date", txt_choicedate.getText());
-//
-//                        startActivity(intent);
-//
-//                    }
 
                     for (int i = 0; i < jsonArray.length(); i++) {
                         JSONObject item = jsonArray.getJSONObject(i);

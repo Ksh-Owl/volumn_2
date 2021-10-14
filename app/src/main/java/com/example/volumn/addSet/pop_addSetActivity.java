@@ -52,13 +52,35 @@ public class pop_addSetActivity extends AppCompatActivity {
         Button btn_exit = findViewById(R.id.btn_exit);
 
         Button btn_pose = findViewById(R.id.btn_pose);
+        Button btn_body = findViewById(R.id.btn_body);
 
          etxt_kg = findViewById(R.id.etxt_kg);
          etxt_count = findViewById(R.id.etxt_count);
 
+         if(name.equals("스쿼트") ||name.equals("푸쉬업"))
+         {
+             btn_body.setVisibility(View.VISIBLE);
+             btn_pose.setVisibility(View.VISIBLE);
+         }
+
+
 
         txt_info.setText(name + " " + set + "세트");
+        btn_body.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(name.equals("스쿼트") )
+                {
+                    etxt_kg.setText("10");
+                }
+                if(name.equals("푸쉬업"))
+                {
+                    etxt_kg.setText("40");
 
+                }
+
+            }
+        });
         btn_pose.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
