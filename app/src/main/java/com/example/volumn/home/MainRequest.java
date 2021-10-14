@@ -15,7 +15,7 @@ public class MainRequest extends StringRequest {
     private Map<String, String> map;
 
 
-    public MainRequest(String userEmail, String Date1,String Date2, Response.Listener<String> listener) {
+    public MainRequest(String userEmail, String Date1,String Date2,String exDATE1,String exDATE2, Response.Listener<String> listener) {
         super(Request.Method.POST, URL, listener, null);
 
         map = new HashMap<>();
@@ -23,6 +23,8 @@ public class MainRequest extends StringRequest {
         map.put("DATE1", Date1);
 
         map.put("DATE2", Date2);
+        map.put("exDATE1", exDATE1);
+        map.put("exDATE2", exDATE2);
 
     }
 

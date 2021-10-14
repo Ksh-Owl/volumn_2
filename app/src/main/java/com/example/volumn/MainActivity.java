@@ -1,12 +1,13 @@
 package com.example.volumn;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.icu.util.Calendar;
+import android.os.Build;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -21,10 +22,6 @@ import android.os.Bundle;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
-import com.example.volumn.addSet.addSetActivity;
-import com.example.volumn.addSet.addSetAdapter;
-import com.example.volumn.addSet.addSetRequest;
-import com.example.volumn.addWorkout.Model;
 import com.example.volumn.calendar.CalendarActivity;
 import com.example.volumn.home.MainRequest;
 import com.example.volumn.include.PreferenceManager;
@@ -33,8 +30,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -57,6 +56,19 @@ public class MainActivity extends AppCompatActivity {
     TextView txt_trapezius;
     TextView txt_sum;
 
+
+    TextView txt_calChest;
+    TextView txt_calBack;
+    TextView txt_calShoulder;
+    TextView txt_calLeg;
+    TextView txt_calBiceps;
+    TextView txt_calTriceps;
+    TextView txt_calHip;
+    TextView txt_calTrapezius;
+    TextView txt_calAbs;
+    TextView txt_calVolumn;
+
+
     int year_  ;
     int month_  ;
     int dayofMonth_ ;
@@ -65,6 +77,7 @@ public class MainActivity extends AppCompatActivity {
     private DatePickerDialog.OnDateSetListener callbackMethod1;
     private DatePickerDialog.OnDateSetListener callbackMethod2;
 
+    @RequiresApi(api = Build.VERSION_CODES.N)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -89,6 +102,18 @@ public class MainActivity extends AppCompatActivity {
         txt_biceps = (TextView) findViewById(R.id.txt_biceps);
         txt_triceps = (TextView) findViewById(R.id.txt_triceps);
         txt_trapezius = (TextView) findViewById(R.id.txt_trapezius);
+
+
+        txt_calChest = (TextView) findViewById(R.id.txt_calChest);
+        txt_calBack = (TextView) findViewById(R.id.txt_calBack);
+        txt_calShoulder= (TextView) findViewById(R.id.txt_calShoulder);
+        txt_calLeg= (TextView) findViewById(R.id.txt_calLeg);
+        txt_calBiceps= (TextView) findViewById(R.id.txt_calBiceps);
+        txt_calTriceps= (TextView) findViewById(R.id.txt_calTriceps);
+        txt_calHip= (TextView) findViewById(R.id.txt_calHip);
+        txt_calTrapezius= (TextView) findViewById(R.id.txt_calTrapezius);
+        txt_calAbs= (TextView) findViewById(R.id.txt_calAbs);
+        txt_calVolumn = (TextView)findViewById(R.id.txt_calVolumn);
 
 
         preferenceManager = new PreferenceManager();
@@ -150,6 +175,11 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         }
 
+        setDate();
+        // 첫번째 날짜 오늘부터 1주일전
+
+        etxt_Date.setText(year_+"-"+(month_+1)+ "-"+(dayofMonth_-7));
+        etxt_Date2.setText(year_+"-"+(month_+1)+ "-"+dayofMonth_);
 
         etxt_Date.addTextChangedListener(new TextWatcher() {
             @Override
@@ -190,19 +220,24 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
-        setDate();
-        // 첫번째 날짜 오늘부터 1주일전
 
-        etxt_Date.setText(year_+"-"+(month_+1)+ "-"+(dayofMonth_-7));
         // 시작시 두번째 날짜 오늘날짜
 
-        etxt_Date2.setText(year_+"-"+(month_+1)+ "-"+dayofMonth_);
+
+
+
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    @Override
+    protected void onResume() {
+        super.onResume();
 
         search_Volumn();
 
 
     }
-
 
     public void InitializeListener() {
         callbackMethod1 = new DatePickerDialog.OnDateSetListener() {
@@ -224,23 +259,49 @@ public class MainActivity extends AppCompatActivity {
             }
         };
     }
+    @RequiresApi(api = Build.VERSION_CODES.N)
     public void search_Volumn(){
         Response.Listener<String> responseListner = new Response.Listener<String>() {
             @Override
             public void onResponse(String response) {
 
                 try {
+                    int CalVolumn = 0;
                     JSONObject jsonObject = new JSONObject(response);
                     JSONArray jsonArray = jsonObject.getJSONArray("workout");
+                    JSONArray Ex_jsonArray = jsonObject.getJSONArray("cal");
+
                     String workout_Part ="";
                     String volumn ="0";
                     refreshText();
                     for (int i = 0; i <jsonArray.length(); i++) {
+                        int cal = 0;//지난 날짜와 차이
+                        Boolean check =false;
 
                             JSONObject item = jsonArray.getJSONObject(i);
 
                             workout_Part = item.getString("workout_Part");
                             volumn = item.getString("volumn");
+                            for (int j=0; j<Ex_jsonArray.length(); j++)
+                            {
+                                JSONObject ex_item = Ex_jsonArray.getJSONObject(j);
+                                String ex_volumn = ex_item.getString("volumn");
+
+                                if(workout_Part.equals(ex_item.getString("workout_Part")))
+                                {
+                                    cal =   Integer.parseInt(volumn) - Integer.parseInt(ex_volumn);
+                                    check = true;
+                                }
+
+//                                else
+//                                {
+//                                    if(j ==Ex_jsonArray.length() -1 && check ==true ){
+//                                        cal = Integer.parseInt(ex_volumn);
+//                                    }
+//                                }
+
+
+                            }
 
 
 
@@ -248,38 +309,55 @@ public class MainActivity extends AppCompatActivity {
                         switch (workout_Part) {
                             case "가슴":
                                 txt_chest.setText(volumn + " KG");
-
+                                txt_calChest.setText( String.valueOf(cal) );
+                                CalVolumn += cal;
                                 break;
                             case "등":
                                 txt_back.setText(volumn + " KG");
+                                txt_calBack.setText( String.valueOf(cal) );
+                                CalVolumn += cal;
 
                                 break;
                             case "하체":
                                 txt_leg.setText(volumn + " KG");
+                                txt_calLeg.setText( String.valueOf(cal) );
+                                CalVolumn += cal;
 
                                 break;
                             case "어깨":
                                 txt_shoulder.setText(volumn + " KG");
+                                txt_calShoulder.setText( String.valueOf(cal) );
+                                CalVolumn += cal;
 
                                 break;
                             case "이두":
                                 txt_biceps.setText(volumn + " KG");
+                                txt_calBiceps.setText( String.valueOf(cal) );
+                                CalVolumn += cal;
 
                                 break;
                             case "삼두":
                                 txt_triceps.setText(volumn + " KG");
+                                txt_calTriceps.setText( String.valueOf(cal) );
+                                CalVolumn += cal;
 
                                 break;
                             case "엉덩이":
                                 txt_hip.setText(volumn + " KG");
+                                txt_calHip.setText( String.valueOf(cal) );
+                                CalVolumn += cal;
 
                                 break;
                             case "승모근":
                                 txt_trapezius.setText(volumn + " KG");
+                                txt_calTrapezius.setText( String.valueOf(cal) );
+                                CalVolumn += cal;
 
                                 break;
                             case "복근":
                                 txt_abs.setText(volumn + " KG");
+                                txt_calAbs.setText( String.valueOf(cal) );
+                                CalVolumn += cal;
 
                                 break;
 
@@ -288,7 +366,7 @@ public class MainActivity extends AppCompatActivity {
 
 
                     }
-
+                    txt_calVolumn.setText(String.valueOf(CalVolumn));
                     sumVolumn();//볼륨 합계구하기
 
                 } catch (JSONException e) {
@@ -298,8 +376,9 @@ public class MainActivity extends AppCompatActivity {
             }
         };
         String userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오기
-
-        MainRequest mainRequest = new MainRequest(userEmail, etxt_Date.getText().toString().trim(), etxt_Date2.getText().toString().trim(), responseListner);
+        String calday1 =  calFirstDay();
+        String calday2 =  calSecondDay();
+        MainRequest mainRequest = new MainRequest(userEmail, etxt_Date.getText().toString().trim(), etxt_Date2.getText().toString().trim(),calday1,calday2 , responseListner);
         RequestQueue queue = Volley.newRequestQueue(context);
         queue.add(mainRequest);
     }
@@ -355,5 +434,153 @@ public class MainActivity extends AppCompatActivity {
 
     }
 
+    private int calDays(){
+        int Days = 0;
+        try{
+            // String Type을 Date Type으로 캐스팅하면서 생기는 예외로 인해 여기서 예외처리 해주지 않으면 컴파일러에서 에러가 발생해서 컴파일을 할 수 없다.
+            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+            // date1, date2 두 날짜를 parse()를 통해 Date형으로 변환.
+
+            Date FirstDate = format.parse(etxt_Date.getText().toString().trim());
+            Date SecondDate = format.parse(etxt_Date2.getText().toString().trim());
+
+
+
+            // Date로 변환된 두 날짜를 계산한 뒤 그 리턴값으로 long type 변수를 초기화 하고 있다.
+            // 연산결과 -950400000. long type 으로 return 된다.
+            long calDate = FirstDate.getTime() - SecondDate.getTime();
+
+            // Date.getTime() 은 해당날짜를 기준으로1970년 00:00:00 부터 몇 초가 흘렀는지를 반환해준다.
+            // 이제 24*60*60*1000(각 시간값에 따른 차이점) 을 나눠주면 일수가 나온다.
+            long calDateDays = calDate / ( 24*60*60*1000);
+
+            // calDateDays = Math.abs(calDateDays);//차일 일수
+             Days = (int) Math.abs(calDateDays);//차일 일수
+
+
+        }
+        catch (Exception ex)
+        {
+
+        }
+        return Days;
+
+    }
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private String calFirstDay(){
+        //특정날짜 처음 날짜 두번째 날짜 차이전의 날
+        Calendar currentCalendar = Calendar.getInstance();
+        String Date ="";
+
+
+        if(!etxt_Date.getText().toString().equals("") && !etxt_Date2.getText().toString().equals(""))
+        {
+            try{
+
+                // String Type을 Date Type으로 캐스팅하면서 생기는 예외로 인해 여기서 예외처리 해주지 않으면 컴파일러에서 에러가 발생해서 컴파일을 할 수 없다.
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                // date1, date2 두 날짜를 parse()를 통해 Date형으로 변환.
+
+                Date FirstDate = format.parse(etxt_Date.getText().toString().trim());
+
+
+                //캘린더에 특정날짜 넣기
+
+                Date date = new Date(String.valueOf(FirstDate));
+
+                SimpleDateFormat year = new SimpleDateFormat("yyyy");
+                SimpleDateFormat month = new SimpleDateFormat("MM");
+
+                SimpleDateFormat dayofMonth = new SimpleDateFormat("dd");
+
+
+                int year_ = Integer.parseInt(year.format(date)) ;
+                int month_ =Integer.parseInt(month.format(date))  ;
+
+                int dayofMonth_ = Integer.parseInt(dayofMonth.format(date)) ;
+
+                currentCalendar.set(year_,month_-1,dayofMonth_);
+
+
+                currentCalendar.add(currentCalendar.DATE,-calDays());
+
+                java.util.Date weekago = currentCalendar.getTime();
+
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd",
+
+                        Locale.getDefault());
+
+                Date =  formatter.format(weekago);
+
+
+            }
+            catch(ParseException e)
+            {
+                // 예외 처리
+            }
+
+        }
+        return Date;
+
+
+    }
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private String calSecondDay(){
+        //특정날짜 처음 날짜 두번째 날짜 차이전의 날
+        Calendar currentCalendar = Calendar.getInstance();
+        String Date ="";
+
+
+        if(!etxt_Date.getText().toString().equals("") && !etxt_Date2.getText().toString().equals(""))
+        {
+            try{
+
+                // String Type을 Date Type으로 캐스팅하면서 생기는 예외로 인해 여기서 예외처리 해주지 않으면 컴파일러에서 에러가 발생해서 컴파일을 할 수 없다.
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+                // date1, date2 두 날짜를 parse()를 통해 Date형으로 변환.
+
+                Date FirstDate = format.parse(calFirstDay());
+
+
+                //캘린더에 특정날짜 넣기
+
+                //Date date = new Date(String.valueOf(SecondDate));
+
+                SimpleDateFormat year = new SimpleDateFormat("yyyy");
+                SimpleDateFormat month = new SimpleDateFormat("MM");
+
+                SimpleDateFormat dayofMonth = new SimpleDateFormat("dd");
+
+
+                int year_ = Integer.parseInt(year.format(FirstDate)) ;
+                int month_ =Integer.parseInt(month.format(FirstDate))  ;
+
+                int dayofMonth_ = Integer.parseInt(dayofMonth.format(FirstDate)) ;
+
+                currentCalendar.set(year_,month_-1,dayofMonth_);
+
+
+                currentCalendar.add(currentCalendar.DATE,(calDays()-1));
+
+                java.util.Date weekago = currentCalendar.getTime();
+
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd",
+
+                        Locale.getDefault());
+
+                Date =  formatter.format(weekago);
+
+
+            }
+            catch(ParseException e)
+            {
+                // 예외 처리
+            }
+
+        }
+        return Date;
+
+
+    }
 
 }
