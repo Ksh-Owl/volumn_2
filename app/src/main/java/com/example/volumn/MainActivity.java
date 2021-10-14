@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
 import android.icu.util.Calendar;
 import android.os.Build;
 import android.text.Editable;
@@ -308,55 +309,65 @@ public class MainActivity extends AppCompatActivity {
 
                         switch (workout_Part) {
                             case "가슴":
-                                txt_chest.setText(volumn + " KG");
-                                txt_calChest.setText( String.valueOf(cal) );
+
+
+                                changeTextColor(volumn,cal,txt_chest,txt_calChest);
+
                                 CalVolumn += cal;
                                 break;
                             case "등":
-                                txt_back.setText(volumn + " KG");
-                                txt_calBack.setText( String.valueOf(cal) );
+
+                                changeTextColor(volumn,cal,txt_back,txt_calBack);
+
                                 CalVolumn += cal;
 
                                 break;
                             case "하체":
-                                txt_leg.setText(volumn + " KG");
-                                txt_calLeg.setText( String.valueOf(cal) );
+
+                                changeTextColor(volumn,cal,txt_leg,txt_calLeg);
+
                                 CalVolumn += cal;
 
                                 break;
                             case "어깨":
-                                txt_shoulder.setText(volumn + " KG");
-                                txt_calShoulder.setText( String.valueOf(cal) );
+
+                                changeTextColor(volumn,cal,txt_shoulder,txt_calShoulder);
+
                                 CalVolumn += cal;
 
                                 break;
                             case "이두":
-                                txt_biceps.setText(volumn + " KG");
-                                txt_calBiceps.setText( String.valueOf(cal) );
+
+                                changeTextColor(volumn,cal,txt_biceps,txt_calBiceps);
+
                                 CalVolumn += cal;
 
                                 break;
                             case "삼두":
-                                txt_triceps.setText(volumn + " KG");
-                                txt_calTriceps.setText( String.valueOf(cal) );
+
+                                changeTextColor(volumn,cal,txt_triceps,txt_calTriceps);
+
                                 CalVolumn += cal;
 
                                 break;
                             case "엉덩이":
-                                txt_hip.setText(volumn + " KG");
-                                txt_calHip.setText( String.valueOf(cal) );
+
+                                changeTextColor(volumn,cal,txt_hip,txt_calHip);
+
                                 CalVolumn += cal;
 
                                 break;
                             case "승모근":
-                                txt_trapezius.setText(volumn + " KG");
-                                txt_calTrapezius.setText( String.valueOf(cal) );
+
+                                changeTextColor(volumn,cal,txt_trapezius,txt_calTrapezius);
+
                                 CalVolumn += cal;
 
                                 break;
                             case "복근":
-                                txt_abs.setText(volumn + " KG");
-                                txt_calAbs.setText( String.valueOf(cal) );
+
+                                changeTextColor(volumn,cal,txt_abs,txt_calAbs);
+
                                 CalVolumn += cal;
 
                                 break;
@@ -366,8 +377,13 @@ public class MainActivity extends AppCompatActivity {
 
 
                     }
-                    txt_calVolumn.setText(String.valueOf(CalVolumn));
-                    sumVolumn();//볼륨 합계구하기
+                   // txt_calVolumn.setText(String.valueOf(CalVolumn));
+
+
+
+                    changeTextColor(String.valueOf(sumVolumn()),CalVolumn,txt_sum,txt_calVolumn);
+
+
 
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -411,7 +427,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
-    private void sumVolumn(){
+    private int sumVolumn(){
         int chest = Integer.parseInt(txt_chest.getText().toString().replace("KG","").trim()) ;
         int back = Integer.parseInt(txt_back.getText().toString().replace("KG","").trim()) ;
 
@@ -430,7 +446,9 @@ public class MainActivity extends AppCompatActivity {
 
         int volumn = chest+back+hip+leg+abs+biceps+shoulder+trapezius+triceps;
 
-        txt_sum.setText(volumn+" KG");
+       // txt_sum.setText(volumn+" KG");
+
+        return volumn;
 
     }
 
@@ -580,6 +598,23 @@ public class MainActivity extends AppCompatActivity {
         }
         return Date;
 
+
+    }
+
+    private void changeTextColor(String volumn,int cal,TextView volumn_, TextView cal_){
+
+        volumn_.setText(volumn + " KG");
+
+        cal_.setText( String.valueOf(cal) );
+
+        if(cal >=0){
+            cal_.setTextColor(Color.parseColor("#3F51B5"));
+
+        }else
+        {
+            cal_.setTextColor(Color.parseColor("#F44336"));
+
+        }
 
     }
 
