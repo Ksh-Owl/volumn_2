@@ -27,6 +27,8 @@ import com.example.volumn.R;
 import com.example.volumn.poseml.posedetector.PoseDetectorProcessor;
 import com.example.volumn.poseml.preference.PreferenceUtils;
 import com.example.volumn.poseml.preference.SettingsActivity;
+import com.example.volumn.addSet.pop_addSetActivity;
+
 import com.google.mlkit.vision.pose.PoseDetectorOptionsBase;
 
 import java.io.IOException;
@@ -72,10 +74,12 @@ public class LivePreviewActivity extends AppCompatActivity  implements OnRequest
             @Override
             public void onClick(View v) {
 
-
-
                 int count = classificationResult.size();
 
+
+               ((pop_addSetActivity)pop_addSetActivity.context).classificationResult = classificationResult ;
+
+                finish();
 
 
             }

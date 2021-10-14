@@ -26,6 +26,7 @@ import androidx.annotation.WorkerThread;
 
 import com.google.common.base.Preconditions;
 import com.google.mlkit.vision.pose.Pose;
+import com.example.volumn.addSet.pop_addSetActivity;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -49,10 +50,8 @@ public class PoseClassifierProcessor {
   //런지
   private static final String LUNGE_CLASS = "lunge_down";
 
+  private String[] POSE_CLASSES = {
 
-  private static final String[] POSE_CLASSES = {
-    PUSHUPS_CLASS, SQUATS_CLASS,
-          LUNGE_CLASS
   };
 
   private final boolean isStreamMode;
@@ -75,6 +74,24 @@ public class PoseClassifierProcessor {
   }
 
   private void loadPoseSamples(Context context) {
+
+     String name =  ((pop_addSetActivity)pop_addSetActivity.context).getName;
+     if(name.equals("푸쉬업"))
+     {
+       POSE_CLASSES = new String[]{PUSHUPS_CLASS};
+     }
+     if(name.equals("스쿼트"))
+    {
+      POSE_CLASSES = new String[]{SQUATS_CLASS};
+
+    }
+     if(name.equals("런지"))
+     {
+       POSE_CLASSES = new String[]{LUNGE_CLASS};
+
+     }
+
+
     List<PoseSample> poseSamples = new ArrayList<>();
     try {
       BufferedReader reader = new BufferedReader(

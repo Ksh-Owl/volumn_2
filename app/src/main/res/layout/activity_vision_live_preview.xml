@@ -27,6 +27,7 @@
         layout="@layout/settings_style"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:visibility="invisible"
         app:layout_constraintRight_toRightOf="@id/preview_view"
         app:layout_constraintTop_toTopOf="@id/preview_view" />
 
@@ -61,7 +62,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="측정완료" />
+            android:text="측정완료"
+            app:backgroundTint="#3F51B5" />
 
     </LinearLayout>
 
