@@ -1,4 +1,4 @@
-package com.example.volumn;
+package com.example.volumn.login;
 
 import android.content.Intent;
 import android.net.Uri;
@@ -15,6 +15,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
+import com.example.volumn.MainActivity;
+import com.example.volumn.R;
+import com.example.volumn.register.RegisterActivity;
 import com.example.volumn.include.PreferenceManager;
 import com.google.android.gms.auth.api.signin.GoogleSignIn;
 import com.google.android.gms.auth.api.signin.GoogleSignInAccount;
@@ -141,7 +144,7 @@ public class loginActivity extends AppCompatActivity {
                         }
                     }
                 };
-                com.example.volumn.LoginRequest loginRequest = new com.example.volumn.LoginRequest(Email, Pw, responseListener);
+                LoginRequest loginRequest = new LoginRequest(Email, Pw, responseListener);
                 RequestQueue queue = Volley.newRequestQueue(loginActivity.this);
                 queue.add(loginRequest);
             }
@@ -151,7 +154,7 @@ public class loginActivity extends AppCompatActivity {
         txt_findPw.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(loginActivity.this, com.example.volumn.findPwActivity.class);//명시적 인텐트
+                Intent intent = new Intent(loginActivity.this, findPwActivity.class);//명시적 인텐트
                 startActivity(intent);
             }
         });
@@ -310,7 +313,7 @@ public class loginActivity extends AppCompatActivity {
             }
         };
         // 서버로 Volley를 이용해서 요청을 함.
-        com.example.volumn.googleRegisterRequest registerRequest = new com.example.volumn.googleRegisterRequest(userEmail,userName, responseListener);
+        googleRegisterRequest registerRequest = new googleRegisterRequest(userEmail,userName, responseListener);
         RequestQueue queue = Volley.newRequestQueue(loginActivity.this);
         queue.add(registerRequest);
 

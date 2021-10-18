@@ -1,10 +1,9 @@
-package com.example.volumn;
+package com.example.volumn.login;
 
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -16,69 +15,62 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
+import com.example.volumn.R;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.regex.Pattern;
-
 import javax.mail.MessagingException;
 import javax.mail.SendFailedException;
 
-public class RegisterActivity extends AppCompatActivity {
-    //인증코드
-    String GmailCode;
+public class findPwActivity extends AppCompatActivity {
+
+
+    String GmailCode; //인증코드
     int mailSend=0;
     static int value;
     MainHandler mainHandler;
     EditText etxt_confirm;
     EditText etxt_userEmail;
-
     boolean confirm_check = false;
+
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Button  btn_register;//회원가입버튼
-
-        Button btn_confirm;//인증하기
-        Button btn_sendcode;//인증번호 보내기 버튼
-
-        EditText etxt_userPw;
-        EditText etxt_userPw2;
-        EditText etxt_userName;
-
-        TextView txt_state;//인증여부 텍스트
-
-
-
-
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_register);
+        setContentView(R.layout.activity_find_pw);
 
-        btn_register = (Button) this.findViewById(R.id.btn_register);
+
+        etxt_confirm = (EditText) this.findViewById(R.id.etxt_confirm);
+        etxt_confirm.setVisibility(View.GONE);
         etxt_userEmail = (EditText) this.findViewById(R.id.etxt_userEmail);
-        etxt_userPw = (EditText) this.findViewById(R.id.etxt_userPw);
-        etxt_userPw2 = (EditText) this.findViewById(R.id.etxt_userPw2);
-        etxt_userName = (EditText) this.findViewById(R.id.etxt_userName);
+        EditText etxt_userPw = (EditText) this.findViewById(R.id.etxt_userPw);
+        EditText etxt_userPw2 = (EditText) this.findViewById(R.id.etxt_userPw2);
 
-        btn_sendcode = (Button) this.findViewById(R.id.btn_sendcode);//승인번호 보내기 버튼
 
-        txt_state = (TextView) this.findViewById(R.id.txt_state);
-        txt_state.setVisibility(View.GONE);
 
-        btn_confirm = (Button) this.findViewById(R.id.btn_confirm);//승인버튼
+
+        Button btn_sendcode = (Button) this.findViewById(R.id.btn_sendcode);
+
+
+        Button btn_confirm = (Button) this.findViewById(R.id.btn_confirm);
         btn_confirm.setVisibility(View.GONE);
 
+        Button btn_changePw = (Button) this.findViewById(R.id.btn_changePw);
 
-        etxt_confirm = (EditText) this.findViewById(R.id.etxt_confirm);//승인번호 입력텍스트
-        etxt_confirm.setVisibility(View.GONE);
 
-        //인증이메일 보내기
+        TextView txt_state = (TextView) this.findViewById(R.id.txt_state);
+        txt_state.setVisibility(View.GONE);
+
+
         btn_sendcode.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
 
 
+                //인증이메일 보내기
                 //메일을 보내주는 쓰레드
                 MailTread mailTread = new MailTread();
                 mailTread.start();
@@ -94,24 +86,28 @@ public class RegisterActivity extends AppCompatActivity {
                     value = 180;
                 }
 
-                btn_confirm.setVisibility(View.VISIBLE);
+
                 etxt_confirm.setVisibility(View.VISIBLE);
+                btn_confirm.setVisibility(View.VISIBLE);//인증하기 버튼 나타남
+                btn_sendcode.setVisibility(View.GONE);//인증번호 보내기 버튼 사라짐
 
                 //핸들러 객체 생성
-                mainHandler=new MainHandler();
+                mainHandler = new MainHandler();
 
             }
+
         });
+
         btn_confirm.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+
+                //인증번호 맞는지 확인
                 if(etxt_confirm.getText().toString().equals(GmailCode)){
-                    //인증코드 일치할 경우
                     confirm_check = true;
-                    etxt_confirm.setVisibility(View.GONE);
                     btn_confirm.setVisibility(View.GONE);
                     btn_sendcode.setVisibility(View.GONE);
-
+                    etxt_confirm.setVisibility(View.GONE);
                     txt_state.setVisibility(View.VISIBLE);
 
 
@@ -120,18 +116,18 @@ public class RegisterActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(), "인증번호를 다시 입력해주세요", Toast.LENGTH_SHORT).show();
 
                 }
+
+
             }
         });
 
-
-
-        btn_register.setOnClickListener(new View.OnClickListener() {
+        btn_changePw.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String userEmail = etxt_userEmail.getText().toString();
                 String userPw = etxt_userPw.getText().toString();
                 String userPw2 = etxt_userPw2.getText().toString();
-                String userName = etxt_userName.getText().toString();
+
                 //인증완료 체크
                 if(!confirm_check)
                 {
@@ -139,15 +135,7 @@ public class RegisterActivity extends AppCompatActivity {
                     return;
                 }
 
-
-                //이메일 형식체크
-                Pattern pattern = Patterns.EMAIL_ADDRESS;
-                if(!pattern.matcher(userEmail).matches())
-                {
-                    Toast.makeText(getApplicationContext(),"이메일형식에 맞춰주세요",Toast.LENGTH_SHORT).show();
-                    return;
-                }
-                //비밀번호 체크
+                //비밀번호 일치 확인
                 if(userPw.equals(""))
                 {
                     Toast.makeText(getApplicationContext(),"비밀번호를 입력해 주세요",Toast.LENGTH_SHORT).show();
@@ -159,13 +147,7 @@ public class RegisterActivity extends AppCompatActivity {
                     Toast.makeText(getApplicationContext(),"비밀번호가 일치하지 않습니다.",Toast.LENGTH_SHORT).show();
                     return;
                 }
-
-
-
-
-
-
-
+                //비밀번호 변경
 
                 Response.Listener<String> responseListener = new Response.Listener<String>() {
                     @Override
@@ -174,11 +156,11 @@ public class RegisterActivity extends AppCompatActivity {
                             JSONObject jsonObject = new JSONObject(response);
                             boolean success = jsonObject.getBoolean("success");
                             if (success) { // 회원등록에 성공한 경우
-                                Toast.makeText(getApplicationContext(),"회원 등록에 성공하였습니다.",Toast.LENGTH_SHORT).show();
-                                Intent intent = new Intent(RegisterActivity.this, com.example.volumn.loginActivity.class);
+                                Toast.makeText(getApplicationContext(),"비밀번호 변경에 성공하였습니다.",Toast.LENGTH_SHORT).show();
+                                Intent intent = new Intent(findPwActivity.this, loginActivity.class);
                                 startActivity(intent);
                             } else { // 회원등록에 실패한 경우
-                                Toast.makeText(getApplicationContext(),"이미 가입된 이메일입니다.",Toast.LENGTH_SHORT).show();
+                                Toast.makeText(getApplicationContext(),"비밀번호 변경에 실패하였습니다.",Toast.LENGTH_SHORT).show();
                                 return;
                             }
 
@@ -189,13 +171,14 @@ public class RegisterActivity extends AppCompatActivity {
                     }
                 };
                 // 서버로 Volley를 이용해서 요청을 함.
-                RegisterRequest registerRequest = new RegisterRequest(userEmail,userPw,userName, responseListener);
-                RequestQueue queue = Volley.newRequestQueue(RegisterActivity.this);
-                queue.add(registerRequest);
+                findPwRequest findpwRequest = new findPwRequest(userEmail,userPw, responseListener);
+                RequestQueue queue = Volley.newRequestQueue(findPwActivity.this);
+                queue.add(findpwRequest);
+
             }
-
-
         });
+
+
 
     }
     class MailTread extends Thread{
@@ -208,7 +191,7 @@ public class RegisterActivity extends AppCompatActivity {
             //인증코드
             GmailCode=gMailSender.getEmailCode();
             try {
-                gMailSender.sendMail("볼륨 회원가입 이메일 인증", "회원가입 인증번호는 "+"["+ GmailCode +"]", etxt_userEmail.getText().toString());
+                gMailSender.sendMail("볼륨 비밀번호 변경 이메일 인증", GmailCode , etxt_userEmail.getText().toString());
             } catch (SendFailedException e) {
 
             } catch (MessagingException e) {
@@ -258,7 +241,7 @@ public class RegisterActivity extends AppCompatActivity {
 
     //쓰레드로부터 메시지를 받아 처리하는 핸들러
     //메인에서 생성된 핸들러만이 Ui를 컨트롤 할 수 있다.
-    class MainHandler extends Handler{
+    class MainHandler extends Handler {
         @Override
         public void handleMessage(Message message){
             super.handleMessage(message);

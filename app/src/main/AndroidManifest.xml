@@ -35,9 +35,9 @@
         <activity android:name=".addWorkout.addWorkoutActivity" />
         <activity android:name=".addSet.addSetActivity" />
         <activity android:name=".calendar.CalendarActivity" />
-        <activity android:name=".findPwActivity" />
-        <activity android:name=".loginActivity" />
-        <activity android:name=".RegisterActivity" />
+        <activity android:name=".login.findPwActivity" />
+        <activity android:name=".login.loginActivity" />
+        <activity android:name=".register.RegisterActivity" />
         <activity android:name=".poseml.LivePreviewActivity"/>
 
 
