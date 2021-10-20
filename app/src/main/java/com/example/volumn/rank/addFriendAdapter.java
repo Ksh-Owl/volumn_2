@@ -1,6 +1,7 @@
-package com.example.volumn.calendar;
+package com.example.volumn.rank;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -11,76 +12,80 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.volumn.R;
+import com.example.volumn.addWorkout.Model;
 
 import java.util.ArrayList;
 
-public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHolder>
-{
-    private ArrayList<workoutRecord_itemData> mData = null;
-    private OnItemClickListener mListener = null;
-    private OnItemClickListener mLongListener = null;
+public class addFriendAdapter extends RecyclerView.Adapter<addFriendAdapter.ViewHolder>  {
+
+    private ArrayList<Model> mData = null;
+    private addFriendAdapter.OnItemClickListener mListener = null;
+    private addFriendAdapter.OnItemClickListener mLongListener = null;
+
+    private ArrayList<Model> mChoicelList ;
 
     public interface OnItemClickListener {
         void onItemClick(View v, int position);
     }
-    public void setOnItemClickListener(OnItemClickListener listener) {
+    public void setOnItemClickListener(addFriendAdapter.OnItemClickListener listener) {
         this.mListener = listener;
     }
-
-    public void setOnItemLongClickListener(OnItemClickListener listener) {
+    public void setOnItemLongClickListener(addFriendAdapter.OnItemClickListener listener) {
         this.mLongListener = listener;
     }
 
-    public WorkoutAdapter(ArrayList<workoutRecord_itemData> data) {
+    public addFriendAdapter(ArrayList<Model> data) {
         mData = data;
     }
-    @NonNull
-    @Override
+
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 
-        View view = inflater.inflate(R.layout.workoutrecord_cell, parent, false);
-        ViewHolder vh = new ViewHolder(view);
-
-
+        View view = inflater.inflate(R.layout.addfriend_cell, parent, false);//출력되는 화면
+        addFriendAdapter.ViewHolder vh = new addFriendAdapter.ViewHolder(view);
 
         return vh;
     }
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull addFriendAdapter.ViewHolder holder, int position) {
 
         if (mData == null) {
             return;
         }
-        workoutRecord_itemData itemData = mData.get(position);
+
         Log.v("item", " item ::  " + position);
 
-        holder.workout_Name.setText(itemData.getWorkout_name());
-        holder.workout_Part.setText(itemData.getWorkout_part());
-        holder.workout_Sets.setText(itemData.getWorkout_set());
-        holder.workout_Volumn.setText(itemData.getWorkout_volumn());
+        //holder.workout_Name.setText(mData.get(position).getWorkout_Name().toString());
+
+        if(mData.get(position).isSelected()){
+            holder.itemView.setBackgroundColor(Color.GRAY  );
+
+        }else
+        {
+            holder.itemView.setBackgroundColor(Color.WHITE  );
+
+        }
+
+
 
     }
     @Override
     public int getItemCount() {
         return mData.size();
     }
+
     public class  ViewHolder extends RecyclerView.ViewHolder{
 
         TextView workout_Name;
-        TextView workout_Part;
-        TextView workout_Sets;
-        TextView workout_Volumn;
+
 
 
         ViewHolder(View itemView) {
             super(itemView);
 
-            workout_Name = itemView.findViewById(R.id.txt_workout);
-            workout_Part = itemView.findViewById(R.id.txt_part);
-            workout_Sets = itemView.findViewById(R.id.txt_name_aF);
-            workout_Volumn = itemView.findViewById(R.id.txt_volumn);
+            workout_Name = itemView.findViewById(R.id.txt_info);
+
 
 
             itemView.setOnClickListener(new View.OnClickListener() {
@@ -99,7 +104,6 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
                     }
                 }
             });
-
             itemView.setOnLongClickListener(new View.OnLongClickListener() {
                 @Override
                 public boolean onLongClick(View v) {
@@ -120,6 +124,7 @@ public class WorkoutAdapter extends RecyclerView.Adapter<WorkoutAdapter.ViewHold
                     return false;
                 }
             });
+
 
         }
     }

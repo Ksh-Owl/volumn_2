@@ -2,11 +2,11 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/menu_item1"
-        android:title="메뉴 아이템 1" />
+        android:title="랭크" />
     <item
         android:id="@+id/menu_item2"
-        android:title="메뉴 아이템 2" />
+        android:title="채팅" />
     <item
         android:id="@+id/menu_item3"
-        android:title="메뉴 아이템 3" />
+        android:title="설정" />
 </menu>

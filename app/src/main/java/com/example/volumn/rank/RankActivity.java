@@ -24,6 +24,8 @@ public class RankActivity extends AppCompatActivity implements View.OnClickListe
     TextView tab1, tab2, tab3, select;
     ImageView img_back;
 
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
