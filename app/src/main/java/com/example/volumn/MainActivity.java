@@ -32,6 +32,7 @@ import com.example.volumn.calendar.CalendarActivity;
 import com.example.volumn.home.MainRequest;
 import com.example.volumn.include.PreferenceManager;
 import com.example.volumn.login.loginActivity;
+import com.example.volumn.rank.RankActivity;
 import com.google.android.material.navigation.NavigationView;
 
 import org.json.JSONArray;
@@ -276,11 +277,13 @@ public class MainActivity extends AppCompatActivity {
                 int id = menuItem.getItemId();
 
                 if (id == R.id.menu_item1) {
-                    Toast.makeText(getApplicationContext(), "메뉴아이템 1 선택", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(MainActivity.this, RankActivity.class);//명시적 인텐트
+                    startActivity(intent);
+
                 } else if (id == R.id.menu_item2) {
-                    Toast.makeText(getApplicationContext(), "메뉴아이템 2 선택", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "채팅", Toast.LENGTH_SHORT).show();
                 } else if (id == R.id.menu_item3) {
-                    Toast.makeText(getApplicationContext(), "메뉴아이템 3 선택", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "프로필설정", Toast.LENGTH_SHORT).show();
                 }
 
 
