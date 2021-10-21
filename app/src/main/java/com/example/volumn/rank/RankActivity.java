@@ -1,4 +1,13 @@
 package com.example.volumn.rank;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.Volley;
+import com.android.volley.Response;
+import com.example.volumn.addSet.addSetRequest;
+import com.example.volumn.include.PreferenceManager;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -6,6 +15,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.viewpager2.adapter.FragmentStateAdapter;
 import androidx.viewpager2.widget.ViewPager2;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
@@ -16,12 +26,13 @@ import com.example.volumn.R;
 
 public class RankActivity extends AppCompatActivity implements View.OnClickListener {
 
-
+    Context context;
     Toolbar toolbar;
     ViewPager2 pager2;
     FragmentAdapter adapter;
 
     TextView tab1, tab2, tab3, select;
+    TextView txt_volumn_r;
     ImageView img_back;
 
 
@@ -31,12 +42,14 @@ public class RankActivity extends AppCompatActivity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_rank);
 
+        this.context = this;
 
         tab1 = findViewById(R.id.tab1);
         tab2 = findViewById(R.id.tab2);
         tab3 = findViewById(R.id.tab3);
         select = findViewById(R.id.textSelected);
         img_back = findViewById(R.id.img_back);
+        txt_volumn_r = findViewById(R.id.txt_volumn_r);
 
         tab1.setOnClickListener(this);
         tab2.setOnClickListener(this);
@@ -85,7 +98,7 @@ public class RankActivity extends AppCompatActivity implements View.OnClickListe
             tab2.setTextColor(getResources().getColor(R.color.gray));
             tab3.setTextColor(getResources().getColor(R.color.gray));
             select.animate().x(0).setDuration(60);
-            select.setText("일별랭킹");
+            select.setText("주별랭킹");
 
             pager2.setCurrentItem(0);
 
@@ -122,4 +135,39 @@ public class RankActivity extends AppCompatActivity implements View.OnClickListe
 
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Response.Listener<String> responseListner = new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            JSONArray jsonArray = jsonObject.getJSONArray("Rank");
+
+
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject item = jsonArray.getJSONObject(i);
+
+                                String userID = item.getString("userID");
+                                String volumn = item.getString("volumn");
+                                txt_volumn_r.setText(volumn);
+                            }
+
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                };
+                String userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오기
+
+                Rank_volumn_me_Request rank_volumn_me_request = new Rank_volumn_me_Request(userEmail,  responseListner);
+                RequestQueue queue = Volley.newRequestQueue(context);
+                queue.add(rank_volumn_me_request);
+    }
 }

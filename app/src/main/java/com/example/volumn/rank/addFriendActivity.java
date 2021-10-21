@@ -173,6 +173,8 @@ public class addFriendActivity extends AppCompatActivity {
 
                     }
                     if (friend_list != null) {
+
+
                         addFriendAdapter adapter = new addFriendAdapter(context, friend_list);
 
                         rv_friendList.setAdapter(adapter);

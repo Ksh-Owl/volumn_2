@@ -21,7 +21,7 @@ public class FragmentAdapter extends FragmentStateAdapter {
 
         switch (position) {
             case 0:
-                return new RankdayFragment();
+                return new RankWeekFragment();
             case 1:
                 return new RankmonthFragment();
             case 2:

@@ -13,11 +13,11 @@
         android:layout_marginEnd="20dp"
         android:layout_marginRight="20dp"
         android:text="내 볼륨"
-        app:layout_constraintEnd_toStartOf="@+id/textView17"
-        app:layout_constraintTop_toTopOf="@+id/textView17" />
+        app:layout_constraintEnd_toStartOf="@+id/txt_volumn_r"
+        app:layout_constraintTop_toTopOf="@+id/txt_volumn_r" />
 
     <TextView
-        android:id="@+id/textView17"
+        android:id="@+id/txt_volumn_r"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="100dp"
@@ -36,7 +36,7 @@
         android:layout_marginRight="30dp"
         android:text="KG"
         android:textSize="15sp"
-        app:layout_constraintBottom_toBottomOf="@+id/textView17"
+        app:layout_constraintBottom_toBottomOf="@+id/txt_volumn_r"
         app:layout_constraintEnd_toEndOf="parent" />
 
     <ImageView
@@ -55,7 +55,7 @@
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView17">
+        app:layout_constraintTop_toBottomOf="@+id/txt_volumn_r">
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -75,7 +75,7 @@
                     android:layout_weight="1"
                     android:background="@drawable/bg_custom_button"
                     android:gravity="center"
-                    android:text="일별랭킹"
+                    android:text="주별랭킹"
                     android:textColor="@color/black"
                     android:textStyle="bold" />
 
@@ -116,7 +116,7 @@
                     android:layout_weight="1"
                     android:background="@drawable/selected_background"
                     android:gravity="center|center_horizontal"
-                    android:text="일별랭킹"
+                    android:text="주별랭킹"
                     android:textColor="#000000" />
 
                 <TextView
