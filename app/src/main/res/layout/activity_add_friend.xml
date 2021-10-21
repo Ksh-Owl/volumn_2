@@ -44,30 +44,13 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView19" />
 
-    <EditText
-        android:id="@+id/etxt_name_f"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginTop="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginRight="20dp"
-        android:ems="10"
-        android:hint="저장할 이름"
-        android:inputType="textPersonName"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.497"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etxt_email_f" />
-
     <Button
         android:id="@+id/btn_request"
         android:layout_width="0dp"
         android:layout_height="50dp"
         android:layout_marginStart="20dp"
         android:layout_marginLeft="20dp"
-        android:layout_marginTop="20dp"
+        android:layout_marginTop="50dp"
         android:layout_marginEnd="20dp"
         android:layout_marginRight="20dp"
         android:background="@drawable/bg_custom_button3"
@@ -77,8 +60,9 @@
         android:textSize="16sp"
         app:backgroundTint="#BA5065"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etxt_name_f" />
+        app:layout_constraintTop_toBottomOf="@+id/etxt_email_f" />
 
     <TextView
         android:id="@+id/textView23"
@@ -119,6 +103,7 @@
         app:layout_constraintTop_toBottomOf="@+id/textView28" />
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_friendList"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginStart="20dp"

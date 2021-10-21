@@ -156,7 +156,7 @@ public class SetAdapter extends RecyclerView.Adapter<SetAdapter.ViewHolder> {
             set = itemView.findViewById(R.id.txt_name_aF);
             set_kg = itemView.findViewById(R.id.txt_kg);
             set_count = itemView.findViewById(R.id.txt_count);
-            img_clear = (ImageView) itemView.findViewById(R.id.img_clear);
+            img_clear = (ImageView) itemView.findViewById(R.id.img_reject);
             constraintLayout = (ConstraintLayout) itemView.findViewById(R.id.Con_1);
 
             textView1 = (TextView) itemView.findViewById(R.id.txt_email_aF);

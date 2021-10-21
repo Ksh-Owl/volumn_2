@@ -235,7 +235,7 @@ public class addSetAdapter extends RecyclerView.Adapter<addSetAdapter.ViewHolder
 
             rv_set = itemView.findViewById(R.id.rv_set);
             btn_addSet = itemView.findViewById(R.id.btn_addSet);
-            img_clear = itemView.findViewById(R.id.img_clear);
+            img_clear = itemView.findViewById(R.id.img_reject);
 
 
             itemView.setOnClickListener(new View.OnClickListener() {
