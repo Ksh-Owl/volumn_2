@@ -10,7 +10,7 @@ import java.util.Map;
 
 public class addSetRequest_del extends StringRequest {
     // 서버 URL 설정 ( PHP 파일 연동 )
-    final static private String URL = "http://54.180.163.5/volumn/delete_Set.php";
+    final static private String URL = "http://13.209.66.177/volumn/delete_Set.php";
     private Map<String, String> map;
 
 
