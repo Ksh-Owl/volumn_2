@@ -29,6 +29,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
 import com.example.volumn.calendar.CalendarActivity;
+import com.example.volumn.chat.chatActivity;
 import com.example.volumn.home.MainRequest;
 import com.example.volumn.include.PreferenceManager;
 import com.example.volumn.login.loginActivity;
@@ -281,7 +282,9 @@ public class MainActivity extends AppCompatActivity {
                     startActivity(intent);
 
                 } else if (id == R.id.menu_item2) {
-                    Toast.makeText(getApplicationContext(), "채팅", Toast.LENGTH_SHORT).show();
+                   // Toast.makeText(getApplicationContext(), "채팅", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(MainActivity.this, chatActivity.class);//명시적 인텐트
+                    startActivity(intent);
                 } else if (id == R.id.menu_item3) {
                     Toast.makeText(getApplicationContext(), "프로필설정", Toast.LENGTH_SHORT).show();
                 }
