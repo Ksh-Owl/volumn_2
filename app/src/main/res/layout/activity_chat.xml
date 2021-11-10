@@ -6,24 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".chat.chatActivity">
 
-    <TextView
-        android:id="@+id/send"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginStart="20dp"
-        android:layout_marginLeft="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginRight="20dp"
-        android:text="보내기"
-        android:textColor="@color/colorPrimary"
-        android:textSize="17sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/messageBox"
-        app:layout_constraintTop_toTopOf="@+id/messageBox" />
-
     <ListView
         android:id="@+id/messageList"
         android:layout_width="match_parent"
@@ -33,8 +15,10 @@
         android:dividerHeight="0dp"
         app:layout_constraintBottom_toTopOf="@+id/messageBox"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0"/>
 
     <EditText
         android:id="@+id/messageBox"
@@ -46,4 +30,16 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/send"
         app:layout_constraintStart_toStartOf="parent" />
+
+    <ImageView
+        android:id="@+id/send"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="20dp"
+        android:layout_marginRight="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/messageBox"
+        app:srcCompat="@drawable/ic_baseline_send_24" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

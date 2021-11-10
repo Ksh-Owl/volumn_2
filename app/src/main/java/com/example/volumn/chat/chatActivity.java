@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,7 +40,7 @@ public class chatActivity extends AppCompatActivity {
 
         ListView messageList = findViewById(R.id.messageList);
         final EditText messageBox = findViewById(R.id.messageBox);
-        TextView send = findViewById(R.id.send);
+        ImageView send = findViewById(R.id.send);
 
         instantiateWebSocket();
 
