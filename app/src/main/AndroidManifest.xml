@@ -22,7 +22,10 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Volumn"
         android:usesCleartextTraffic="true">
-        <activity android:name=".chat.MainChatActivity"></activity>
+        <activity android:name=".chat.pop_addRoom"
+            android:theme="@style/Theme.Main.Dialog"></activity>
+        <activity android:name=".chat.ChatRoomActivity" />
+        <activity android:name=".chat.MainChatActivity" />
         <activity android:name=".chat.chatActivity" />
         <activity android:name=".rank.addFriendActivity" />
         <activity android:name=".rank.RankActivity" />
