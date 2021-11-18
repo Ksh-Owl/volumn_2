@@ -260,7 +260,7 @@ public class ChatService extends Service {
 
                                 //  etxt_msgBox.setText(msgs[1]);
 
-                                clientMsg_list.add(msgs[1]);
+                                //clientMsg_list.add(msgs[1]);
                                // adapter = new MsgAdapter(clientMsg_list);
 
                                 // handler.sendEmptyMessage(0);
@@ -268,10 +268,15 @@ public class ChatService extends Service {
                                 try {
                                     //클라이언트에게 전송
                                     if (clientList.size() > 0) {
-                                        Message message = Message.obtain(null, MSG_SENDMSG);
-                                        Bundle bundle = message.getData();
-                                        bundle.putString("response", "300");
-                                        clientList.get(0).send(message);
+                                        for (int i = 0; i < clientList.size(); i++){
+                                            Message message = Message.obtain(null, MSG_SENDMSG);
+                                            Bundle bundle = message.getData();
+                                            bundle.putString("response", ""+msgs[2]);
+                                            bundle.putString("title", ""+msgs[1]);
+
+                                            clientList.get(i).send(message);
+                                        }
+
                                     }
 
 

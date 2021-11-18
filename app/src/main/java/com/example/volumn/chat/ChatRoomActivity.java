@@ -76,6 +76,19 @@ public class ChatRoomActivity extends AppCompatActivity {
 
 
                     break;
+                case ChatService.MSG_SENDMSG:
+                    Bundle bundle1 = msg.getData();
+                    String response1 = bundle1.getString("response");
+                    String title = bundle1.getString("title");
+
+                    //방 메시지 증가
+                    setRoom(title);
+
+
+                    Log.e("TAG","response:"+response1);
+
+
+                    break;
 
                 default:
                     super.handleMessage(msg);
@@ -168,6 +181,72 @@ public class ChatRoomActivity extends AppCompatActivity {
 //
 //        }
     }
+    private void setRoom(String title){
+
+        Response.Listener<String> responseListner = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONArray jsonArray = jsonObject.getJSONArray("chat");
+                    chatRoom_Model chatRoom_Model ;// 모델 객체 생성
+                    ArrayList<chatRoom_Model> room_list = new ArrayList<>();
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
+                        int msg_count =0;
+
+                        JSONObject item = jsonArray.getJSONObject(i);
+
+                        String room_ID = item.getString("room_ID");
+                        String room_nm = item.getString("room_nm");
+                        if(title.equals(room_nm)){
+                            msg_count++;
+                        };
+                        String member = item.getString("member");
+                        String mem_count = item.getString("mem_count");
+                        String CREATE_DATE = item.getString("CREATE_DATE");
+
+                        chatRoom_Model = new chatRoom_Model(room_ID, room_nm, member, mem_count,CREATE_DATE,msg_count);// 모델 객체 생성
+
+                        room_list.add(chatRoom_Model);
+                    }
+
+                    RoomAdapter  adapter = new RoomAdapter(room_list);
+                    adapter.setOnItemClickListener(new RoomAdapter.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(View v, int position) {
+
+                            String roomName = room_list.get(position).getRoom_nm();
+                            String room_ID = room_list.get(position).getRoom_ID();
+
+
+
+                            Intent intent = new Intent(context, MainChatActivity.class);
+                            intent.putExtra("roomName", roomName);
+                            intent.putExtra("room_ID", room_ID);
+
+                            startActivity(intent);
+
+                        }
+                    });
+                    rv_room.setAdapter(adapter);
+                    rv_room.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
+
+
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        };
+        //String userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오
+
+        getRoomRequest getRoomRequest = new getRoomRequest( responseListner);
+        RequestQueue queue = Volley.newRequestQueue(context);
+        queue.add(getRoomRequest);
+    }
 
     private void getRoomList(){
 
@@ -182,6 +261,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                             JSONArray jsonArray = jsonObject.getJSONArray("chat");
                             chatRoom_Model chatRoom_Model ;// 모델 객체 생성
                             ArrayList<chatRoom_Model> room_list = new ArrayList<>();
+                            int msg_count =0;
 
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 JSONObject item = jsonArray.getJSONObject(i);
@@ -192,7 +272,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                                 String mem_count = item.getString("mem_count");
                                 String CREATE_DATE = item.getString("CREATE_DATE");
 
-                                chatRoom_Model = new chatRoom_Model(room_ID, room_nm, member, mem_count,CREATE_DATE);// 모델 객체 생성
+                                chatRoom_Model = new chatRoom_Model(room_ID, room_nm, member, mem_count,CREATE_DATE,msg_count);// 모델 객체 생성
 
                                 room_list.add(chatRoom_Model);
                             }

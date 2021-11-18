@@ -51,7 +51,14 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
 
         holder.txt_roomName.setText(mData.get(position).getRoom_nm());
         holder.txt_roomCount.setText(mData.get(position).getMem_count());
+        if(mData.get(position).getMsg_count()> 0){
+            String  msgCount = Integer.toString(mData.get(position).getMsg_count());
+            holder.txt_msgCount.setText(msgCount);
 
+        }else
+        {
+            holder.txt_msgCount.setVisibility(View.GONE);
+        }
 
     }
     @Override
@@ -63,6 +70,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
 
         TextView txt_roomName;
         TextView txt_roomCount;
+        TextView txt_msgCount;
 
 
         ViewHolder(View itemView) {
@@ -70,7 +78,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
 
 
 
-
+            txt_msgCount = (TextView) itemView.findViewById(R.id.txt_msgCount);
             txt_roomName = (TextView) itemView.findViewById(R.id.txt_roomName);
             txt_roomCount = (TextView) itemView.findViewById(R.id.txt_roomCount);
 

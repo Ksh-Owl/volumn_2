@@ -141,6 +141,8 @@ public class MainChatActivity extends AppCompatActivity {
                 Message msg = Message.obtain(null, ChatService.MSG_REGISTER_CLIENT);
                 msg.replyTo = mMessenger;
                 mService.send(msg);
+
+                inRoom();
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -157,6 +159,7 @@ public class MainChatActivity extends AppCompatActivity {
         super.onStart();
         bindService(new Intent(this, ChatService.class), conn, Context.BIND_AUTO_CREATE);
 
+
     }
 
     @Override
@@ -171,6 +174,7 @@ public class MainChatActivity extends AppCompatActivity {
 
         Intent intent = getIntent();//인텐트 받아오기
         room = intent.getStringExtra("roomName");
+        txt_nowRoom.setText(room);
         room_ID = intent.getStringExtra("room_ID");
         context = this;
 
@@ -178,19 +182,12 @@ public class MainChatActivity extends AppCompatActivity {
 
         //  connect();
 
+        clientMsg_list = new ArrayList<>(); //메시지 리스트 객체생성
+        adapter = new MsgAdapter(clientMsg_list);
 
-        //방 들어왔다 서비스에 전달
-        try{
-            Message msg =Message.obtain(null,ChatService.MSG_IN_ROOM);
-            Bundle bundle = msg.getData();
-            bundle.putString("send",""+room);
-            mService.send(msg);
-            Log.e("TAG", "채팅방 입장 :"+ ""+userEmail);
+        rv_msgList.setAdapter(adapter);
+        rv_msgList.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
 
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
 
         img_send.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -220,7 +217,20 @@ public class MainChatActivity extends AppCompatActivity {
 
 
     }
+    private void inRoom(){
+        //방 들어왔다 서비스에 전달
+        try{
+            Message msg =Message.obtain(null,ChatService.MSG_IN_ROOM);
+            Bundle bundle = msg.getData();
+            bundle.putString("send",""+room);
+            mService.send(msg);
+            Log.e("TAG", "채팅방 입장 :"+ ""+userEmail);
 
+
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 
     public void connect() {//(소켓)서버연결 요청
 
@@ -452,11 +462,11 @@ public class MainChatActivity extends AppCompatActivity {
     public void finish() {
         super.finish();
 
-        sendMsg("400|");
+        //sendMsg("400|");
 
         //방나가기
         //방인원수 업데이트트
-        outRoom(room_ID, userEmail);
+        //outRoom(room_ID, userEmail);
 
 
     }

@@ -9,14 +9,15 @@ public class chatRoom_Model {
     private String member ;
     private String mem_count ;
     private String CREATE_DATE;
+    private int msg_count;
 
-    public chatRoom_Model(String room_ID,String room_nm,String member, String mem_count,String CREATE_DATE ){
+    public chatRoom_Model(String room_ID,String room_nm,String member, String mem_count,String CREATE_DATE ,int msg_count ){
         this.room_ID = room_ID;
         this.room_nm = room_nm;
         this.member = member;
         this.mem_count = mem_count;
         this.CREATE_DATE = CREATE_DATE;
-
+        this.msg_count = msg_count;
 
     }
 
@@ -50,6 +51,14 @@ public class chatRoom_Model {
 
     public void setMem_count(String mem_count) {
         this.mem_count = mem_count;
+    }
+
+    public int getMsg_count() {
+        return msg_count;
+    }
+
+    public void setMsg_count(int msg_count) {
+        this.msg_count = msg_count;
     }
 
     public String getCREATE_DATE() {
