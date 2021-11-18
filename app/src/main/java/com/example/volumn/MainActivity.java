@@ -30,6 +30,7 @@ import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
 import com.example.volumn.calendar.CalendarActivity;
 import com.example.volumn.chat.ChatRoomActivity;
+import com.example.volumn.chat.ChatService;
 import com.example.volumn.chat.MainChatActivity;
 import com.example.volumn.chat.chatActivity;
 import com.example.volumn.home.MainRequest;
@@ -95,8 +96,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         context = this;
+
+        //채팅서비스
+        Intent intent_service = new Intent(context, ChatService.class);
+        startService(intent_service);
+        //채팅서비스
+
 
         this.settingSideNavBar();
 

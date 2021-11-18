@@ -387,6 +387,4 @@
         app:layout_constraintStart_toEndOf="@+id/txt_sum" />
 
 
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

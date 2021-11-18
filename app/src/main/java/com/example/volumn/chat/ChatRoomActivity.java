@@ -7,13 +7,21 @@ import com.example.volumn.include.PreferenceManager;
 
 import org.json.JSONArray;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
@@ -43,6 +51,58 @@ public class ChatRoomActivity extends AppCompatActivity {
     Button btn_newRoom;
     RecyclerView rv_room;
 
+
+    //서비스
+    private Messenger mService;
+    private final Messenger mMessenger = new Messenger(new IncomingHandelr());
+
+    private class IncomingHandelr extends Handler {
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+
+            //메시지 값에 따라
+            //서비스에서 메시지 오면 반응
+            switch(msg.what){
+                case  ChatService.MSG_RESPONSE:
+                    Bundle bundle = msg.getData();
+                    String response = bundle.getString("response");
+                    Log.e("TAG","response:"+response);
+                    if(response.equals("160")){
+                        getRoomList();
+
+                    }
+
+                    //editText2.setText(response);
+
+
+                    break;
+
+                default:
+                    super.handleMessage(msg);
+
+            }
+
+        }
+    }
+    ServiceConnection conn = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mService = new Messenger(service);
+            try{
+                Message msg = Message.obtain(null,ChatService.MSG_REGISTER_CLIENT);
+                msg.replyTo = mMessenger;
+                mService.send(msg);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mService = null;
+        }
+    };
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -68,6 +128,11 @@ public class ChatRoomActivity extends AppCompatActivity {
             }
         });
 
+//        Intent intent = new Intent(getApplicationContext(),ChatService.class);
+//
+//        intent.putExtra("test","test991");
+//
+//        startService(intent);
 
 
 
@@ -81,6 +146,27 @@ public class ChatRoomActivity extends AppCompatActivity {
         getRoomList();
 
 
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        bindService(new Intent(this,ChatService.class),conn, Context.BIND_AUTO_CREATE);
+
+//        try{
+//            Message msg =Message.obtain(null,ChatService.SEND);
+//            Bundle bundle = msg.getData();
+//            bundle.putString("send","Start");
+//            msg.replyTo = mMessenger;
+//
+//            Log.e("TAG", "msg :"+msg);
+//
+//            mService.send(msg);
+//        }catch (Exception e){
+//            e.printStackTrace();
+//
+//        }
     }
 
     private void getRoomList(){

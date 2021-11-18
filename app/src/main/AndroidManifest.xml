@@ -22,8 +22,14 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Volumn"
         android:usesCleartextTraffic="true">
-        <activity android:name=".chat.pop_addRoom"
-            android:theme="@style/Theme.Main.Dialog"></activity>
+        <service
+            android:name=".chat.ChatService"
+            android:enabled="true"
+            android:exported="true"></service>
+
+        <activity
+            android:name=".chat.pop_addRoom"
+            android:theme="@style/Theme.Main.Dialog" />
         <activity android:name=".chat.ChatRoomActivity" />
         <activity android:name=".chat.MainChatActivity" />
         <activity android:name=".chat.chatActivity" />

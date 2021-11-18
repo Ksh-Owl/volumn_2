@@ -3,8 +3,14 @@ package com.example.volumn.chat;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.Message;
+import android.os.Messenger;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -43,6 +49,35 @@ public class pop_addRoom extends AppCompatActivity {
 
     String nickName;
     String title;
+    //서비스
+    private Messenger mService;
+   // private final Messenger mMessenger = new Messenger(new IncomingHandelr());
+
+    ServiceConnection conn = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            mService = new Messenger(service);
+            try{
+                Message msg = Message.obtain(null,ChatService.MSG_REGISTER_CLIENT);
+                //msg.replyTo = mMessenger;
+                mService.send(msg);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+            mService = null;
+        }
+    };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        bindService(new Intent(this,ChatService.class),conn, Context.BIND_AUTO_CREATE);
+
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -63,9 +98,25 @@ public class pop_addRoom extends AppCompatActivity {
                 //방제목 입력 되었으면
                 if (!title.equals("")) {
 
+                    try{
+                    Message msg =Message.obtain(null,ChatService.MSG_CREATE_ROOM);
+                    Bundle bundle = msg.getData();
+                    bundle.putString("send",title);
+                    //msg.replyTo = mMessenger;
+
+                    Log.e("TAG", "msg :"+msg);
+
+                    mService.send(msg);
+
+                    finish();//방만들고 팝업창 닫기
+                     }catch (Exception e){
+                    e.printStackTrace();
+
+                    }
+
                     //서버에 방생성
 
-                    connect();
+                    //connect();
 
                 } else {
                     Toast.makeText(v.getContext(), "방제목을 입력해 주세요", Toast.LENGTH_SHORT).show();
@@ -139,8 +190,7 @@ public class pop_addRoom extends AppCompatActivity {
 
                                 String myRoomInwons[] = msgs[1].split(",");
                                 String Inwon = Integer.toString(myRoomInwons.length) ;
-                                //db에 저장
-                                saveRoom(title,"","0");
+
 
                                 //대화방 퇴장
                                 sendMsg("400|");
