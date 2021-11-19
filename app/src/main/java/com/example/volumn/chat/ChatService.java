@@ -29,7 +29,9 @@ import com.example.volumn.R;
 import com.example.volumn.include.ChatCount_PreferenceManager;
 import com.example.volumn.include.PreferenceManager;
 import com.example.volumn.include.Chat_PreferenceManager;
+import com.example.volumn.include.myRoom_PreferenceManager;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -195,6 +197,25 @@ public class ChatService extends Service {
 
                     sendMsg("150|");//대화명 전달
                     Log.v("", "클라이언트 : 메시지 전송완료");
+
+
+
+                    //기존에 입장되어있는 방에 입장
+                    String json =  myRoom_PreferenceManager.getString(getApplicationContext(),"ROOM");
+                    if(json !=null)
+                    {
+                        JSONArray jsonArray = new JSONArray(json);
+                        for (int i = 0; i < jsonArray.length(); i++){
+                            JSONObject item = jsonArray.getJSONObject(i);
+                            String room_name = item.getString("value");
+
+                            sendMsg("200|" + room_name); //방제목을 서버에게 전달
+
+
+                        }
+
+
+                    }
 
                     //  sendMsg("200|" + room);
                     //txt_nowRoom.setText(room);
@@ -362,6 +383,8 @@ public class ChatService extends Service {
 
                     e.printStackTrace();
 
+                } catch (JSONException e) {
+                    e.printStackTrace();
                 }
 
             }
@@ -421,7 +444,7 @@ public class ChatService extends Service {
         queue.add(addRoomRequest);
     }
 
-    private void createNotification(Context context){
+    private void createNotification(Context context ){
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "default");
 
         builder.setSmallIcon(R.mipmap.ic_launcher);

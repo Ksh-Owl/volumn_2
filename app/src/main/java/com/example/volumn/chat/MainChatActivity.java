@@ -34,6 +34,7 @@ import com.example.volumn.addSet.setDataModel;
 import com.example.volumn.include.ChatCount_PreferenceManager;
 import com.example.volumn.include.Chat_PreferenceManager;
 import com.example.volumn.include.PreferenceManager;
+import com.example.volumn.include.myRoom_PreferenceManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -268,7 +269,8 @@ public class MainChatActivity extends AppCompatActivity {
             bundle.putString("send",""+room);
             mService.send(msg);
             Log.e("TAG", "채팅방 입장 :"+ ""+userEmail);
-
+            //방들어갈때 쉐어드 들어간 방 저장
+            myRoom_PreferenceManager.setString(context,"ROOM",room);
 
         }catch (Exception e){
             e.printStackTrace();
