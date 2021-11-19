@@ -2,13 +2,18 @@ package com.example.volumn.chat;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -26,6 +31,8 @@ import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
 import com.example.volumn.R;
 import com.example.volumn.addSet.setDataModel;
+import com.example.volumn.include.ChatCount_PreferenceManager;
+import com.example.volumn.include.Chat_PreferenceManager;
 import com.example.volumn.include.PreferenceManager;
 
 import org.json.JSONArray;
@@ -71,15 +78,25 @@ public class MainChatActivity extends AppCompatActivity {
                     break;
                 case ChatService.MSG_SENDMSG:
                     Bundle bundle2 = msg.getData();
+                    String title = bundle2.getString("title");
                     String response2 = bundle2.getString("response");
+
                     Log.e("TAG", "MainChatActivity Response::" + response2);
-                    clientMsg_list.add(response2);
-                    adapter = new MsgAdapter(clientMsg_list);
-                    adapter.notifyDataSetChanged();
-                    //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
-                    rv_msgList.scrollToPosition(rv_msgList.getAdapter().getItemCount() - 1);
+                    //ArrayList<String> Msg_list = new ArrayList<>();
+                    if(title.equals(txt_nowRoom.getText().toString()))
+                    {
+                        clientMsg_list.add(response2);
+
+
+                        adapter = new MsgAdapter(clientMsg_list);
+                        adapter.notifyDataSetChanged();
+                        //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
+                        rv_msgList.scrollToPosition(rv_msgList.getAdapter().getItemCount() - 1);
+                    }
+
 
                     //editText2.setText(response);
+                    //Chat_PreferenceManager.setChatArrayPref(getApplicationContext(),msgs[1],msgs[2]);
 
 
                     break;
@@ -166,6 +183,7 @@ public class MainChatActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_chat);
+        context = this;
 
         img_send = findViewById(R.id.img_send);
         etxt_msgBox = findViewById(R.id.etxt_msgBox);
@@ -175,14 +193,38 @@ public class MainChatActivity extends AppCompatActivity {
         Intent intent = getIntent();//인텐트 받아오기
         room = intent.getStringExtra("roomName");
         txt_nowRoom.setText(room);
+        //읽지않은 메시지 카운트 삭제
+        ChatCount_PreferenceManager.deleteString(context,room);
+
+
         room_ID = intent.getStringExtra("room_ID");
-        context = this;
 
         userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오기
 
         //  connect();
+        String json  = Chat_PreferenceManager.getChatArrayPref(context,room);
 
         clientMsg_list = new ArrayList<>(); //메시지 리스트 객체생성
+
+        if(json != null)
+        {
+            try {
+                JSONArray jsonArray = new JSONArray(json);
+                for (int i =0 ; i < jsonArray.length(); i++){
+                    JSONObject item = jsonArray.getJSONObject(i);
+
+                    String msg = item.getString("msg");
+                    clientMsg_list.add(msg);
+                }
+
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+
         adapter = new MsgAdapter(clientMsg_list);
 
         rv_msgList.setAdapter(adapter);
@@ -196,8 +238,9 @@ public class MainChatActivity extends AppCompatActivity {
                 String msg_txt = etxt_msgBox.getText().toString();
 
 
-                //메시지 보내기 서비스에 전달
+                //메시지 보내기 서비스에 전달fdf
                 try{
+                    if(msg_txt.equals("")){msg_txt = " ";}
                     Message msg =Message.obtain(null,ChatService.MSG_MSG);
                     Bundle bundle = msg.getData();
                     bundle.putString("send",""+msg_txt);
@@ -232,235 +275,18 @@ public class MainChatActivity extends AppCompatActivity {
         }
     }
 
-    public void connect() {//(소켓)서버연결 요청
 
-        if (nickName == null) {
-            nickName = "클라이언트";
-        }
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                try {
-
-                    //Socket s = new Socket(String host<서버ip>, int port<서비스번호>);
-
-                    Socket s = new Socket("13.209.66.177", 5000);//연결시도
-                    Log.v("", "클라이언트 : 서버 연결됨.");
-
-                    in = new BufferedReader(new InputStreamReader(s.getInputStream()));
-                    //in: 서버메시지 읽기객체    서버-----msg------>클라이언트
-
-                    out = new DataOutputStream(s.getOutputStream());
-                    //out: 메시지 보내기, 쓰기객체    클라이언트-----msg----->서버
-
-
-                    Log.v("", "클라이언트 : 메시지 전송완료");
-                    sendMsg("100|");//(대기실)접속 알림
-
-                    nickName = userEmail;
-                    sendMsg("150|" + nickName);//대화명 전달
-                    sendMsg("200|" + room);
-                    txt_nowRoom.setText(room);
-
-
-                    //데이터 베이스 룸 업데이트
-                    inRoom(room_ID, userEmail);
-
-
-                    clientMsg_list = new ArrayList<>();
-                    adapter = new MsgAdapter(clientMsg_list);
-
-                    rv_msgList.setAdapter(adapter);
-                    rv_msgList.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
-
-                    //방에 접속
-
-
-                    while (true) {
-
-                        if (room != null) {
-                            room = null;
-                        }
-
-
-                        String msg = in.readLine();//msg: 서버가 보낸 메시지
-                        Log.v("", msg);
-
-                        //msg==> "300|안녕하세요"  "160|자바방--1,오라클방--1,JDBC방--1"
-
-                        String msgs[] = msg.split("\\|");
-
-                        String protocol = msgs[0];
-
-                        switch (protocol) {
-
-                            case "300":
-                                //메시지 받기
-                                //메시지를 adapter에 넣는다
-
-
-                                //  etxt_msgBox.setText(msgs[1]);
-
-                                clientMsg_list.add(msgs[1]);
-                                adapter = new MsgAdapter(clientMsg_list);
-
-                                handler.sendEmptyMessage(0);
-
-
-//                                cc.ta.append(msgs[1]+"\n");
-//
-//                                cc.ta.setCaretPosition(cc.ta.getText().length());
-
-                                break;
-
-
-//                            case "160"://방만들기
-//
-//                                //방정보를 List에 뿌리기
-//
-//                                if (msgs.length > 1) {
-//
-//                                    //개설된 방이 한개 이상이었을때 실행
-//
-//                                    //개설된 방없음 ---->  msg="160|" 였을때 에러
-//
-//                                    String roomNames[] = msgs[1].split(",");
-//
-//                                    //"자바방--1,오라클방--1,JDBC방--1"
-//                                    //받아온 방이름 어레이리스트에 넣기
-//                                    room_list = new ArrayList<>();
-//
-//                                    for (int i = 0; i < roomNames.length; i++) {
-//
-//                                        room_list.add(roomNames[i]);
-//
-//                                    }
-//                                   // adapter = new RoomAdapter(room_list);
-//
-//                                    adapter.setOnItemClickListener(new RoomAdapter.OnItemClickListener() {
-//                                        @Override
-//                                        public void onItemClick(View v, int position) {
-//
-//                                            room = room_list.get(position);
-//                                            String selectedRoom = room.substring(0,room.indexOf("-"));
-//
-//                                            sendMsg("200|" + selectedRoom);
-//                                            //txt_nowRoom.setText(room);
-//
-//                                            handler.sendEmptyMessage(1);
-//
-//                                            //   sendMsg("175|");//대화방내 인원정보 요청
-//
-//
-//                                        }
-//                                    });
-//
-//
-//                                    handler.sendEmptyMessage(0);
-//                                    //rv_room.setAdapter(adapter);
-//
-//                                    // roomInfo.setListData(roomNames);
-//
-//                                }
-//
-//                                break;
-//
-//
-//
-                            case "170"://(대기실에서) 대화방 인원정보
-
-                                String roomInwons[] = msgs[1].split(",");
-
-                                //roomInwon.setListData(roomInwons);
-
-                                break;
-
-
-//
-                            case "175"://(대화방에서) 대화방 인원정보
-
-                                String myRoomInwons[] = msgs[1].split(",");
-
-//                                cc.li_inwon.setListData(myRoomInwons);
-
-                                break;
-
-//                            case "180"://대기실 인원정보
-//
-//                                String waitNames[] = msgs[1].split(",");
-//
-//                                waitInfo.setListData(waitNames);
-//
-//                                break;
-
-                            case "200"://대화방 입장
-
-//                                cc.ta.append("=========["+msgs[1]+"]님 입장=========\n");
-//
-//                                cc.ta.setCaretPosition(cc.ta.getText().length());
-
-                                break;
-//
-//
-//
-                            case "400"://대화방 퇴장
-
-//                                cc.ta.append("=========["+msgs[1]+"]님 퇴장=========\n");
-//
-//                                cc.ta.setCaretPosition(cc.ta.getText().length());
-
-                                break;
-//
-//
-//
-                            case "202"://개설된 방의 타이틀 제목 얻기
-
-                                //cc.setTitle("채팅방-["+msgs[1]+"]");
-
-                                break;
-
-
-                        }//클라이언트 switch
-
-                    }
-                } catch (UnknownHostException e) {
-
-                    e.printStackTrace();
-
-                } catch (IOException e) {
-
-                    e.printStackTrace();
-
-                }
-
-            }
-        }).start();
-
-
-    }//connect
-
-    public void sendMsg(String msg) {//서버에 메시지 보내기
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    out.write((msg + "\n").getBytes());
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-
-
-    }//sendMsg
 
     @Override
     public void finish() {
         super.finish();
+
+        try {
+            ChatCount_PreferenceManager.resetChatCount(context,room);//메시지 읽음 처리
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
 
         //sendMsg("400|");
 

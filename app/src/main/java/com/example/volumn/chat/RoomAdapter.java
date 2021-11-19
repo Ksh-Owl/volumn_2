@@ -4,6 +4,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -48,9 +49,19 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
         }
 
         Log.v("item", " item ::  " + position);
-
+        holder.btn_joinRoom.setVisibility(View.GONE);
         holder.txt_roomName.setText(mData.get(position).getRoom_nm());
         holder.txt_roomCount.setText(mData.get(position).getMem_count());
+
+
+        String msg = mData.get(position).getLast_msg();
+        if(!msg.equals("")){
+            String msgs[] = msg.split("▶");
+            msgs[0] = msgs[0].replace("[","").replace("]","");
+
+            holder.txt_lastMsg.setText(""+msgs[1]);
+        }
+
         if(mData.get(position).getMsg_count()> 0){
             String  msgCount = Integer.toString(mData.get(position).getMsg_count());
             holder.txt_msgCount.setText(msgCount);
@@ -71,7 +82,8 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
         TextView txt_roomName;
         TextView txt_roomCount;
         TextView txt_msgCount;
-
+        TextView txt_lastMsg;
+        Button btn_joinRoom;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -81,7 +93,8 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
             txt_msgCount = (TextView) itemView.findViewById(R.id.txt_msgCount);
             txt_roomName = (TextView) itemView.findViewById(R.id.txt_roomName);
             txt_roomCount = (TextView) itemView.findViewById(R.id.txt_roomCount);
-
+            txt_lastMsg = (TextView) itemView.findViewById(R.id.txt_lastMsg);
+            btn_joinRoom = (Button) itemView.findViewById(R.id.btn_joinRoom);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

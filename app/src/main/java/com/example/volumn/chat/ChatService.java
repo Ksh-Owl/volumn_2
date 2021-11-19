@@ -1,7 +1,12 @@
 package com.example.volumn.chat;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -13,13 +18,17 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
+import com.example.volumn.R;
+import com.example.volumn.include.ChatCount_PreferenceManager;
 import com.example.volumn.include.PreferenceManager;
+import com.example.volumn.include.Chat_PreferenceManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -36,7 +45,10 @@ public class ChatService extends Service {
 
     //채팅 클라이언트 세팅
     private String nickName;
-    ArrayList<String> clientMsg_list;
+ //   ArrayList<String> clientMsg_list;
+   // ArrayList<chat_msgCountModel> chat_msgCount_list;
+
+
     String room = null;//채팅방 이름
     String room_ID = null;//채팅방 ID
     String userEmail ;
@@ -56,7 +68,7 @@ public class ChatService extends Service {
     static final int MSG_UNREGISTER_CLIENT = 56;
     static final int MSG_CREATE_ROOM = 60;//방만들기
     static final int MSG_IN_ROOM = 61;//방들어오기
-    static final int MSG_OUT_ROOM = 62;//방나가시
+    static final int MSG_OUT_ROOM = 62;//방나가기
 
     static final int MSG_SET_VALUE = 77;
 
@@ -130,41 +142,6 @@ public class ChatService extends Service {
         }
     }
 
-    public void recive() {
-
-        //connect();
-
-
-//        new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                //while(true)를 통해 자바 소켓에서 데이터를 받아오는 역할을 할 수도 있다.
-//                if(!send2.equals(null)){
-//
-//
-//                    //for (int i = clientList.size(); i >=0 ; i--){
-//                    try{
-//                        //클라이언트에게 전송
-//                        if(clientList.size()> 0)
-//                        {
-//                            Message message = Message.obtain(null,MSG_RESPONSE);
-//                            Bundle bundle = message.getData();
-//                            bundle.putString("response",send2);
-//                            clientList.get(0).send(message);
-//                        }
-//
-//
-//                    }catch (Exception e){
-//                        //  clientList.remove(i);
-//                        e.printStackTrace();
-//                    }
-//
-//                    //  }
-//                }
-//
-//            }
-//        }).start();
-    }
 
     private Messenger messenger = new Messenger(new IncomingHandler());
 
@@ -175,7 +152,6 @@ public class ChatService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-
         userEmail = PreferenceManager.getString(getApplicationContext(), "userEmail");//쉐어드에서 로그인된 아이디 받아오
         connect();
 
@@ -198,6 +174,8 @@ public class ChatService extends Service {
             public void run() {
 
                 try {
+                  //  chat_msgCount_list = new ArrayList<>(); //새로온 메시지 리스트에 넣고 쉐어드에 저장
+
 
                     //Socket s = new Socket(String host<서버ip>, int port<서비스번호>);
 
@@ -258,23 +236,38 @@ public class ChatService extends Service {
                                 //메시지를 adapter에 넣는다
 
 
-                                //  etxt_msgBox.setText(msgs[1]);
-
-                                //clientMsg_list.add(msgs[1]);
-                               // adapter = new MsgAdapter(clientMsg_list);
-
-                                // handler.sendEmptyMessage(0);
 
                                 try {
                                     //클라이언트에게 전송
                                     if (clientList.size() > 0) {
+
+                                        boolean save_check = false;
+
                                         for (int i = 0; i < clientList.size(); i++){
                                             Message message = Message.obtain(null, MSG_SENDMSG);
                                             Bundle bundle = message.getData();
-                                            bundle.putString("response", ""+msgs[2]);
-                                            bundle.putString("title", ""+msgs[1]);
+                                            bundle.putString("response", ""+msgs[3]);
 
+                                            bundle.putString("time", ""+msgs[2]);
+                                            bundle.putString("title", ""+msgs[1]);
                                             clientList.get(i).send(message);
+
+                                            if(!save_check){
+
+
+                                                ChatCount_PreferenceManager.setChatCount(getApplicationContext(),msgs[1],msgs[3]);
+                                                Chat_PreferenceManager.setChatArrayPref(getApplicationContext(),msgs[1],msgs[3],msgs[2]);
+                                                save_check = true;
+
+                                                //노티피케이션
+                                                //createNotification(getApplicationContext());
+
+                                            }
+                                            //chat_msgCountModel msgCountModel = new chat_msgCountModel(msgs[1],msgs[2]);
+
+
+
+
                                         }
 
                                     }
@@ -428,4 +421,25 @@ public class ChatService extends Service {
         queue.add(addRoomRequest);
     }
 
+    private void createNotification(Context context){
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "default");
+
+        builder.setSmallIcon(R.mipmap.ic_launcher);
+        builder.setContentTitle("알림 제목");
+        builder.setContentText("알람 세부 텍스트");
+
+        builder.setColor(Color.RED);
+        // 사용자가 탭을 클릭하면 자동 제거
+        builder.setAutoCancel(true);
+
+        // 알림 표시
+        NotificationManager notificationManager = (NotificationManager) this.getSystemService(context.NOTIFICATION_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.createNotificationChannel(new NotificationChannel("default", "기본 채널", NotificationManager.IMPORTANCE_DEFAULT));
+        }
+
+        // id값은
+        // 정의해야하는 각 알림의 고유한 int값
+        notificationManager.notify(1, builder.build());
+    }
 }

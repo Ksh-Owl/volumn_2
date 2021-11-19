@@ -3,19 +3,25 @@ package com.example.volumn.chat;
 import com.example.volumn.MainActivity;
 import com.example.volumn.addSet.addSetRequest;
 import com.example.volumn.addWorkout.Model;
+import com.example.volumn.include.ChatCount_PreferenceManager;
 import com.example.volumn.include.PreferenceManager;
 
 import org.json.JSONArray;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -68,8 +74,8 @@ public class ChatRoomActivity extends AppCompatActivity {
                     String response = bundle.getString("response");
                     Log.e("TAG","response:"+response);
                     if(response.equals("160")){
-                        getRoomList();
-
+                        //getRoomList();
+                        setRoom();
                     }
 
                     //editText2.setText(response);
@@ -82,7 +88,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                     String title = bundle1.getString("title");
 
                     //방 메시지 증가
-                    setRoom(title);
+                    setRoom();
 
 
                     Log.e("TAG","response:"+response1);
@@ -156,7 +162,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         super.onResume();
 
         //데이터베이스에서 방정보 받아오기
-        getRoomList();
+        setRoom();
 
 
     }
@@ -181,7 +187,7 @@ public class ChatRoomActivity extends AppCompatActivity {
 //
 //        }
     }
-    private void setRoom(String title){
+    private void setRoom(){
 
         Response.Listener<String> responseListner = new Response.Listener<String>() {
             @Override
@@ -194,20 +200,33 @@ public class ChatRoomActivity extends AppCompatActivity {
                     ArrayList<chatRoom_Model> room_list = new ArrayList<>();
 
                     for (int i = 0; i < jsonArray.length(); i++) {
-                        int msg_count =0;
 
                         JSONObject item = jsonArray.getJSONObject(i);
 
                         String room_ID = item.getString("room_ID");
                         String room_nm = item.getString("room_nm");
-                        if(title.equals(room_nm)){
-                            msg_count++;
-                        };
+                        int msg_count = 0;
+                        String msg = "";
+
+                        String json = ChatCount_PreferenceManager.getChatCount(context,room_nm);
+                        if(json !=null){
+                            JSONArray jsonArray_get = new JSONArray(json);
+                            for (int j = 0; j < jsonArray_get.length(); j++){
+                                JSONObject item_get = jsonArray_get.getJSONObject(j);
+                                String item_count = item_get.getString("count");
+                                String item_msg = item_get.getString("msg");
+
+                                msg_count = Integer.parseInt(item_count);
+                                msg = item_msg;
+                            }
+                        }
+
+
                         String member = item.getString("member");
                         String mem_count = item.getString("mem_count");
                         String CREATE_DATE = item.getString("CREATE_DATE");
 
-                        chatRoom_Model = new chatRoom_Model(room_ID, room_nm, member, mem_count,CREATE_DATE,msg_count);// 모델 객체 생성
+                        chatRoom_Model = new chatRoom_Model(room_ID, room_nm, member, mem_count,CREATE_DATE,msg_count,msg);// 모델 객체 생성
 
                         room_list.add(chatRoom_Model);
                     }
@@ -248,69 +267,8 @@ public class ChatRoomActivity extends AppCompatActivity {
         queue.add(getRoomRequest);
     }
 
-    private void getRoomList(){
 
 
 
-        Response.Listener<String> responseListner = new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-
-                        try {
-                            JSONObject jsonObject = new JSONObject(response);
-                            JSONArray jsonArray = jsonObject.getJSONArray("chat");
-                            chatRoom_Model chatRoom_Model ;// 모델 객체 생성
-                            ArrayList<chatRoom_Model> room_list = new ArrayList<>();
-                            int msg_count =0;
-
-                            for (int i = 0; i < jsonArray.length(); i++) {
-                                JSONObject item = jsonArray.getJSONObject(i);
-
-                                String room_ID = item.getString("room_ID");
-                                String room_nm = item.getString("room_nm");
-                                String member = item.getString("member");
-                                String mem_count = item.getString("mem_count");
-                                String CREATE_DATE = item.getString("CREATE_DATE");
-
-                                chatRoom_Model = new chatRoom_Model(room_ID, room_nm, member, mem_count,CREATE_DATE,msg_count);// 모델 객체 생성
-
-                                room_list.add(chatRoom_Model);
-                            }
-
-                            RoomAdapter  adapter = new RoomAdapter(room_list);
-                            adapter.setOnItemClickListener(new RoomAdapter.OnItemClickListener() {
-                                @Override
-                                public void onItemClick(View v, int position) {
-
-                                    String roomName = room_list.get(position).getRoom_nm();
-                                    String room_ID = room_list.get(position).getRoom_ID();
-
-
-
-                                    Intent intent = new Intent(context, MainChatActivity.class);
-                                    intent.putExtra("roomName", roomName);
-                                    intent.putExtra("room_ID", room_ID);
-
-                                    startActivity(intent);
-
-                                }
-                            });
-                            rv_room.setAdapter(adapter);
-                            rv_room.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
-
-
-
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-
-                    }
-                };
-                //String userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오
-
-        getRoomRequest getRoomRequest = new getRoomRequest( responseListner);
-        RequestQueue queue = Volley.newRequestQueue(context);
-        queue.add(getRoomRequest);
-    }
 }
 
