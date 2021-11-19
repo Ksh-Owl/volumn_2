@@ -194,7 +194,7 @@ public class MainChatActivity extends AppCompatActivity {
         room = intent.getStringExtra("roomName");
         txt_nowRoom.setText(room);
         //읽지않은 메시지 카운트 삭제
-        ChatCount_PreferenceManager.deleteString(context,room);
+        //ChatCount_PreferenceManager.deleteString(context,room);
 
 
         room_ID = intent.getStringExtra("room_ID");
