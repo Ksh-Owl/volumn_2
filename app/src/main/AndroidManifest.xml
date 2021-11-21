@@ -9,7 +9,13 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <uses-feature android:name="android.hardware.camera" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_SERVICE" />
 
+
+    출처: https://iw90.tistory.com/155 [woong's]
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -25,8 +31,21 @@
         <service
             android:name=".chat.ChatService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:process=":remote"></service>
+        <receiver
+            android:name=".chat.RestartService"
+            android:enabled="true"
+            android:exported="false"
+            android:label="RestartService"
+            android:process=":remote" >
+            <intent-filter>
+                <action android:name="ACTION.RESTART.PersistentService" />
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+            </intent-filter>
+        </receiver>
 
+
+        출처: https://iw90.tistory.com/155 [woong's]
         <activity
             android:name=".chat.pop_addRoom"
             android:theme="@style/Theme.Main.Dialog" />

@@ -1,7 +1,10 @@
 package com.example.volumn.chat;
 
+import android.app.AlarmManager;
+import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -13,11 +16,13 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -94,6 +99,7 @@ public class ChatService extends Service {
         public void handleMessage(@NonNull Message msg) {
             switch (msg.what) {
                 case MSG_REGISTER_CLIENT:
+                    clientList.clear();
                     clientList.add(msg.replyTo);
 
                     break;
@@ -154,8 +160,62 @@ public class ChatService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        unregisterRestartAlarm();
         userEmail = PreferenceManager.getString(getApplicationContext(), "userEmail");//쉐어드에서 로그인된 아이디 받아오
         connect();
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+
+        /**
+         * 서비스 종료 시 알람 등록을 통해 서비스 재 실행
+         */
+        Log.v("서비스 종료", "서비스 종료");
+
+        registerRestartAlarm();
+
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    @Override
+    public int onStartCommand(Intent intent, int flags, int startId) {
+        Log.v("onStartCommand", "onStartCommand");
+
+        /**
+         * startForeground 를 사용하면 notification 을 보여주어야 하는데 없애기 위한 코드
+         */
+        NotificationChannel channel =new NotificationChannel(
+                "default","service channel",NotificationManager.IMPORTANCE_HIGH
+        );
+
+        NotificationManager nm = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
+        nm.createNotificationChannel(channel);
+        Notification notification = null;
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB){
+            //Log.v("노티생성", "노티생성");
+
+            notification = new Notification.Builder(getApplicationContext(),"default")
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentTitle("")
+                    .setContentText("")
+                    .setAutoCancel(true)
+                    .build();
+
+        }
+        startForeground(1,notification);
+
+        nm.notify(startId, notification);
+        nm.cancel(startId);
+
+        return super.onStartCommand(intent, flags, startId);
+
+
+
 
     }
 
@@ -181,7 +241,7 @@ public class ChatService extends Service {
 
                     //Socket s = new Socket(String host<서버ip>, int port<서비스번호>);
 
-                    Socket s = new Socket("13.209.66.177", 5000);//연결시도
+                    Socket s = new Socket("192.168.0.3", 5000);//연결시도
                     Log.v("", "클라이언트 : 서버 연결됨.");
 
                     in = new BufferedReader(new InputStreamReader(s.getInputStream()));
@@ -260,9 +320,16 @@ public class ChatService extends Service {
 
                                 try {
                                     //클라이언트에게 전송
+
+
+                                    ChatCount_PreferenceManager.setChatCount(getApplicationContext(),msgs[1],msgs[3]);
+
+                                    Chat_PreferenceManager.setChatArrayPref(getApplicationContext(),msgs[1],msgs[3],msgs[2]);
+                                    Log.e("메시지 카운트저장","카운트저장");
+                                    createNotification(getApplicationContext());
                                     if (clientList.size() > 0) {
 
-                                        boolean save_check = false;
+                                     //   boolean save_check = false;
 
                                         for (int i = 0; i < clientList.size(); i++){
                                             Message message = Message.obtain(null, MSG_SENDMSG);
@@ -272,18 +339,9 @@ public class ChatService extends Service {
                                             bundle.putString("time", ""+msgs[2]);
                                             bundle.putString("title", ""+msgs[1]);
                                             clientList.get(i).send(message);
+                                            Log.e("서비스에서 메시지 보냄",""+clientList.size());
 
-                                            if(!save_check){
 
-
-                                                ChatCount_PreferenceManager.setChatCount(getApplicationContext(),msgs[1],msgs[3]);
-                                                Chat_PreferenceManager.setChatArrayPref(getApplicationContext(),msgs[1],msgs[3],msgs[2]);
-                                                save_check = true;
-
-                                                //노티피케이션
-                                                //createNotification(getApplicationContext());
-
-                                            }
                                             //chat_msgCountModel msgCountModel = new chat_msgCountModel(msgs[1],msgs[2]);
 
 
@@ -443,6 +501,49 @@ public class ChatService extends Service {
         RequestQueue queue = Volley.newRequestQueue(getApplicationContext());
         queue.add(addRoomRequest);
     }
+    /**
+     * 알람 매니져에 서비스 등록
+     */
+    private void registerRestartAlarm(){
+
+        Log.i("000 ChatService" , "registerRestartAlarm" );
+        Intent intent = new Intent(ChatService.this,RestartService.class);
+        intent.setAction("ACTION.RESTART.PersistentService");
+        PendingIntent sender = PendingIntent.getBroadcast(ChatService.this,0,intent,0);
+
+        long firstTime = SystemClock.elapsedRealtime();
+        firstTime += 1*1000;
+
+        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+
+        /**
+         * 알람 등록
+         */
+        alarmManager.setRepeating(AlarmManager.ELAPSED_REALTIME_WAKEUP,firstTime,1*1000,sender);
+
+    }
+    /**
+     * 알람 매니져에 서비스 해제
+     */
+    private void unregisterRestartAlarm(){
+
+        Log.i("000 ChatService" , "unregisterRestartAlarm" );
+
+        Intent intent = new Intent(ChatService.this,RestartService.class);
+        intent.setAction("ACTION.RESTART.PersistentService");
+        PendingIntent sender = PendingIntent.getBroadcast(ChatService.this,0,intent,0);
+
+        AlarmManager alarmManager = (AlarmManager)getSystemService(ALARM_SERVICE);
+
+        /**
+         * 알람 취소
+         */
+        alarmManager.cancel(sender);
+
+
+
+    }
+
 
     private void createNotification(Context context ){
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this, "default");
@@ -453,12 +554,12 @@ public class ChatService extends Service {
 
         builder.setColor(Color.RED);
         // 사용자가 탭을 클릭하면 자동 제거
-        builder.setAutoCancel(true);
+        //builder.setAutoCancel(true);
 
         // 알림 표시
         NotificationManager notificationManager = (NotificationManager) this.getSystemService(context.NOTIFICATION_SERVICE);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.createNotificationChannel(new NotificationChannel("default", "기본 채널", NotificationManager.IMPORTANCE_DEFAULT));
+            notificationManager.createNotificationChannel(new NotificationChannel("default", "기본 채널", NotificationManager.IMPORTANCE_HIGH));
         }
 
         // id값은

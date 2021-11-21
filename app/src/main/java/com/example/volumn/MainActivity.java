@@ -3,12 +3,14 @@ package com.example.volumn;
 import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.icu.util.Calendar;
 import android.os.Build;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -32,6 +34,7 @@ import com.example.volumn.calendar.CalendarActivity;
 import com.example.volumn.chat.ChatRoomActivity;
 import com.example.volumn.chat.ChatService;
 import com.example.volumn.chat.MainChatActivity;
+import com.example.volumn.chat.RestartService;
 import com.example.volumn.chat.chatActivity;
 import com.example.volumn.home.MainRequest;
 import com.example.volumn.include.PreferenceManager;
@@ -86,11 +89,11 @@ public class MainActivity extends AppCompatActivity {
     int month_;
     int dayofMonth_;
 
-
+    RestartService restartService;
     private DatePickerDialog.OnDateSetListener callbackMethod1;
     private DatePickerDialog.OnDateSetListener callbackMethod2;
 
-    @RequiresApi(api = Build.VERSION_CODES.N)
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,8 +102,10 @@ public class MainActivity extends AppCompatActivity {
         context = this;
 
         //채팅서비스
-        Intent intent_service = new Intent(context, ChatService.class);
-        startService(intent_service);
+      //  Intent intent_service = new Intent(context, ChatService.class);
+       // startService(intent_service);
+
+        initData();
         //채팅서비스
 
 
@@ -329,6 +334,17 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         search_Volumn();
+
+
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.i("MainActivity","onDestroy");
+        //브로드 캐스트 해제
+        unregisterReceiver(restartService);
 
 
     }
@@ -692,6 +708,22 @@ public class MainActivity extends AppCompatActivity {
 
         }
 
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    private void initData(){
+        //리스타트 서비스 생성
+         restartService = new RestartService();
+
+        Intent intent =new Intent(MainActivity.this,ChatService.class);
+
+        IntentFilter intentFilter = new IntentFilter("com.example.volumn.chat.ChatService");
+
+        //브로드 캐스트에 등록
+        registerReceiver(restartService,intentFilter);
+
+        //서비스 시작
+        startForegroundService(intent);
     }
 
 }

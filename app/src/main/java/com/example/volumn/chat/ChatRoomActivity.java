@@ -11,6 +11,7 @@ import org.json.JSONArray;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -74,24 +75,28 @@ public class ChatRoomActivity extends AppCompatActivity {
                     String response = bundle.getString("response");
                     Log.e("TAG","response:"+response);
                     if(response.equals("160")){
-                        //getRoomList();
                         setRoom();
+                        Log.e("TAG","방업데이트");
+
                     }
 
-                    //editText2.setText(response);
 
 
                     break;
                 case ChatService.MSG_SENDMSG:
+                    Log.e("TAG","방업데이트");
+                    Log.e("머지?","이해가 안가네");
+
+
                     Bundle bundle1 = msg.getData();
                     String response1 = bundle1.getString("response");
                     String title = bundle1.getString("title");
+                    String json = ChatCount_PreferenceManager.getChatCount(context,title);
 
                     //방 메시지 증가
                     setRoom();
 
 
-                    Log.e("TAG","response:"+response1);
 
 
                     break;
@@ -126,9 +131,11 @@ public class ChatRoomActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
+        //bindService(new Intent(this,ChatService.class),conn, Context.BIND_AUTO_CREATE);
 
         btn_newRoom = (Button)findViewById(R.id.btn_newRoom);
         rv_room = (RecyclerView)findViewById(R.id.rv_room);
+        rv_room.addItemDecoration(new DividerItemDecoration(getApplicationContext(),DividerItemDecoration.VERTICAL));
         context = this;
 
         //소켓연결 후 방만들기 코드 보낸후 방생성 코드 받아오면 방 리스트 업데이트
@@ -194,6 +201,8 @@ public class ChatRoomActivity extends AppCompatActivity {
             public void onResponse(String response) {
 
                 try {
+                    Log.e("방 업데이트","방 업데이트");
+
                     JSONObject jsonObject = new JSONObject(response);
                     JSONArray jsonArray = jsonObject.getJSONArray("chat");
                     chatRoom_Model chatRoom_Model ;// 모델 객체 생성
@@ -229,6 +238,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                         chatRoom_Model = new chatRoom_Model(room_ID, room_nm, member, mem_count,CREATE_DATE,msg_count,msg);// 모델 객체 생성
 
                         room_list.add(chatRoom_Model);
+
                     }
 
                     RoomAdapter  adapter = new RoomAdapter(room_list);
@@ -249,7 +259,10 @@ public class ChatRoomActivity extends AppCompatActivity {
 
                         }
                     });
+                    adapter.notifyDataSetChanged();
+
                     rv_room.setAdapter(adapter);
+
                     rv_room.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
 
 
