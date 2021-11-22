@@ -101,12 +101,6 @@ public class MainActivity extends AppCompatActivity {
 
         context = this;
 
-        //채팅서비스
-      //  Intent intent_service = new Intent(context, ChatService.class);
-       // startService(intent_service);
-
-        initData();
-        //채팅서비스
 
 
         this.settingSideNavBar();
@@ -201,6 +195,13 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(MainActivity.this, loginActivity.class);//명시적 인텐트
             startActivity(intent);
         }
+
+        //채팅서비스
+        //  Intent intent_service = new Intent(context, ChatService.class);
+        // startService(intent_service);
+
+        initData();
+        //채팅서비스
 
         setDate();
         // 첫번째 날짜 오늘부터 1주일전

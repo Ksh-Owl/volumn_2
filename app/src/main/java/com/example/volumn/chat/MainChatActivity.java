@@ -19,6 +19,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
+import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
@@ -101,6 +102,46 @@ public class MainChatActivity extends AppCompatActivity {
 
 
                     break;
+                case ChatService.MSG_MSGLIST:
+                    Bundle bundle3 = msg.getData();
+                    String title3 = bundle3.getString("title");
+                    String response3 = bundle3.getString("response");
+
+                    try {
+                        JSONArray jsonArray = new JSONArray(response3);
+
+
+                        if(title3.equals(txt_nowRoom.getText().toString()))
+                        {
+                            for (int i = 0; i < jsonArray.length() ; i++){
+                                JSONObject item = jsonArray.getJSONObject(i);
+
+                                String msg_  = item.getString("msg");
+                                String time_ = item.getString("time");
+                                clientMsg_list.add(msg_);
+
+
+                            }
+
+                            adapter = new MsgAdapter(clientMsg_list);
+                            adapter.notifyDataSetChanged();
+                            //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
+                            rv_msgList.scrollToPosition(rv_msgList.getAdapter().getItemCount() - 1);
+                        }
+
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+                    Log.e("TAG", "MainChatActivity ::" + title3);
+                    //ArrayList<String> Msg_list = new ArrayList<>();
+
+                    //editText2.setText(response);
+                    //Chat_PreferenceManager.setChatArrayPref(getApplicationContext(),msgs[1],msgs[2]);
+
+
+                    break;
 
                 default:
                     super.handleMessage(msg);
@@ -130,27 +171,10 @@ public class MainChatActivity extends AppCompatActivity {
     Thread th;
 
 
-    //핸들러 스레드가 메인ui 수정가능하도록
-
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(@NonNull Message msg) {
-            super.handleMessage(msg);
-
-            if (msg.what == 0) {
 
 
 
-                // rv_room.setAdapter(adapter);
-                // rv_room.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
 
-            }
-            if (msg.what == 1) {
-                //txt_nowRoom.setText(room);
-
-            }
-        }
-    };
     ServiceConnection conn = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -239,7 +263,7 @@ public class MainChatActivity extends AppCompatActivity {
                 String msg_txt = etxt_msgBox.getText().toString();
 
 
-                //메시지 보내기 서비스에 전달fdf
+                //메시지 보내기 서비스에 전달
                 try{
                     if(msg_txt.equals("")){msg_txt = " ";}
                     Message msg =Message.obtain(null,ChatService.MSG_MSG);
@@ -267,37 +291,46 @@ public class MainChatActivity extends AppCompatActivity {
             Message msg =Message.obtain(null,ChatService.MSG_IN_ROOM);
             Bundle bundle = msg.getData();
             bundle.putString("send",""+room);
+            bundle.putString("MainChat","MainChat");
+
+            Log.e("TAG", "노티피케이션 불가");
+
             mService.send(msg);
             Log.e("TAG", "채팅방 입장 :"+ ""+userEmail);
             //방들어갈때 쉐어드 들어간 방 저장
-            myRoom_PreferenceManager.setString(context,"ROOM",room);
 
         }catch (Exception e){
             e.printStackTrace();
         }
     }
 
-
-
-
     @Override
-    public void finish() {
-        super.finish();
-
+    protected void onPause() {
+        super.onPause();
         try {
-            ChatCount_PreferenceManager.resetChatCount(context,room);//메시지 읽음 처리
-        } catch (JSONException e) {
+            Message msg =Message.obtain(null,ChatService.MSG_YES_READ);
+            Bundle bundle = msg.getData();
+            bundle.putString("send",""+room);
+            mService.send(msg);
+            Log.e("TAG", "안읽음 메시지 읽음처리");
+
+            Message msg_MAIN_CHAT =Message.obtain(null,ChatService.MSG_MAINCHAT);
+            Bundle bundle_MAIN_CHAT = msg_MAIN_CHAT.getData();
+            bundle_MAIN_CHAT.putString("MainChat","");
+
+            mService.send(msg_MAIN_CHAT);
+
+            Log.e("TAG", "노티피케이션 출력 가능");
+
+        } catch ( RemoteException e) {
             e.printStackTrace();
         }
 
-        //sendMsg("400|");
-
-        //방나가기
-        //방인원수 업데이트트
-        //outRoom(room_ID, userEmail);
-
 
     }
+
+
+
 
 
     private void inRoom(String room_ID, String addMem) {
