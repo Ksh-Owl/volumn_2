@@ -10,7 +10,7 @@
         android:id="@+id/rv_msgList"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:background="#FFFFFF"
+        android:background="#E8E8E8"
         app:layout_constraintBottom_toTopOf="@+id/etxt_msgBox"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"

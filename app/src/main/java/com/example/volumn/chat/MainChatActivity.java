@@ -37,6 +37,7 @@ import com.example.volumn.include.Chat_PreferenceManager;
 import com.example.volumn.include.PreferenceManager;
 import com.example.volumn.include.myRoom_PreferenceManager;
 
+import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,6 +58,8 @@ public class MainChatActivity extends AppCompatActivity {
     //소켓 입출력객체
     BufferedReader in;
     private DataOutputStream out;
+
+    boolean CheckScroll = false;
 
     //서비스
     private Messenger mService;
@@ -85,15 +88,14 @@ public class MainChatActivity extends AppCompatActivity {
 
                     Log.e("TAG", "MainChatActivity Response::" + response2);
                     //ArrayList<String> Msg_list = new ArrayList<>();
-                    if(title.equals(txt_nowRoom.getText().toString()))
-                    {
+                    if (title.equals(txt_nowRoom.getText().toString())) {
                         clientMsg_list.add(response2);
 
 
-                        adapter = new MsgAdapter(clientMsg_list);
+                       // adapter = new MsgAdapter(clientMsg_list);
                         adapter.notifyDataSetChanged();
                         //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
-                        rv_msgList.scrollToPosition(rv_msgList.getAdapter().getItemCount() - 1);
+                        rv_msgList.scrollToPosition(clientMsg_list.size()-1);
                     }
 
 
@@ -102,28 +104,70 @@ public class MainChatActivity extends AppCompatActivity {
 
 
                     break;
+                case ChatService.MSG_PAGEING_MSGLIST:
+                    Bundle bundle4 = msg.getData();
+                    String title4 = bundle4.getString("title");
+                    String response4 = bundle4.getString("response");
+
+                    try {
+                        if (response4 == null) {
+                            return;
+                        }
+                        JSONArray jsonArray = new JSONArray(response4);
+
+                        int a  = jsonArray.length();
+
+                        if (title4.equals(txt_nowRoom.getText().toString())) {
+                            for (int i = jsonArray.length() -1 ; i >= 0 ; i--) {
+                                JSONObject item = jsonArray.getJSONObject(i);
+
+                                String msg_ = item.getString("msg");
+                                String time_ = item.getString("time");
+                                clientMsg_list.add(0,msg_);
+
+
+                            }
+
+                            // adapter = new MsgAdapter(clientMsg_list);
+                            adapter.notifyDataSetChanged();
+                            rv_msgList.scrollToPosition(33);
+                            CheckScroll = false;
+                            //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
+                            //rv_msgList.scrollToPosition(rv_msgList.getAdapter().getItemCount() - 1);
+                        }
+
+
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+
+
+                    break;
                 case ChatService.MSG_MSGLIST:
                     Bundle bundle3 = msg.getData();
                     String title3 = bundle3.getString("title");
                     String response3 = bundle3.getString("response");
 
+
                     try {
+                        if (title3 == null ||response3 == null) {
+                            return;
+                        }
                         JSONArray jsonArray = new JSONArray(response3);
 
 
-                        if(title3.equals(txt_nowRoom.getText().toString()))
-                        {
-                            for (int i = 0; i < jsonArray.length() ; i++){
+                        if (title3.equals(txt_nowRoom.getText().toString())) {
+                            for (int i = 0; i < jsonArray.length(); i++) {
                                 JSONObject item = jsonArray.getJSONObject(i);
 
-                                String msg_  = item.getString("msg");
+                                String msg_ = item.getString("msg");
                                 String time_ = item.getString("time");
                                 clientMsg_list.add(msg_);
 
 
                             }
 
-                            adapter = new MsgAdapter(clientMsg_list);
+                            // adapter = new MsgAdapter(clientMsg_list);
                             adapter.notifyDataSetChanged();
                             //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
                             rv_msgList.scrollToPosition(rv_msgList.getAdapter().getItemCount() - 1);
@@ -170,9 +214,9 @@ public class MainChatActivity extends AppCompatActivity {
 
     Thread th;
 
-
-
-
+    //페이징 변수
+    int limit = 20;
+    int page = 1;
 
 
     ServiceConnection conn = new ServiceConnection() {
@@ -227,15 +271,14 @@ public class MainChatActivity extends AppCompatActivity {
         userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오기
 
         //  connect();
-        String json  = Chat_PreferenceManager.getChatArrayPref(context,room);
+        String json = Chat_PreferenceManager.getChatArrayPref(context, room);
 
         clientMsg_list = new ArrayList<>(); //메시지 리스트 객체생성
 
-        if(json != null)
-        {
+        if (json != null) {
             try {
                 JSONArray jsonArray = new JSONArray(json);
-                for (int i =0 ; i < jsonArray.length(); i++){
+                for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject item = jsonArray.getJSONObject(i);
 
                     String msg = item.getString("msg");
@@ -256,6 +299,40 @@ public class MainChatActivity extends AppCompatActivity {
         rv_msgList.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
 
 
+        rv_msgList.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrolled(@NonNull @NotNull RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                //현재 보이는 것 중 마지막 아이템의 포지션 +1
+                int lastVisibleItemPosition = ((LinearLayoutManager) rv_msgList.getLayoutManager()).findFirstVisibleItemPosition() -1;
+               //전체 아이템 갯수
+                int itemTotalCount = rv_msgList.getAdapter().getItemCount();
+                if(!CheckScroll && itemTotalCount >= 20 &&lastVisibleItemPosition == -1)
+                {
+                    Log.e("전체 아이템 갯수",String.valueOf(itemTotalCount));
+                    Log.e("홈 프레그먼트 ",String.valueOf(lastVisibleItemPosition));
+                    page++;
+
+
+                    //
+                    //서비스에 page,limit 전달
+
+                    try {
+                    Message msg = Message.obtain(null, ChatService.MSG_PAGEING_MSGLIST);
+                    Bundle bundle = msg.getData();
+                    bundle.putString("title", "" +txt_nowRoom.getText().toString());
+                    bundle.putString("page", "" + page);
+                    bundle.putString("limit", "" + limit);
+                    mService.send(msg);
+                        CheckScroll = true;
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
+
+                }
+            }
+        });
         img_send.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -264,16 +341,18 @@ public class MainChatActivity extends AppCompatActivity {
 
 
                 //메시지 보내기 서비스에 전달
-                try{
-                    if(msg_txt.equals("")){msg_txt = " ";}
-                    Message msg =Message.obtain(null,ChatService.MSG_MSG);
+                try {
+                    if (msg_txt.equals("")) {
+                        msg_txt = " ";
+                    }
+                    Message msg = Message.obtain(null, ChatService.MSG_MSG);
                     Bundle bundle = msg.getData();
-                    bundle.putString("send",""+msg_txt);
+                    bundle.putString("send", "" + msg_txt);
                     mService.send(msg);
-                    Log.e("TAG", "채팅메시지 서비스에 전달 :"+ ""+msg_txt);
+                    Log.e("TAG", "채팅메시지 서비스에 전달 :" + "" + msg_txt);
 
 
-                }catch (Exception e){
+                } catch (Exception e) {
                     e.printStackTrace();
                 }
                 //sendMsg("300|" + msg);
@@ -285,21 +364,25 @@ public class MainChatActivity extends AppCompatActivity {
 
 
     }
-    private void inRoom(){
+
+    private void inRoom() {
         //방 들어왔다 서비스에 전달
-        try{
-            Message msg =Message.obtain(null,ChatService.MSG_IN_ROOM);
+        try {
+            clientMsg_list.clear();
+            Message msg = Message.obtain(null, ChatService.MSG_IN_ROOM);
             Bundle bundle = msg.getData();
-            bundle.putString("send",""+room);
-            bundle.putString("MainChat","MainChat");
+            bundle.putString("send", "" + room);
+            bundle.putString("MainChat", "MainChat");
+            bundle.putString("page", ""+page);
+            bundle.putString("limit", ""+limit);
 
             Log.e("TAG", "노티피케이션 불가");
 
             mService.send(msg);
-            Log.e("TAG", "채팅방 입장 :"+ ""+userEmail);
+            Log.e("TAG", "채팅방 입장 :" + "" + userEmail);
             //방들어갈때 쉐어드 들어간 방 저장
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -308,29 +391,26 @@ public class MainChatActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         try {
-            Message msg =Message.obtain(null,ChatService.MSG_YES_READ);
+            Message msg = Message.obtain(null, ChatService.MSG_YES_READ);
             Bundle bundle = msg.getData();
-            bundle.putString("send",""+room);
+            bundle.putString("send", "" + room);
             mService.send(msg);
             Log.e("TAG", "안읽음 메시지 읽음처리");
 
-            Message msg_MAIN_CHAT =Message.obtain(null,ChatService.MSG_MAINCHAT);
+            Message msg_MAIN_CHAT = Message.obtain(null, ChatService.MSG_MAINCHAT);
             Bundle bundle_MAIN_CHAT = msg_MAIN_CHAT.getData();
-            bundle_MAIN_CHAT.putString("MainChat","");
+            bundle_MAIN_CHAT.putString("MainChat", "");
 
             mService.send(msg_MAIN_CHAT);
 
             Log.e("TAG", "노티피케이션 출력 가능");
 
-        } catch ( RemoteException e) {
+        } catch (RemoteException e) {
             e.printStackTrace();
         }
 
 
     }
-
-
-
 
 
     private void inRoom(String room_ID, String addMem) {
