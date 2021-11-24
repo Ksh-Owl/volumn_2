@@ -152,53 +152,93 @@ public class ChatService extends Service {
                         if (clientList.size() > 0) {
 
                             //   boolean save_check = false;
+                            JSONArray jsonArray_send = new JSONArray();
+                            Message message = Message.obtain(null, MSG_PAGEING_MSGLIST);
+                            Bundle bundle_PAGEING_LIST = message.getData();
+                            bundle_PAGEING_LIST.putString("title", title);
 
-                            for (int i = 0; i < clientList.size(); i++) {
-                                JSONArray jsonArray_send = new JSONArray();
-                                Message message = Message.obtain(null, MSG_PAGEING_MSGLIST);
-                                Bundle bundle_PAGEING_LIST = message.getData();
-                                bundle_PAGEING_LIST.putString("title", title);
+
                                 int k = 0;
                                 //페이징 처리
                                 if (json_PAGEING != null) {
                                     JSONArray jsonArray = new JSONArray(json_PAGEING);
 
-                                    for (int j = jsonArray.length() - (limit * page); j < jsonArray.length() - (5 * (page - 1)); j++) {
-                                        k++;
-                                        Log.e("TAG", "여기서부터 :" + (jsonArray.length() - (limit * page)));
-                                        Log.e("TAG", "여기까지 :" + (jsonArray.length() - (limit * (page - 1))));
-                                        Log.e("TAG", "현재 :" + j + " 몇개 출력하지 :" + k);
+                                    if (jsonArray.length() - (limit * page) < 0 ) {
+                                        //페이징 끝
+                                        Log.e("TAG", "페이징 중단 페이지 :" + page);
 
-                                        try{
-                                            JSONObject item = jsonArray.getJSONObject(j);
+                                        if (  (jsonArray.length() - (limit * (page - 1))) > 0){ //남아있는 데이터 있음
+                                            Log.e("TAG", "남아있는 개수 :" +(jsonArray.length() - (limit * (page - 1))));
 
-                                            jsonArray_send.put(item);
-                                        }catch (Exception e){
-                                            Log.e("TAG", "페이징 오류 발생 :" + j );
-                                            Log.e("TAG", "jsonArray 크기 :" + jsonArray.length() );
+                                            int left = limit - (jsonArray.length() - (limit * (page - 1)));//남아있다
+
+                                            for (int L = 0; L < left; L++){
+                                                try {
+                                                    JSONObject item = jsonArray.getJSONObject(L);
+                                                    Log.e("TAG", "여기서부터 :" + 0);
+                                                    Log.e("TAG", "여기까지 :" + left);
+                                                    jsonArray_send.put(item);
+                                                } catch (Exception e) {
+                                                    Log.e("TAG", "페이징 오류 발생 :" + L);
+                                                    Log.e("TAG", "jsonArray 크기 :" + jsonArray.length());
 
 
+                                                }
+                                            }
+
+                                        }else
+                                        {
+
+                                            return;
+                                        }
+
+
+
+
+                                    }else
+                                    {
+                                        for (int j = jsonArray.length() - (limit * page); j < jsonArray.length() - (limit * (page - 1)); j++) {
+                                            k++;
+                                            Log.e("TAG", "여기서부터 :" + (jsonArray.length() - (limit * page)));
+                                            Log.e("TAG", "여기까지 :" + (jsonArray.length() - (limit * (page - 1))));
+                                            Log.e("TAG", "현재 :" + j + " 몇개 출력하지 :" + k);
+
+                                            try {
+                                                JSONObject item = jsonArray.getJSONObject(j);
+
+                                                jsonArray_send.put(item);
+                                            } catch (Exception e) {
+                                                Log.e("TAG", "페이징 오류 발생 :" + j);
+                                                Log.e("TAG", "jsonArray 크기 :" + jsonArray.length());
+
+
+                                            }
+
+
+                                        }
+                                    }
+
+                                    Log.e("TAG", "메시지 :" + jsonArray_send.toString());
+
+
+                                    bundle_PAGEING_LIST.putString("response", jsonArray_send.toString());
+
+
+                                    for (int i = 0; i < clientList.size(); i++) {
+                                        try {
+                                            clientList.get(i).send(message);
+                                            Log.e("서비스에서 메시지리스트 보냄", "");
+
+                                        } catch (RemoteException e) {
+                                            e.printStackTrace();
                                         }
 
 
                                     }
                                 }
-                                Log.e("TAG", "메시지 :" + jsonArray_send.toString());
 
-
-                                bundle_PAGEING_LIST.putString("response", jsonArray_send.toString());
                                 //bundle_MSGLIST.putString("time", "");
 
-                                try {
-                                    clientList.get(i).send(message);
-                                    Log.e("서비스에서 메시지리스트 보냄", "");
-
-                                } catch (RemoteException e) {
-                                    e.printStackTrace();
-                                }
-
-
-                            }
 
                         }
                     } catch (Exception e) {
@@ -229,10 +269,6 @@ public class ChatService extends Service {
                             Message message = Message.obtain(null, MSG_MSGLIST);
                             Bundle bundle_MSGLIST = message.getData();
                             bundle_MSGLIST.putString("title", send);
-
-
-
-
 
 
                             JSONArray jsonArray_send = new JSONArray();
@@ -533,7 +569,7 @@ public class ChatService extends Service {
 
                     //Socket s = new Socket(String host<서버ip>, int port<서비스번호>);
 
-                    Socket s = new Socket("192.168.0.4", 5000);//연결시도
+                    Socket s = new Socket("192.168.219.100", 5000);//연결시도
                     Log.v("", "클라이언트 : 서버 연결됨.");
 
                     in = new BufferedReader(new InputStreamReader(s.getInputStream()));

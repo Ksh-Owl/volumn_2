@@ -129,8 +129,14 @@ public class MainChatActivity extends AppCompatActivity {
                             }
 
                             // adapter = new MsgAdapter(clientMsg_list);
-                            adapter.notifyDataSetChanged();
-                            rv_msgList.scrollToPosition(33);
+                            adapter =new MsgAdapter(clientMsg_list);
+
+
+                            rv_msgList.setAdapter(adapter);
+                            rv_msgList.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
+
+                            //adapter.notifyDataSetChanged();
+                            rv_msgList.scrollToPosition(21);
                             CheckScroll = false;
                             //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
                             //rv_msgList.scrollToPosition(rv_msgList.getAdapter().getItemCount() - 1);
@@ -312,8 +318,8 @@ public class MainChatActivity extends AppCompatActivity {
                 {
                     Log.e("전체 아이템 갯수",String.valueOf(itemTotalCount));
                     Log.e("홈 프레그먼트 ",String.valueOf(lastVisibleItemPosition));
-                    page++;
 
+                    page++;
 
                     //
                     //서비스에 page,limit 전달
@@ -326,6 +332,7 @@ public class MainChatActivity extends AppCompatActivity {
                     bundle.putString("limit", "" + limit);
                     mService.send(msg);
                         CheckScroll = true;
+
                     } catch (RemoteException e) {
                         e.printStackTrace();
                     }
