@@ -263,6 +263,8 @@ public class ChatService extends Service {
 
                         //메시지 리스트 전달
                         String json = Chat_PreferenceManager.getChatArrayPref(getApplicationContext(), send);
+
+
                         if (clientList.size() > 0) {
 
                             //   boolean save_check = false;
@@ -272,30 +274,69 @@ public class ChatService extends Service {
 
 
                             JSONArray jsonArray_send = new JSONArray();
+
+
+
                             if (json != null) {
                                 JSONArray jsonArray = new JSONArray(json);
                                 int k = 0;
+                                if(jsonArray.length() -(limit*page) <0)
+                                {
+                                    //페이징 끝
+                                    Log.e("TAG", "페이징 중단 페이지 :" + page);
 
-                                for (int j = jsonArray.length() - (limit * page); j < jsonArray.length() - (limit * (page - 1)); j++) {
-                                    k++;
-                                    Log.e("TAG", "여기서부터 :" + (jsonArray.length() - (limit * page)));
-                                    Log.e("TAG", "여기까지 :" + (jsonArray.length() - (limit * (page - 1))));
-                                    Log.e("TAG", "현재 :" + j + " 몇개 출력하지 :" + k);
+                                    if (  (jsonArray.length() - (limit * (page - 1))) > 0){ //남아있는 데이터 있음
+                                        Log.e("TAG", "남아있는 개수 :" +(jsonArray.length() - (limit * (page - 1))));
 
-                                    JSONObject item = jsonArray.getJSONObject(j);
+                                        int left = limit - (jsonArray.length() - (limit * (page - 1)));//남아있다
 
-                                    jsonArray_send.put(item);
+                                        for (int L = 0; L < left; L++){
+                                            try {
+                                                JSONObject item = jsonArray.getJSONObject(L);
+                                                Log.e("TAG", "여기서부터 :" + 0);
+                                                Log.e("TAG", "여기까지 :" + left);
+                                                jsonArray_send.put(item);
+
+                                            } catch (Exception e) {
+                                                Log.e("TAG", "페이징 오류 발생 :" + L);
+                                                Log.e("TAG", "jsonArray 크기 :" + jsonArray.length());
+
+
+                                            }
+                                        }
+                                    }else
+                                    {
+                                        return;
+                                    }
+
+                                }else
+                                {
+                                    for (int j = jsonArray.length() - (limit * page); j < jsonArray.length() - (limit * (page - 1)); j++) {
+                                        k++;
+                                        Log.e("TAG", "여기서부터 :" + (jsonArray.length() - (limit * page)));
+                                        Log.e("TAG", "여기까지 :" + (jsonArray.length() - (limit * (page - 1))));
+                                        Log.e("TAG", "현재 :" + j + " 몇개 출력하지 :" + k);
+
+                                        JSONObject item = jsonArray.getJSONObject(j);
+
+                                        jsonArray_send.put(item);
+
+                                    }
 
                                 }
+
+
+                                Log.e("TAG", "메시지 :" + jsonArray_send.toString());
+
+                                bundle_MSGLIST.putString("response", jsonArray_send.toString());
+
                             }
                             for (int i = 0; i < clientList.size(); i++) {
 
                                 //페이징 처리
 
-                                Log.e("TAG", "메시지 :" + jsonArray_send.toString());
 
 
-                                bundle_MSGLIST.putString("response", jsonArray_send.toString());
                                 //bundle_MSGLIST.putString("time", "");
 
                                 try {

@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.app.ProgressDialog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -105,6 +106,16 @@ public class MainChatActivity extends AppCompatActivity {
 
                     break;
                 case ChatService.MSG_PAGEING_MSGLIST:
+                    ProgressDialog asyncDialog = new ProgressDialog(
+                            MainChatActivity.this);
+                    asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                    asyncDialog.setMessage("로딩중입니다..");
+                    asyncDialog.show();
+
+
+
+
+                    //로딩 시작
                     Bundle bundle4 = msg.getData();
                     String title4 = bundle4.getString("title");
                     String response4 = bundle4.getString("response");
@@ -141,7 +152,15 @@ public class MainChatActivity extends AppCompatActivity {
                             //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
                             //rv_msgList.scrollToPosition(rv_msgList.getAdapter().getItemCount() - 1);
                         }
+                        //로딩 끝
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                asyncDialog.dismiss();
 
+                            }
+                        }, 200); //딜레이 타임 조절
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -388,6 +407,13 @@ public class MainChatActivity extends AppCompatActivity {
             mService.send(msg);
             Log.e("TAG", "채팅방 입장 :" + "" + userEmail);
             //방들어갈때 쉐어드 들어간 방 저장
+
+
+            Message msg_yes_read = Message.obtain(null, ChatService.MSG_YES_READ);
+            Bundle bundle_yes_read = msg.getData();
+            bundle.putString("send", "" + room);
+            mService.send(msg_yes_read);
+            Log.e("TAG", "안읽음 메시지 읽음처리");
 
         } catch (Exception e) {
             e.printStackTrace();
