@@ -113,6 +113,11 @@ public class ChatService extends Service {
         public void handleMessage(@NonNull Message msg) {
             switch (msg.what) {
                 case MSG_CHATROOM_CLIENT:
+                    Log.e("TAG", "msg.replyTo:" + msg.replyTo);
+                    chatRoom_clientList.clear();
+                    chatRoom_clientList.add(msg.replyTo);
+
+                    // clientList.add(msg.replyTo);
 
                     break;
 
@@ -166,7 +171,7 @@ public class ChatService extends Service {
                     String json_PAGEING = Chat_PreferenceManager.getChatArrayPref(getApplicationContext(), title);
 
                     try {
-                        if (clientList.size() > 0) {
+                        if (clientList.size() > 0 || chatRoom_clientList.size() > 0) {
 
                             //   boolean save_check = false;
                             JSONArray jsonArray_send = new JSONArray();
@@ -240,6 +245,8 @@ public class ChatService extends Service {
                                 for (int i = 0; i < clientList.size(); i++) {
                                     try {
                                         clientList.get(i).send(message);
+                                        chatRoom_clientList.get(0).send(message);
+
                                         Log.e("서비스에서 메시지리스트 보냄", "");
 
                                     } catch (RemoteException e) {
@@ -348,7 +355,11 @@ public class ChatService extends Service {
                                 //bundle_MSGLIST.putString("time", "");
 
                                 try {
-                                    clientList.get(i).send(message);
+                                    if (clientList.size() > 0) {
+                                        clientList.get(i).send(message);
+
+                                    }
+                                    chatRoom_clientList.get(0).send(message);
                                     Log.e("서비스에서 메시지리스트 보냄", "");
 
                                 } catch (RemoteException e) {
@@ -417,22 +428,32 @@ public class ChatService extends Service {
                     Bundle bundle_MSG_REQUEST_NO_READ_COUNT = msg.getData();
                     send = bundle_MSG_REQUEST_NO_READ_COUNT.getString("send");
                     Log.e("TAG", "MSG_REQUEST_NO_READ_COUNT/send:" + bundle_MSG_REQUEST_NO_READ_COUNT.getString("send"));
+                    try {
+                        Message msg_NO_READ = noReadCount();
+
+                        chatRoom_clientList.get(0).send(msg_NO_READ);
+
+                        if (clientList.size() > 0 || chatRoom_clientList.size() > 0) {
+
+                            for (int i = 0; i < clientList.size(); i++) {
+
+                                try {
 
 
-                    if (clientList.size() > 0) {
+                                    clientList.get(i).send(msg_NO_READ);
 
-                        for (int i = 0; i < clientList.size(); i++) {
 
-                            try {
-                                Message msg_NO_READ = noReadCount();
-                                clientList.get(i).send(msg_NO_READ);
-                                Log.e("서비스에서 ChatRoomActivity", "");
+                                    Log.e("서비스에서 ChatRoomActivity", "");
 
-                            } catch (RemoteException | JSONException e) {
-                                e.printStackTrace();
+                                } catch (RemoteException e) {
+                                    e.printStackTrace();
+                                }
+
                             }
 
                         }
+
+                    } catch (Exception e) {
 
                     }
 
@@ -712,9 +733,10 @@ public class ChatService extends Service {
 
                                     Chat_PreferenceManager.setChatArrayPref(getApplicationContext(), msgs[1], msgs[3], msgs[2]);
                                     Log.e("메시지 카운트저장", "카운트저장");
-                                    if (clientList.size() > 0) {
+                                    if (clientList.size() > 0 || chatRoom_clientList.size() > 0) {
 
                                         //   boolean save_check = false;
+
 
                                         for (int i = 0; i < clientList.size(); i++) {
                                             Message message = Message.obtain(null, MSG_SENDMSG);
@@ -723,20 +745,28 @@ public class ChatService extends Service {
 
                                             bundle.putString("time", "" + msgs[2]);//메시지 시간
                                             bundle.putString("title", "" + msgs[1]);//메시지 제목
-                                            clientList.get(i).send(message);
+                                           // clientList.get(i).send(message);
                                             Log.e("서비스에서 메시지 보냄", "" + clientList.size());
 
 
-                                            Message message_NO_READ = noReadCount();
                                             Log.e("TAG", "message_NO_READ 생성");
 
-                                            clientList.get(i).send(message_NO_READ);
-                                            Log.e("TAG", "ChatService to ChatRoomActivity");
-                                            //createNotification(getApplicationContext());
-                                            createNotification(getApplicationContext(), msgs[1], msgs[3]);
+                                            //clientList.get(i).send(message_NO_READ);
+
+                                            if (clientList.size() > 0) {
+                                                clientList.get(i).send(message);
+
+                                            }
+
 
                                         }
+                                        Message message_NO_READ = noReadCount();
 
+                                        chatRoom_clientList.get(0).send(message_NO_READ);
+
+                                        Log.e("TAG", "ChatService to ChatRoomActivity");
+                                        //createNotification(getApplicationContext());
+                                        createNotification(getApplicationContext(), msgs[1], msgs[3]);
                                     }
 
 
@@ -751,15 +781,17 @@ public class ChatService extends Service {
                                 try {
                                     //서버에서 보내는 방정보
                                     String get = msgs[1];
-                                    if (clientList.size() > 0) {
-                                        for (int i = 0; i < clientList.size(); i++) {
+                                    if (chatRoom_clientList.size() > 0) {
+                                        for (int i = 0; i < chatRoom_clientList.size(); i++) {
 
                                             Message message = Message.obtain(null, MSG_RESPONSE);//ChatRoomActivity에서 받아가기 아직
                                             Bundle bundle = message.getData();
                                             bundle.putString("response", "160");
                                             bundle.putString("roomInwon", get);
 
-                                            clientList.get(i).send(message);
+
+
+                                            chatRoom_clientList.get(i).send(message);
                                         }
 
                                     }

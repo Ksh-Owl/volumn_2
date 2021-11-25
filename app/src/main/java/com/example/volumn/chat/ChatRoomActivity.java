@@ -77,11 +77,29 @@ public class ChatRoomActivity extends AppCompatActivity {
                 case  ChatService.MSG_RESPONSE:
                     Bundle bundle = msg.getData();
                     String response = bundle.getString("response");
+                    String roomInwon = bundle.getString("roomInwon");
+
                     Log.e("TAG","response:"+response);
                     if(response.equals("160")){
                        // setRoom("","","");
-                        Log.e("TAG","방업데이트");
 
+                        Log.e("TAG","방업데이트");
+                        Log.e("인원 정보","방업데이트");
+
+                        String inwon[] =  roomInwon.split(",");
+
+
+                        for (int i = 0; i < inwon.length; i++){
+                           String room_inwon[]=   inwon[i].split("--");
+
+                           String room = room_inwon[0];
+                           String _inwon = room_inwon[1];
+
+                           String room_nm = room_list.get(i).getRoom_nm();
+
+
+
+                        }
                     }
 
 
@@ -129,7 +147,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         public void onServiceConnected(ComponentName name, IBinder service) {
             mService = new Messenger(service);
             try {
-                Message msg = Message.obtain(null, ChatService.MSG_REGISTER_CLIENT);
+                Message msg = Message.obtain(null, ChatService.MSG_CHATROOM_CLIENT);
                 msg.replyTo = mMessenger;
                 mService.send(msg);
 
