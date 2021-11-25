@@ -103,10 +103,20 @@ public class ChatRoomActivity extends AppCompatActivity {
                             if(room.equals(room_nm)){
                                 String room_ID = room_list.get(i).getRoom_ID();
                                 String member = room_list.get(i).getMember();
-                                String mem_count = _inwon;
+
                                 String lastTime = room_list.get(i).getLastTime();
                                 int msg_count = room_list.get(i).getMsg_count();
                                 String msgs = room_list.get(i).getLast_msg();
+                                String mem_count =  "";
+                                if(!msgs.equals(""))
+                                {
+                                     mem_count = _inwon;
+
+
+                                    room_list.get(i).setMem_count(_inwon);
+                                }
+
+
 
                                 chatRoom_Model chatRoom_Model = new chatRoom_Model(room_ID, room_nm, member, mem_count, lastTime, msg_count, msgs);// 모델 객체 생성
                                 room_list_new.add(chatRoom_Model);
