@@ -97,7 +97,7 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
 //
 //
 //        }
-        if(!mData.get(position).getMem_count().equals(""))
+        if(!mData.get(position).getLast_msg().equals(""))
         {
             holder.txt_Check.setVisibility(View.VISIBLE);
 

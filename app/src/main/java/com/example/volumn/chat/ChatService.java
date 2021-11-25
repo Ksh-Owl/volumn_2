@@ -192,7 +192,7 @@ public class ChatService extends Service {
                                     if ((jsonArray.length() - (limit * (page - 1))) > 0) { //남아있는 데이터 있음
                                         Log.e("TAG", "남아있는 개수 :" + (jsonArray.length() - (limit * (page - 1))));
 
-                                        int left = limit - (jsonArray.length() - (limit * (page - 1)));//남아있다
+                                        int left =(jsonArray.length() - (limit * (page - 1)));//남아있다  limit -
 
                                         for (int L = 0; L < left; L++) {
                                             try {
@@ -241,11 +241,11 @@ public class ChatService extends Service {
 
                                 bundle_PAGEING_LIST.putString("response", jsonArray_send.toString());
 
+                                chatRoom_clientList.get(0).send(message);
 
                                 for (int i = 0; i < clientList.size(); i++) {
                                     try {
                                         clientList.get(i).send(message);
-                                        chatRoom_clientList.get(0).send(message);
 
                                         Log.e("서비스에서 메시지리스트 보냄", "");
 
@@ -306,7 +306,7 @@ public class ChatService extends Service {
                                     if ((jsonArray.length() - (limit * (page - 1))) > 0) { //남아있는 데이터 있음
                                         Log.e("TAG", "남아있는 개수 :" + (jsonArray.length() - (limit * (page - 1))));
 
-                                        int left = limit - (jsonArray.length() - (limit * (page - 1)));//남아있다
+                                        int left =  (jsonArray.length() - (limit * (page - 1)));//남아있다 limit -
 
                                         for (int L = 0; L < left; L++) {
                                             try {
@@ -347,27 +347,27 @@ public class ChatService extends Service {
                                 bundle_MSGLIST.putString("response", jsonArray_send.toString());
 
                             }
-                            for (int i = 0; i < clientList.size(); i++) {
+                            try {
 
-                                //페이징 처리
+                               // chatRoom_clientList.get(0).send(message);
 
+                                for (int i = 0; i < clientList.size(); i++) {
 
-                                //bundle_MSGLIST.putString("time", "");
-
-                                try {
                                     if (clientList.size() > 0) {
                                         clientList.get(i).send(message);
 
                                     }
-                                    chatRoom_clientList.get(0).send(message);
                                     Log.e("서비스에서 메시지리스트 보냄", "");
 
-                                } catch (RemoteException e) {
-                                    e.printStackTrace();
+
+
                                 }
 
 
+                            } catch (RemoteException e) {
+                                e.printStackTrace();
                             }
+
 
                         }
 
@@ -665,7 +665,10 @@ public class ChatService extends Service {
 
                     //Socket s = new Socket(String host<서버ip>, int port<서비스번호>);
 
-                    Socket s = new Socket("192.168.0.3", 5000);//연결시도
+                   // Socket s = new Socket("192.168.0.3", 5000);//연결시도 팀노바
+
+                    Socket s = new Socket("192.168.219.100", 5000);//연결시도 집
+
                     Log.v("", "클라이언트 : 서버 연결됨.");
 
                     in = new BufferedReader(new InputStreamReader(s.getInputStream()));

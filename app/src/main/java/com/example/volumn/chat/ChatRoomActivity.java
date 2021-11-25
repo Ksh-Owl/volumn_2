@@ -61,6 +61,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     Button btn_newRoom;
     RecyclerView rv_room;
     public ArrayList<chatRoom_Model> room_list;
+    public ArrayList<chatRoom_Model> room_list_new;
 
     ImageView img_back4;
     //서비스
@@ -75,6 +76,8 @@ public class ChatRoomActivity extends AppCompatActivity {
             //서비스에서 메시지 오면 반응
             switch (msg.what) {
                 case  ChatService.MSG_RESPONSE:
+
+
                     Bundle bundle = msg.getData();
                     String response = bundle.getString("response");
                     String roomInwon = bundle.getString("roomInwon");
@@ -88,18 +91,56 @@ public class ChatRoomActivity extends AppCompatActivity {
 
                         String inwon[] =  roomInwon.split(",");
 
+                        room_list_new = new ArrayList<>();
 
                         for (int i = 0; i < inwon.length; i++){
                            String room_inwon[]=   inwon[i].split("--");
 
                            String room = room_inwon[0];
                            String _inwon = room_inwon[1];
+                            String room_nm = room_list.get(i).getRoom_nm();
 
-                           String room_nm = room_list.get(i).getRoom_nm();
+                            if(room.equals(room_nm)){
+                                String room_ID = room_list.get(i).getRoom_ID();
+                                String member = room_list.get(i).getMember();
+                                String mem_count = _inwon;
+                                String lastTime = room_list.get(i).getLastTime();
+                                int msg_count = room_list.get(i).getMsg_count();
+                                String msgs = room_list.get(i).getLast_msg();
 
-
+                                chatRoom_Model chatRoom_Model = new chatRoom_Model(room_ID, room_nm, member, mem_count, lastTime, msg_count, msgs);// 모델 객체 생성
+                                room_list_new.add(chatRoom_Model);
+                            }
 
                         }
+                        RoomAdapter adapter = new RoomAdapter(room_list_new);
+
+
+
+                        adapter.setOnItemClickListener(new RoomAdapter.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(View v, int position) {
+
+
+                                String roomName = room_list_new.get(position).getRoom_nm();
+                                String room_ID = room_list_new.get(position).getRoom_ID();
+
+
+                                Intent intent = new Intent(context, MainChatActivity.class);
+                                intent.putExtra("roomName", roomName);
+                                intent.putExtra("room_ID", room_ID);
+
+                                startActivity(intent);
+
+
+                            }
+                        });
+                        adapter.notifyDataSetChanged();
+
+                        rv_room.setAdapter(adapter);
+
+                        rv_room.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
+
                     }
 
 
