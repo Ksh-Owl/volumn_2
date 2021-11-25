@@ -23,6 +23,7 @@ import android.os.Messenger;
 import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -59,6 +60,7 @@ public class MainChatActivity extends AppCompatActivity {
     //소켓 입출력객체
     BufferedReader in;
     private DataOutputStream out;
+
 
     boolean CheckScroll = false;
 
@@ -106,11 +108,8 @@ public class MainChatActivity extends AppCompatActivity {
 
                     break;
                 case ChatService.MSG_PAGEING_MSGLIST:
-                    ProgressDialog asyncDialog = new ProgressDialog(
-                            MainChatActivity.this);
-                    asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                    asyncDialog.setMessage("로딩중입니다..");
-                    asyncDialog.show();
+
+
 
 
 
@@ -152,15 +151,25 @@ public class MainChatActivity extends AppCompatActivity {
                             //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
                             //rv_msgList.scrollToPosition(rv_msgList.getAdapter().getItemCount() - 1);
                         }
-                        //로딩 끝
-                        Handler handler = new Handler();
-                        handler.postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                asyncDialog.dismiss();
+                        if(!MainChatActivity.this.isFinishing()){
+                            ProgressDialog asyncDialog = new ProgressDialog(
+                                    MainChatActivity.this);
+                            asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+                            asyncDialog.setMessage("로딩중입니다..");
+                            asyncDialog.show();
 
-                            }
-                        }, 200); //딜레이 타임 조절
+                            //로딩 끝
+                            Handler handler = new Handler();
+                            handler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    asyncDialog.dismiss();
+
+
+                                }
+                            }, 500); //딜레이 타임 조절
+                        }
+
 
                     } catch (JSONException e) {
                         e.printStackTrace();
@@ -228,9 +237,11 @@ public class MainChatActivity extends AppCompatActivity {
     private String clientMsg;
     private String nickName;
     ImageView img_send;
+    ImageView img_back3;
     EditText etxt_msgBox;
     RecyclerView rv_msgList;
     MsgAdapter adapter;
+    Button btn_exitRoom;
 
 
     String room = null;//채팅방 이름
@@ -279,11 +290,14 @@ public class MainChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main_chat);
         context = this;
 
+        btn_exitRoom = (Button)findViewById(R.id.btn_exitRoom);
+
+
         img_send = findViewById(R.id.img_send);
         etxt_msgBox = findViewById(R.id.etxt_msgBox);
         rv_msgList = findViewById(R.id.rv_msgList);
         txt_nowRoom = findViewById(R.id.txt_nowRoom);
-
+        img_back3 = (ImageView) findViewById(R.id.img_back3);
         Intent intent = getIntent();//인텐트 받아오기
         room = intent.getStringExtra("roomName");
         txt_nowRoom.setText(room);
@@ -316,7 +330,32 @@ public class MainChatActivity extends AppCompatActivity {
             }
 
         }
+        img_back3.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        btn_exitRoom.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                try {
+                //서비스(서버에 방 나가기) 메시지 보내기
+                Message msg = Message.obtain(null, ChatService.MSG_OUT_ROOM);
+                Bundle bundle = msg.getData();
+                bundle.putString("title", "" +txt_nowRoom.getText().toString());
 
+                    mService.send(msg);
+                } catch (RemoteException e) {
+                    e.printStackTrace();
+                }
+
+                //마지막 사람이면 db에서 방 지우기
+
+                //방나가기기
+                finish();
+            }
+        });
 
         adapter = new MsgAdapter(clientMsg_list);
 

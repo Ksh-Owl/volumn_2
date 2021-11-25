@@ -32,7 +32,7 @@ public class ChatCount_PreferenceManager {
 
 
      */                                                      //방이름
-    public static void setChatCount(Context context, String key ,String msg) throws JSONException {
+    public static void setChatCount(Context context, String key ,String msg,String lastTime,String mem_count) throws JSONException {
 
         String json  =  getChatCount(context,key);
         int Count=0;
@@ -64,6 +64,8 @@ public class ChatCount_PreferenceManager {
 
         jsonObject.put("count",Count_string);
         jsonObject.put("msg",msg);
+        jsonObject.put("lastTime",lastTime);
+        jsonObject.put("mem_count",mem_count);//방인원수
 
         jsonArray.put(jsonObject);
 
@@ -77,6 +79,9 @@ public class ChatCount_PreferenceManager {
         String json  =  getChatCount(context,key);
         int Count = 0;
         String msg = "";
+        String lastTime = "";
+        String mem_count = "";
+
 
         if(json != null)
         {
@@ -85,6 +90,9 @@ public class ChatCount_PreferenceManager {
                 JSONObject item = jsonArray.getJSONObject(i);
                 //String item_count = item.getString("count");
                 String item_msg = item.getString("msg");
+                lastTime = item.getString("lastTime");
+                mem_count = item.getString("mem_count");
+
                 ///Count = Integer.parseInt(item_count);
                  msg = item_msg;
             }
@@ -104,7 +112,8 @@ public class ChatCount_PreferenceManager {
 
         jsonObject.put("count",Count_string);
         jsonObject.put("msg",msg);
-
+        jsonObject.put("lastTime",lastTime);
+        jsonObject.put("mem_count",mem_count);//방인원수
         jsonArray.put(jsonObject);
 
 

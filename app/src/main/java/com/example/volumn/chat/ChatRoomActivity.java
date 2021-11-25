@@ -32,6 +32,7 @@ import android.os.RemoteException;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.example.volumn.chat.chatRoom_Model;
@@ -52,15 +53,16 @@ import java.util.ArrayList;
 
 public class ChatRoomActivity extends AppCompatActivity {
 
-    Context context;
+    public Context context;
 
     public BufferedReader in;
     public DataOutputStream out;
     public Socket s;
     Button btn_newRoom;
     RecyclerView rv_room;
+    public ArrayList<chatRoom_Model> room_list;
 
-
+    ImageView img_back4;
     //서비스
     private Messenger mService;
     private final Messenger mMessenger = new Messenger(new IncomingHandelr());
@@ -72,19 +74,19 @@ public class ChatRoomActivity extends AppCompatActivity {
             //메시지 값에 따라
             //서비스에서 메시지 오면 반응
             switch (msg.what) {
-//                case  ChatService.MSG_RESPONSE:
-//                    Bundle bundle = msg.getData();
-//                    String response = bundle.getString("response");
-//                    Log.e("TAG","response:"+response);
-//                    if(response.equals("160")){
-//                       // setRoom("","","");
-//                        Log.e("TAG","방업데이트");
-//
-//                    }
-//
-//
-//
-//                    break;
+                case  ChatService.MSG_RESPONSE:
+                    Bundle bundle = msg.getData();
+                    String response = bundle.getString("response");
+                    Log.e("TAG","response:"+response);
+                    if(response.equals("160")){
+                       // setRoom("","","");
+                        Log.e("TAG","방업데이트");
+
+                    }
+
+
+
+                    break;
 //                case ChatService.MSG_SENDMSG:
 //                    Log.e("TAG","방업데이트");
 //
@@ -103,6 +105,9 @@ public class ChatRoomActivity extends AppCompatActivity {
 
                     Bundle bundle_NO_READ = msg.getData();
                     String NO_READ_Data = bundle_NO_READ.getString("NO_READ_Data");
+
+
+                    //방인원 정보
 
 
                     //방 메시지 증가
@@ -129,9 +134,9 @@ public class ChatRoomActivity extends AppCompatActivity {
                 mService.send(msg);
 
 
-                Message msg2 =Message.obtain(null,ChatService.MSG_REQUEST_NO_READ_COUNT);
+                Message msg2 = Message.obtain(null, ChatService.MSG_REQUEST_NO_READ_COUNT);
                 Bundle bundle = msg2.getData();
-                bundle.putString("send","");
+                bundle.putString("send", "");
                 mService.send(msg2);
 
 
@@ -150,13 +155,18 @@ public class ChatRoomActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
-        //bindService(new Intent(this,ChatService.class),conn, Context.BIND_AUTO_CREATE);
 
         btn_newRoom = (Button) findViewById(R.id.btn_newRoom);
         rv_room = (RecyclerView) findViewById(R.id.rv_room);
         rv_room.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
         context = this;
-
+        img_back4 = (ImageView)findViewById(R.id.img_back4);
+        img_back4.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         //소켓연결 후 방만들기 코드 보낸후 방생성 코드 받아오면 방 리스트 업데이트
 
 
@@ -186,17 +196,17 @@ public class ChatRoomActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
 
+        bindService(new Intent(this, ChatService.class), conn, Context.BIND_AUTO_CREATE);
 
         try {
-        Message msg =Message.obtain(null,ChatService.MSG_REQUEST_NO_READ_COUNT);
-        Bundle bundle = msg.getData();
-        bundle.putString("send","");
-        if(mService != null)
-        {
-            //방업데이트 요청
+            Message msg = Message.obtain(null, ChatService.MSG_REQUEST_NO_READ_COUNT);
+            Bundle bundle = msg.getData();
+            bundle.putString("send", "");
+            if (mService != null) {
+                //방업데이트 요청
 
-            mService.send(msg);
-        }
+                mService.send(msg);
+            }
 
         } catch (RemoteException e) {
             e.printStackTrace();
@@ -208,10 +218,9 @@ public class ChatRoomActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        bindService(new Intent(this, ChatService.class), conn, Context.BIND_AUTO_CREATE);
+        // bindService(new Intent(this, ChatService.class), conn, Context.BIND_AUTO_CREATE);
 
-        if(mService == null)
-        {
+        if (mService == null) {
 
         }
 //        try{
@@ -241,7 +250,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                     JSONObject jsonObject = new JSONObject(response);
                     JSONArray jsonArray = jsonObject.getJSONArray("chat");
                     chatRoom_Model chatRoom_Model;// 모델 객체 생성
-                    ArrayList<chatRoom_Model> room_list = new ArrayList<>();
+                    room_list = new ArrayList<>();
 
                     for (int i = 0; i < jsonArray.length(); i++) {
 
@@ -250,54 +259,64 @@ public class ChatRoomActivity extends AppCompatActivity {
                         String room_ID = item.getString("room_ID");
                         String room_nm = item.getString("room_nm");
                         String member = item.getString("member");
-                        String mem_count = item.getString("mem_count");
-                        String CREATE_DATE = item.getString("CREATE_DATE");
+                                //item.getString("mem_count");
+                        //String CREATE_DATE = item.getString("CREATE_DATE");
                         int msg_count = 0;
                         String msg = "";
+                        String lastTime = "";
+                        String mem_count = "";
 
-                        if (NO_READ_Data != null && !NO_READ_Data.equals("") ) {
+
+                        if (NO_READ_Data != null && !NO_READ_Data.equals("")) {
                             JSONObject jsonObject_NO_READ = new JSONObject(NO_READ_Data);
 
 
-                           // for (int j = 0; j < jsonObject_NO_READ.length(); j++) {
+                            // for (int j = 0; j < jsonObject_NO_READ.length(); j++) {
 
 
-                                try {
-                                    JSONArray jsonArray1 = jsonObject_NO_READ.getJSONArray(room_nm);
-                                    JSONObject jsonObject1 = jsonArray1.getJSONObject(0);
-                                    msg_count = Integer.parseInt(jsonObject1.getString("count"));
-                                    msg = jsonObject1.getString("msg");
+                            try {
+                                JSONArray jsonArray1 = jsonObject_NO_READ.getJSONArray(room_nm);
+                                JSONObject jsonObject1 = jsonArray1.getJSONObject(0);
+                                msg_count = Integer.parseInt(jsonObject1.getString("count"));
+                                msg = jsonObject1.getString("msg");
+                                lastTime = jsonObject1.getString("lastTime");
+                                mem_count = jsonObject1.getString("mem_count");
 
-                                } catch (Exception e) {
-                                    Log.e("TAG", "jsonObject_NO_READ 에 이름이 없어서 오류 발생");
 
-                                }
+                            } catch (Exception e) {
+                                Log.e("TAG", "jsonObject_NO_READ 에 이름이 없어서 오류 발생");
 
+                            }
 
 
                             //}
 
                         }
 
-                        chatRoom_Model = new chatRoom_Model(room_ID, room_nm, member, mem_count, CREATE_DATE, msg_count, msg);// 모델 객체 생성
+                        chatRoom_Model = new chatRoom_Model(room_ID, room_nm, member, mem_count, lastTime, msg_count, msg);// 모델 객체 생성
                         room_list.add(chatRoom_Model);
 
                     }
 
                     RoomAdapter adapter = new RoomAdapter(room_list);
+
+
+
                     adapter.setOnItemClickListener(new RoomAdapter.OnItemClickListener() {
                         @Override
                         public void onItemClick(View v, int position) {
 
-                            String roomName = room_list.get(position).getRoom_nm();
-                            String room_ID = room_list.get(position).getRoom_ID();
+
+                                    String roomName = room_list.get(position).getRoom_nm();
+                                    String room_ID = room_list.get(position).getRoom_ID();
 
 
-                            Intent intent = new Intent(context, MainChatActivity.class);
-                            intent.putExtra("roomName", roomName);
-                            intent.putExtra("room_ID", room_ID);
+                                    Intent intent = new Intent(context, MainChatActivity.class);
+                                    intent.putExtra("roomName", roomName);
+                                    intent.putExtra("room_ID", room_ID);
 
-                            startActivity(intent);
+                                    startActivity(intent);
+
 
                         }
                     });

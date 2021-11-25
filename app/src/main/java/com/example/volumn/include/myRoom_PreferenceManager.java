@@ -2,6 +2,7 @@ package com.example.volumn.include;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -76,11 +77,31 @@ public class myRoom_PreferenceManager {
         String value = prefs.getString(key, null);
         return value;
     }
-    public static void deleteString(Context context, String key)
-    {
+    public static void deleteString(Context context, String key,String room_nm) throws JSONException {
+        String json = getString(context,key);
+
+        JSONArray jsonArray = new JSONArray(json);
+        JSONArray jsonArray_save = new JSONArray();
+
+        for (int i = 0; i < jsonArray.length() ; i++){
+
+            JSONObject item = jsonArray.getJSONObject(i);
+            String roomName = item.getString("value");
+
+            if(!roomName.equals(room_nm)){
+
+                jsonArray_save.put(item);
+
+            }
+
+        }
+        Log.e("쉐어드","저장된 방 삭제");
+        Log.e("쉐어드","삭제 방이름:"+room_nm);
+        Log.e("쉐어드","저장되는 방이름:"+jsonArray_save.toString());
+
         SharedPreferences prefs = getPreferences(context);
         SharedPreferences.Editor editor = prefs.edit();
-        editor.remove(key);
+        editor.putString(key, jsonArray_save.toString());
         editor.commit();
     }
 

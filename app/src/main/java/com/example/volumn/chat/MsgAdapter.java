@@ -61,28 +61,51 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
 
         Log.v("item", " item ::  " + position);
        String msg = mData.get(position);
+       if(msg == null)
+       {
+           return;
+       }
        String msgs[] = msg.split("▶");
 
+       if(msgs[0].equals("공지사항"))
+       {
+           holder.txt_notice.setVisibility(View.VISIBLE);
+           holder.txt_notice.setText(msgs[1]);
 
-       msgs[0] = msgs[0].replace("[","").replace("]","");
-       String userEmail = PreferenceManager.getString(context.getApplicationContext(), "userEmail");//쉐어드에서 로그인된 아이디 받아오기
 
-        if(userEmail.equals(msgs[0])){
-            //내 메시지 이면
+           holder.receivedMessage2.setVisibility(View.GONE);
+           holder.txt_chatName.setVisibility(View.GONE);
+           holder.sentMessage2.setVisibility(View.GONE);
 
-            holder.sentMessage2.setText(msgs[1]);
+       }else
+       {
+           msgs[0] = msgs[0].replace("[","").replace("]","");
+           String userEmail = PreferenceManager.getString(context.getApplicationContext(), "userEmail");//쉐어드에서 로그인된 아이디 받아오기
 
-            holder.receivedMessage2.setVisibility(View.GONE);
-            holder.txt_chatName.setVisibility(View.GONE);
-        }else
-        {  //다른사람 메시지 이면
+           if(userEmail.equals(msgs[0])){
+               //내 메시지 이면
 
-            holder.txt_chatName.setText(msgs[0]);
-            holder.receivedMessage2.setText(msgs[1]);
+               holder.sentMessage2.setText(msgs[1]);
 
-            holder.sentMessage2.setVisibility(View.GONE);
+               holder.receivedMessage2.setVisibility(View.GONE);
+               holder.txt_chatName.setVisibility(View.GONE);
 
-        }
+               holder.txt_notice.setVisibility(View.GONE);
+
+           }else
+           {  //다른사람 메시지 이면
+
+               holder.txt_chatName.setText(msgs[0]);
+               holder.receivedMessage2.setText(msgs[1]);
+
+               holder.sentMessage2.setVisibility(View.GONE);
+               holder.txt_notice.setVisibility(View.GONE);
+
+           }
+
+       }
+
+
 
 
 
@@ -98,7 +121,7 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
         TextView receivedMessage2;
         TextView sentMessage2;
         TextView txt_chatName;
-
+        TextView txt_notice;
 
         ViewHolder(View itemView) {
             super(itemView);
@@ -109,7 +132,7 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
             receivedMessage2 = (TextView) itemView.findViewById(R.id.receivedMessage2);
             sentMessage2 = (TextView) itemView.findViewById(R.id.sentMessage2);
             txt_chatName= (TextView) itemView.findViewById(R.id.txt_chatName);
-
+            txt_notice = (TextView) itemView.findViewById(R.id.txt_notice);
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {

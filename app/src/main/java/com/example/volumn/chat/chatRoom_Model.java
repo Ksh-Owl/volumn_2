@@ -8,16 +8,16 @@ public class chatRoom_Model {
     private String room_nm ;
     private String member ;
     private String mem_count ;
-    private String CREATE_DATE;
+    private String lastTime;
     private int msg_count;
     private String last_msg;
 
-    public chatRoom_Model(String room_ID,String room_nm,String member, String mem_count,String CREATE_DATE ,int msg_count ,String last_msg){
+    public chatRoom_Model(String room_ID,String room_nm,String member, String mem_count,String lastTime ,int msg_count ,String last_msg){
         this.room_ID = room_ID;
         this.room_nm = room_nm;
         this.member = member;
         this.mem_count = mem_count;
-        this.CREATE_DATE = CREATE_DATE;
+        this.lastTime = lastTime;
         this.msg_count = msg_count;
         this.last_msg = last_msg;
 
@@ -71,11 +71,11 @@ public class chatRoom_Model {
         this.last_msg = last_msg;
     }
 
-    public String getCREATE_DATE() {
-        return CREATE_DATE;
+    public String getLastTime() {
+        return lastTime;
     }
 
     public void setCREATE_DATE(String CREATE_DATE) {
-        this.CREATE_DATE = CREATE_DATE;
+        this.lastTime = CREATE_DATE;
     }
 }

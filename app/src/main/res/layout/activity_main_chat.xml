@@ -6,6 +6,14 @@
     android:layout_height="match_parent"
     tools:context=".chat.MainChatActivity">
 
+    <ImageView
+        android:id="@+id/img_back3"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/ic_baseline_keyboard_backspace_48" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_msgList"
         android:layout_width="match_parent"
@@ -15,7 +23,7 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/button" />
+        app:layout_constraintTop_toBottomOf="@+id/btn_exitRoom" />
 
     <ImageView
         android:id="@+id/img_send"
@@ -40,20 +48,22 @@
         android:id="@+id/txt_nowRoom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginLeft="20dp"
         android:text="현재 방이름"
         android:textSize="20sp"
         app:layout_constraintBottom_toTopOf="@+id/rv_msgList"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/img_back3"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/button"
+        android:id="@+id/btn_exitRoom"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="10dp"
         android:layout_marginRight="10dp"
         android:text="나가기"
-        android:visibility="invisible"
+        android:visibility="visible"
         app:backgroundTint="#3F51B5"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
