@@ -1,19 +1,28 @@
 package com.example.volumn.chat;
+import com.example.volumn.addSet.addSetRequest;
+
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
+import androidx.loader.content.CursorLoader;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
+import android.content.ClipData;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -21,6 +30,8 @@ import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
+import android.provider.MediaStore;
+import android.util.Base64;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -45,9 +56,12 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
@@ -67,6 +81,9 @@ public class MainChatActivity extends AppCompatActivity {
     //서비스
     private Messenger mService;
     private final Messenger mMessenger = new Messenger(new IncomingHandelr());
+
+
+    String img;
 
     private class IncomingHandelr extends Handler {
         @Override
@@ -88,11 +105,38 @@ public class MainChatActivity extends AppCompatActivity {
                     Bundle bundle2 = msg.getData();
                     String title = bundle2.getString("title");
                     String response2 = bundle2.getString("response");
+                    String time2 = bundle2.getString("time");
+                    try{
+                        String img_id = bundle2.getString("img_id");
+                        if(img_id != null ||!img_id.equals(""))
+                        {
+                            //사진을 보냈습니다.
+
+                            msg_Model msg_model = new msg_Model(response2,time2,img_id);
+                            clientMsg_list.add(msg_model);
+                            adapter.notifyDataSetChanged();
+
+                            //db에서 사진 데이터 받아오기
+
+
+
+
+                            return;
+
+
+                        }
+                    }catch (Exception e){
+
+                    }
+
+
 
                     Log.e("TAG", "MainChatActivity Response::" + response2);
                     //ArrayList<String> Msg_list = new ArrayList<>();
                     if (title.equals(txt_nowRoom.getText().toString())) {
-                        clientMsg_list.add(response2);
+
+                        msg_Model msg_model = new msg_Model(response2,time2,"");
+                        clientMsg_list.add(msg_model);
 
 
                        // adapter = new MsgAdapter(clientMsg_list);
@@ -133,7 +177,8 @@ public class MainChatActivity extends AppCompatActivity {
 
                                 String msg_ = item.getString("msg");
                                 String time_ = item.getString("time");
-                                clientMsg_list.add(0,msg_);
+                                msg_Model msg_model = new msg_Model(msg_,time_,"");
+                                clientMsg_list.add(msg_model);
 
 
                             }
@@ -196,7 +241,9 @@ public class MainChatActivity extends AppCompatActivity {
 
                                 String msg_ = item.getString("msg");
                                 String time_ = item.getString("time");
-                                clientMsg_list.add(msg_);
+
+                                msg_Model msg_model = new msg_Model(msg_,time_,"");
+                                clientMsg_list.add(msg_model);
 
 
                             }
@@ -230,7 +277,7 @@ public class MainChatActivity extends AppCompatActivity {
     }
 
     //클라세팅
-    ArrayList<String> clientMsg_list;
+    ArrayList<msg_Model> clientMsg_list;
 
     TextView txt_nowRoom;//현재 방이름
 
@@ -238,6 +285,9 @@ public class MainChatActivity extends AppCompatActivity {
     private String nickName;
     ImageView img_send;
     ImageView img_back3;
+
+    ImageView img_addImage; //이미지 보내기
+
     EditText etxt_msgBox;
     RecyclerView rv_msgList;
     MsgAdapter adapter;
@@ -248,6 +298,7 @@ public class MainChatActivity extends AppCompatActivity {
     String room_ID = null;//채팅방 ID
     String userEmail;
 
+    String encodeImageString;
     Thread th;
 
     //페이징 변수
@@ -292,7 +343,7 @@ public class MainChatActivity extends AppCompatActivity {
 
         btn_exitRoom = (Button)findViewById(R.id.btn_exitRoom);
 
-
+        img_addImage = findViewById(R.id.img_addImg);//이미지 보내기
         img_send = findViewById(R.id.img_send);
         etxt_msgBox = findViewById(R.id.etxt_msgBox);
         rv_msgList = findViewById(R.id.rv_msgList);
@@ -317,11 +368,16 @@ public class MainChatActivity extends AppCompatActivity {
         if (json != null) {
             try {
                 JSONArray jsonArray = new JSONArray(json);
+
                 for (int i = 0; i < jsonArray.length(); i++) {
                     JSONObject item = jsonArray.getJSONObject(i);
 
                     String msg = item.getString("msg");
-                    clientMsg_list.add(msg);
+                    String time = item.getString("time");
+                    String img_id = item.getString("img_id");
+                    msg_Model msg_model = new msg_Model(msg,time,img_id);
+
+                    clientMsg_list.add(msg_model);
                 }
 
 
@@ -334,6 +390,18 @@ public class MainChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
+            }
+        });
+        img_addImage.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //갤러리 or 사진 앱 실행하여 사진을 선택하도록
+                Intent intent= new Intent(Intent.ACTION_PICK);
+                intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE,true);
+                intent.setData(MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+                startActivityForResult(intent,10);
+
             }
         });
         btn_exitRoom.setOnClickListener(new View.OnClickListener() {
@@ -484,6 +552,192 @@ public class MainChatActivity extends AppCompatActivity {
 
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        switch(requestCode){
+          case  10:
+              if(resultCode == RESULT_OK){
+
+
+                  //선택한 사진의 경로(Uri)객체 가져오기
+                 // Uri uri = data.getData();
+
+                  if(data != null)
+                  {
+                      if(data.getClipData() == null){  // 이미지를 하나만 선택한 경우
+                          Log.e("single choice: ", String.valueOf(data.getData()));
+                          Uri imageUri = data.getData();
+
+                          //bitmap으로 변환
+
+                          try {
+                              encodeUriToBitmap(imageUri);//최종 결과 encodeImageString 값에 이미지 String 값 전달됨
+
+
+                              Upload_img(encodeImageString);//이미지 DB에 저장
+
+                          } catch (FileNotFoundException e) {
+                              e.printStackTrace();
+                          }
+
+                          String imgPath = getRealPathFromUri(imageUri);
+
+                          //서버에 메시지 보내기
+
+
+                          //clientMsg_list.add( "이미지▶"+imageUri);
+                         // adapter.notifyDataSetChanged();
+
+
+
+                        //  rv_msgList.scrollToPosition(clientMsg_list.size()-1);
+                          Log.d("이미지 경로", ""+imageUri.toString()+"\n"+imgPath);
+
+                      }else
+                      {
+                          //이미지를 여러장 선택한 경우
+                          ClipData clipData = data.getClipData();
+                          Log.e("clipData", String.valueOf(clipData.getItemCount()));
+
+                          if(clipData.getItemCount() >10){// 선택한 이미지가 11장 이상인 경우
+                              Toast.makeText(getApplicationContext(), "사진은 10장까지 선택 가능합니다.", Toast.LENGTH_LONG).show();
+
+                          }else
+                          {//선택한 이미지가 1장 이상 10장이하인 경우
+                              Log.e("TAG", "multiple choice");
+                              for (int i = 0; i < clipData.getItemCount(); i++){
+                                  Uri imageUri = clipData.getItemAt(i).getUri();  // 선택한 이미지들의 uri를 가져온다.
+                                  try {
+                                     // clientMsg_list.add("이미지▶"+imageUri);  //uri를 list에 담는다.
+
+                                      //서버에 메시지 보내기
+                                      encodeUriToBitmap(imageUri);//최종 결과 encodeImageString 값에 이미지 String 값 전달됨
+
+
+                                      Upload_img(encodeImageString);//이미지 DB에 저장
+
+                                  } catch (Exception e) {
+                                      Log.e("TAG", "File select error", e);
+                                  }
+                              }
+                              adapter.notifyDataSetChanged();
+
+                          }
+
+                      }
+
+                      //이미지뷰의 변수명 . setImageURI(uri);
+
+                      //갤러리앱에서 관리하는 DB정보가 있는데 , 그것이 나온다 [실제 파일 경로가 아님]
+                      //얻어온 Uri는 Gallery앱의 DB번호임
+                      //업로드를 하려면 이미지의 절대경로(실제경로: file:// -----/aaa.png)필요함
+                      //Uri -->절대경로 (String)변환
+
+
+
+
+                      // adapter = new MsgAdapter(clientMsg_list);
+                      //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
+
+
+                      //이미지 경로 uri 확인해보기
+                  }else
+                  {
+                      Toast.makeText(context, "이미지가 선택되지 않았습니다.", Toast.LENGTH_SHORT).show();
+                  }
+              }
+            break;
+
+          default:
+            break;
+        }
+
+    }
+    String getRealPathFromUri(Uri uri){
+        String[] proj = {MediaStore.Images.Media.DATA};
+        CursorLoader loader= new CursorLoader(this,uri,proj,null,null,null);
+        Cursor cursor = loader.loadInBackground();
+        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+        cursor.moveToFirst();
+        String result = cursor.getString(column_index);
+        cursor.close();
+        return result;
+    }
+    private  void Upload_img(String  encodeImageString){
+
+
+        Response.Listener<String> responseListner = new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+
+
+
+                            boolean success = jsonObject.getBoolean("success");
+
+                            if (success) { // 이미지 업로드에 성공
+
+                                            //메시지 보내기 서비스에 전달
+                                            try {
+                                                String lastid = jsonObject.getString("lastid");
+
+                                                Toast.makeText(getApplicationContext(),"저장 ID"+lastid,Toast.LENGTH_SHORT).show();
+
+                                                Message msg = Message.obtain(null, ChatService.MSG_MSG);
+                                                Bundle bundle = msg.getData();
+                                                bundle.putString("send", "사진을 보냈습니다.");
+                                                bundle.putString("lastid", lastid);
+
+                                                mService.send(msg);
+                                                Log.e("TAG", "이미지 보냈음을 서비스에 전달" );
+
+
+                                            } catch (Exception e) {
+                                                e.printStackTrace();
+                                            }
+                                        } else { // 이미지 업로드 실패
+                                            //Toast.makeText(getApplicationContext()," ",Toast.LENGTH_SHORT).show();
+
+                                            return;
+                                        }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+
+                    }
+                };
+                //String userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오기
+
+                Upload_img_Request upload_img_request = new Upload_img_Request(room,room_ID,userEmail ,encodeImageString , responseListner);
+                RequestQueue queue = Volley.newRequestQueue(context);
+                queue.add(upload_img_request);
+    }
+
+    private void encodeUriToBitmap(Uri uri) throws FileNotFoundException {//최종 결과 encodeImageString 값에 이미지 String 값 전달됨
+
+        InputStream inputStream = getContentResolver().openInputStream(uri);
+        Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
+        //encodeBitmapImage(bitmap);
+
+        encodeImageString =  ImageUtil.convert(bitmap);
+
+
+    }
+    private void encodeBitmapImage(Bitmap bitmap)
+    {
+        //bitmap을 String으로 변환
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
+
+        byte[] bytesOfImage = byteArrayOutputStream.toByteArray();
+        encodeImageString = android.util.Base64.encodeToString(bytesOfImage, Base64.NO_WRAP);
+    }
 
     private void inRoom(String room_ID, String addMem) {
 

@@ -125,10 +125,9 @@ public class ChatService extends Service {
                 case MSG_REGISTER_CLIENT:
 
                     Log.e("TAG", "msg.replyTo:" + msg.replyTo);
-                    if (clientList.size() > 2) {
-                        clientList.clear();
 
-                    }
+                    clientList.clear();
+
                     clientList.add(msg.replyTo);
 
                     break;
@@ -148,6 +147,8 @@ public class ChatService extends Service {
                         send = bundle_CREAT_ROOM.getString("send");
                         Log.e("TAG", "MSG_CREATE_ROOM/send:" + bundle_CREAT_ROOM.getString("send"));
                         sendMsg("160|" + send); //방제목을 서버에게 전달
+                        Log.e("TAG", "방만들기 방제목 서버에 보냄 :" +send);
+
                         //db에 저장
                         saveRoom(send, "" + userEmail, "1");
 
@@ -410,8 +411,21 @@ public class ChatService extends Service {
                 case MSG_MSG:
                     Bundle bundle_MSG = msg.getData();
                     send = bundle_MSG.getString("send");
-                    Log.e("TAG", "MSG_MSG/send:" + bundle_MSG.getString("send"));
-                    sendMsg("300|" + send); //채팅메시지를 서버에게 전달
+
+                    if(send.equals("사진을 보냈습니다."))
+                    {
+                        String lastid  = bundle_MSG.getString("lastid");
+                        sendMsg("301|"+ "사진을 보냈습니다.|"+ lastid); //이미지저장 id를 서버에게 전달
+                        Log.e("TAG", "이미지 메시지 보냄:" + lastid);
+
+
+                    }else
+                    {
+                        Log.e("TAG", "MSG_MSG/send:" + bundle_MSG.getString("send"));
+                        sendMsg("300|" + send); //채팅메시지를 서버에게 전달
+                    }
+
+
                     //db에 저장
                     //saveRoom(send, ""+userEmail, "1");
                     break;
@@ -665,9 +679,9 @@ public class ChatService extends Service {
 
                     //Socket s = new Socket(String host<서버ip>, int port<서비스번호>);
 
-                   // Socket s = new Socket("192.168.0.3", 5000);//연결시도 팀노바
+                   Socket s = new Socket("192.168.0.4", 5000);//연결시도 팀노바
 
-                    Socket s = new Socket("192.168.219.100", 5000);//연결시도 집
+                    //Socket s = new Socket("192.168.219.100", 5000);//연결시도 집
 
                     Log.v("", "클라이언트 : 서버 연결됨.");
 
@@ -722,19 +736,57 @@ public class ChatService extends Service {
                         String protocol = msgs[0];
 
                         switch (protocol) {
+                            case "301":
+                                //메시지 이미지 받기
+                                ChatCount_PreferenceManager.setChatCount(getApplicationContext(), msgs[1], msgs[3], msgs[2], msgs[4]);
+
+                                Chat_PreferenceManager.setChatArrayPref(getApplicationContext(), msgs[1], msgs[3], msgs[2],msgs[5]);
+
+                                Message message_img = Message.obtain(null, MSG_SENDMSG);
+                                Bundle bundle_img = message_img.getData();
+                                bundle_img.putString("response", "" + msgs[3]);//메시지 내용
+
+                                bundle_img.putString("time", "" + msgs[2]);//메시지 시간
+                                bundle_img.putString("title", "" + msgs[1]);//메시지
+
+                                bundle_img.putString("img_id", "" + msgs[5]);//메시지
+
+                                try{
+                                    if(clientList.size() > 0 )
+                                    {
+                                        clientList.get(0).send(message_img);
+
+                                    }
+                                    if(chatRoom_clientList.size() >0)
+                                    {
+                                        Message message_NO_READ = noReadCount();
+
+                                        chatRoom_clientList.get(0).send(message_NO_READ);
+                                    }
+
+                                    createNotification(getApplicationContext(), msgs[1], msgs[3]);
+
+                                }catch (Exception e){
+                                    e.printStackTrace();
+
+                                }
+
+                                break;
 
                             case "300":
+                                try {
+
                                 //메시지 받기
                                 //메시지를 adapter에 넣는다
 
 
-                                try {
+
                                     //클라이언트에게 전송
 
 
                                     ChatCount_PreferenceManager.setChatCount(getApplicationContext(), msgs[1], msgs[3], msgs[2], msgs[4]);
 
-                                    Chat_PreferenceManager.setChatArrayPref(getApplicationContext(), msgs[1], msgs[3], msgs[2]);
+                                    Chat_PreferenceManager.setChatArrayPref(getApplicationContext(), msgs[1], msgs[3], msgs[2],"");
                                     Log.e("메시지 카운트저장", "카운트저장");
                                     if (clientList.size() > 0 || chatRoom_clientList.size() > 0) {
 
@@ -781,6 +833,7 @@ public class ChatService extends Service {
 
 
                             case "160"://방만들기
+                                Log.e("TAG","방정보 변경 감지");
                                 try {
                                     //서버에서 보내는 방정보
                                     String get = msgs[1];
@@ -850,7 +903,7 @@ public class ChatService extends Service {
 
                                         bundle2.putString("nickName", "" + msgs[2]);//이메일
                                         bundle2.putString("title", "" + msgs[1]);//방이름
-                                        Chat_PreferenceManager.setChatArrayPref(getApplicationContext(), msgs[1], noti_IN, "");
+                                        Chat_PreferenceManager.setChatArrayPref(getApplicationContext(), msgs[1], noti_IN, "","");
 
 //
                                         for (int i = 0; i < clientList.size(); i++) {
@@ -888,7 +941,7 @@ public class ChatService extends Service {
                                         bundle.putString("title", "" + msgs[1]);//방이름
 
                                         //   boolean save_check = false;
-                                        Chat_PreferenceManager.setChatArrayPref(getApplicationContext(), msgs[1], noti, "");
+                                        Chat_PreferenceManager.setChatArrayPref(getApplicationContext(), msgs[1], noti, "","");
 
                                         for (int i = 0; i < clientList.size(); i++) {
 

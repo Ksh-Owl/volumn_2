@@ -98,6 +98,11 @@ public class ChatRoomActivity extends AppCompatActivity {
 
                            String room = room_inwon[0];
                            String _inwon = room_inwon[1];
+                           if(room_list.size() <=i){
+
+                               //inwon.length 보다 room_list가 작으면 반환
+                                 return;
+                           }
                             String room_nm = room_list.get(i).getRoom_nm();
 
                             if(room.equals(room_nm)){

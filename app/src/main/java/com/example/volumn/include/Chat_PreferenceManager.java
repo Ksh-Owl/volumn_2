@@ -38,7 +38,7 @@ public class Chat_PreferenceManager {
      * @param msg
      * @param time
      */                                                      //방이름                              //채팅내용
-    public static void setChatArrayPref(Context context, String key, String msg,String time) throws JSONException {
+    public static void setChatArrayPref(Context context, String key, String msg,String time,String img_id) throws JSONException {
 
         //deleteString(context,key);
        String json =  getChatArrayPref(context,key);
@@ -53,6 +53,7 @@ public class Chat_PreferenceManager {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("msg",msg);
             jsonObject.put("time",time);
+            jsonObject.put("img_id",img_id);
 
             jsonArray.put(jsonObject);
 
@@ -69,6 +70,7 @@ public class Chat_PreferenceManager {
 
             jsonObject.put("msg",msg);
             jsonObject.put("time",time);
+            jsonObject.put("img_id",img_id);
 
 
             jsonArray.put(jsonObject);
