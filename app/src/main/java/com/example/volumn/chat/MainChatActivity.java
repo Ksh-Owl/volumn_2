@@ -97,6 +97,28 @@ public class MainChatActivity extends AppCompatActivity {
                     String response = bundle.getString("response");
                     Log.e("TAG", "MainChatActivity Response::" + response);
 
+                    if(response.equals("160"))
+                    {
+                        String roomInwon = bundle.getString("roomInwon");
+
+                        String room_i[] = roomInwon.split(",");
+
+                        for (int i = 0; i < room_i.length; i++){
+                            String room_[]  = room_i[i].split("--");
+
+                            String room_name = room_[0];
+                            String inwonCount = room_[1];
+
+                            if(room.equals(room_name))
+                            {
+                                //같은방
+                                txt_memCount.setText(inwonCount);
+                            }
+
+                        }
+
+                    }
+
                     //editText2.setText(response);
 
 
@@ -106,26 +128,34 @@ public class MainChatActivity extends AppCompatActivity {
                     String title = bundle2.getString("title");
                     String response2 = bundle2.getString("response");
                     String time2 = bundle2.getString("time");
+
+                    String read_Count = bundle2.getString("read_Count");
+                    String read_mem = bundle2.getString("read_mem");
+                    JSONArray jsonArray_read_mem = new JSONArray();
+                    try {
+
+                        jsonArray_read_mem = new JSONArray(read_mem);
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                     try{
                         String img_id = bundle2.getString("img_id");
                         if(img_id != null ||!img_id.equals(""))
                         {
                             //사진을 보냈습니다.
 
-                            msg_Model msg_model = new msg_Model(response2,time2,img_id);
+                            msg_Model msg_model = new msg_Model(response2,time2,img_id,read_Count,jsonArray_read_mem);
                             clientMsg_list.add(msg_model);
                             adapter.notifyDataSetChanged();
 
                             //db에서 사진 데이터 받아오기
-
-
-
 
                             return;
 
 
                         }
                     }catch (Exception e){
+                        e.printStackTrace();
 
                     }
 
@@ -135,7 +165,7 @@ public class MainChatActivity extends AppCompatActivity {
                     //ArrayList<String> Msg_list = new ArrayList<>();
                     if (title.equals(txt_nowRoom.getText().toString())) {
 
-                        msg_Model msg_model = new msg_Model(response2,time2,"");
+                        msg_Model msg_model = new msg_Model(response2,time2,"", read_Count,jsonArray_read_mem);
                         clientMsg_list.add(msg_model);
 
 
@@ -146,17 +176,11 @@ public class MainChatActivity extends AppCompatActivity {
                     }
 
 
-                    //editText2.setText(response);
-                    //Chat_PreferenceManager.setChatArrayPref(getApplicationContext(),msgs[1],msgs[2]);
+
 
 
                     break;
                 case ChatService.MSG_PAGEING_MSGLIST:
-
-
-
-
-
 
                     //로딩 시작
                     Bundle bundle4 = msg.getData();
@@ -177,7 +201,14 @@ public class MainChatActivity extends AppCompatActivity {
 
                                 String msg_ = item.getString("msg");
                                 String time_ = item.getString("time");
-                                msg_Model msg_model = new msg_Model(msg_,time_,"");
+                                String img_id_ = item.getString("img_id");
+                                String read_Count_ = item.getString("read_Count");
+                                String read_mem_ = item.getString("read_mem");
+
+                                JSONArray jsonArray_read_mem_ = new JSONArray(read_mem_);
+
+
+                                msg_Model msg_model = new msg_Model(msg_,time_,img_id_,read_Count_,jsonArray_read_mem_);
                                 clientMsg_list.add(msg_model);
 
 
@@ -197,22 +228,22 @@ public class MainChatActivity extends AppCompatActivity {
                             //rv_msgList.scrollToPosition(rv_msgList.getAdapter().getItemCount() - 1);
                         }
                         if(!MainChatActivity.this.isFinishing()){
-                            ProgressDialog asyncDialog = new ProgressDialog(
-                                    MainChatActivity.this);
-                            asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
-                            asyncDialog.setMessage("로딩중입니다..");
-                            asyncDialog.show();
+//                            ProgressDialog asyncDialog = new ProgressDialog(
+//                                    MainChatActivity.this);
+//                            asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
+//                            asyncDialog.setMessage("로딩중입니다..");
+//                            asyncDialog.show();
 
-                            //로딩 끝
-                            Handler handler = new Handler();
-                            handler.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    asyncDialog.dismiss();
-
-
-                                }
-                            }, 500); //딜레이 타임 조절
+//                            //로딩 끝
+//                            Handler handler = new Handler();
+//                            handler.postDelayed(new Runnable() {
+//                                @Override
+//                                public void run() {
+//                                    asyncDialog.dismiss();
+//
+//
+//                                }
+//                            }, 500); //딜레이 타임 조절
                         }
 
 
@@ -238,11 +269,28 @@ public class MainChatActivity extends AppCompatActivity {
                         if (title3.equals(txt_nowRoom.getText().toString())) {
                             for (int i = 0; i < jsonArray.length(); i++) {
                                 JSONObject item = jsonArray.getJSONObject(i);
+                                String img_id_ = "";
 
                                 String msg_ = item.getString("msg");
                                 String time_ = item.getString("time");
+                                try{
+                                    img_id_ = item.getString("img_id");
 
-                                msg_Model msg_model = new msg_Model(msg_,time_,"");
+                                }catch (Exception e){
+
+                                }
+                                String read_Count2 = item.getString("read_Count");
+                                String read_mem2 = item.getString("read_mem");
+                                JSONArray jsonArray_read_mem2 = new JSONArray();
+                                try {
+
+                                    jsonArray_read_mem2 = new JSONArray(read_mem2);
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                }
+
+
+                                msg_Model msg_model = new msg_Model(msg_,time_,img_id_,read_Count2,jsonArray_read_mem2);
                                 clientMsg_list.add(msg_model);
 
 
@@ -280,6 +328,7 @@ public class MainChatActivity extends AppCompatActivity {
     ArrayList<msg_Model> clientMsg_list;
 
     TextView txt_nowRoom;//현재 방이름
+    TextView txt_memCount; //현재방인원
 
     private String clientMsg;
     private String nickName;
@@ -330,7 +379,8 @@ public class MainChatActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        bindService(new Intent(this, ChatService.class), conn, Context.BIND_AUTO_CREATE);
+
+
 
 
     }
@@ -354,38 +404,39 @@ public class MainChatActivity extends AppCompatActivity {
         txt_nowRoom.setText(room);
         //읽지않은 메시지 카운트 삭제
         //ChatCount_PreferenceManager.deleteString(context,room);
-
+        txt_memCount = (TextView) findViewById(R.id.txt_memCount);//현재 방 인원수
 
         room_ID = intent.getStringExtra("room_ID");
 
         userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오기
 
         //  connect();
-        String json = Chat_PreferenceManager.getChatArrayPref(context, room);
-
+//        String json = Chat_PreferenceManager.getChatArrayPref(context, room);
+//
         clientMsg_list = new ArrayList<>(); //메시지 리스트 객체생성
-
-        if (json != null) {
-            try {
-                JSONArray jsonArray = new JSONArray(json);
-
-                for (int i = 0; i < jsonArray.length(); i++) {
-                    JSONObject item = jsonArray.getJSONObject(i);
-
-                    String msg = item.getString("msg");
-                    String time = item.getString("time");
-                    String img_id = item.getString("img_id");
-                    msg_Model msg_model = new msg_Model(msg,time,img_id);
-
-                    clientMsg_list.add(msg_model);
-                }
-
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-        }
+//
+//        if (json != null) {
+//            try {
+//                JSONArray jsonArray = new JSONArray(json);
+//
+//                for (int i = 0; i < jsonArray.length(); i++) {
+//
+//                    JSONObject item = jsonArray.getJSONObject(i);
+//
+//                    String msg = item.getString("msg");
+//                    String time = item.getString("time");
+//                    String img_id = item.getString("img_id");
+//                    msg_Model msg_model = new msg_Model(msg,time,img_id,"",null);
+//
+//                    clientMsg_list.add(msg_model);
+//                }
+//
+//
+//            } catch (JSONException e) {
+//                e.printStackTrace();
+//            }
+//
+//        }
         img_back3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -506,6 +557,7 @@ public class MainChatActivity extends AppCompatActivity {
             Bundle bundle = msg.getData();
             bundle.putString("send", "" + room);
             bundle.putString("MainChat", "MainChat");
+
             bundle.putString("page", ""+page);
             bundle.putString("limit", ""+limit);
 
@@ -517,8 +569,10 @@ public class MainChatActivity extends AppCompatActivity {
 
 
             Message msg_yes_read = Message.obtain(null, ChatService.MSG_YES_READ);
-            Bundle bundle_yes_read = msg.getData();
-            bundle.putString("send", "" + room);
+            Bundle bundle_yes_read = msg_yes_read.getData();
+            bundle_yes_read.putString("send", "" + room);
+           // bundle_yes_read.putString("send", "" + room);
+
             mService.send(msg_yes_read);
             Log.e("TAG", "안읽음 메시지 읽음처리");
 
@@ -528,12 +582,42 @@ public class MainChatActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+        bindService(new Intent(this, ChatService.class), conn, Context.BIND_AUTO_CREATE);
+
+        //메시지 읽어다 메시지 보내기
+
+        //보내야 하는 메지지 데이터
+        //방제목,내 id
+
+//        try {
+//            if(mService == null)
+//            {
+//                return;
+//            }
+//            Message msg = Message.obtain(null, ChatService.MSG_YES_READ);
+//            Bundle bundle = msg.getData();
+//            bundle.putString("send", "" + room);//방제목
+//            bundle.putString("userEmail", "" + userEmail);//방제목
+//
+//            mService.send(msg);
+//            Log.e("TAG", "안읽음 메시지 읽음처리");
+//
+//        } catch (RemoteException e) {
+//            e.printStackTrace();
+//        }
+
+    }
+
+    @Override
     protected void onPause() {
         super.onPause();
         try {
             Message msg = Message.obtain(null, ChatService.MSG_YES_READ);
             Bundle bundle = msg.getData();
-            bundle.putString("send", "" + room);
+            bundle.putString("send", "" + room);//방제목
+            //bundle.putString("userEmail", "" + userEmail);
             mService.send(msg);
             Log.e("TAG", "안읽음 메시지 읽음처리");
 
@@ -729,15 +813,7 @@ public class MainChatActivity extends AppCompatActivity {
 
 
     }
-    private void encodeBitmapImage(Bitmap bitmap)
-    {
-        //bitmap을 String으로 변환
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.JPEG, 100, byteArrayOutputStream);
 
-        byte[] bytesOfImage = byteArrayOutputStream.toByteArray();
-        encodeImageString = android.util.Base64.encodeToString(bytesOfImage, Base64.NO_WRAP);
-    }
 
     private void inRoom(String room_ID, String addMem) {
 

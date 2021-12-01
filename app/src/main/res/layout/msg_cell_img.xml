@@ -13,7 +13,7 @@
         android:layout_marginLeft="5dp"
         android:layout_marginTop="12dp"
         android:src="#971B1B"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:text="아이디"
         android:textSize="12sp"
-        app:layout_constraintStart_toStartOf="@+id/receivedMessage2"
+        app:layout_constraintStart_toEndOf="@+id/circleImageView"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
@@ -34,69 +34,38 @@
         android:textSize="12sp"
         android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/sentMessage2"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/receivedMessage2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="10dp"
-        android:layout_marginLeft="10dp"
-        android:layout_marginBottom="1dp"
-        android:background="@drawable/selected_background3"
-        android:padding="4dp"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/circleImageView"
-        app:layout_constraintTop_toBottomOf="@+id/txt_chatName" />
-
-    <TextView
-        android:id="@+id/sentMessage2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_marginTop="12dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"
-        android:background="@drawable/selected_background2"
-        android:padding="4dp"
-        android:textColor="#000000"
-        android:textSize="20sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <ImageView
         android:id="@+id/img_img"
-        android:layout_width="200dp"
+        android:layout_width="0dp"
         android:layout_height="200dp"
         android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:maxWidth="100dp"
         android:maxHeight="100dp"
         android:scaleType="centerInside"
-        android:visibility="gone"
+        android:visibility="visible"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/circleImageView"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/txt_chatName"
         tools:srcCompat="@tools:sample/avatars" />
 
     <ImageView
         android:id="@+id/img_img2"
-        android:layout_width="200dp"
-        android:layout_height="200dp"
+        android:layout_width="213dp"
+        android:layout_height="201dp"
         android:layout_marginStart="200dp"
         android:layout_marginLeft="200dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginBottom="5dp"
         android:maxWidth="100dp"
         android:maxHeight="100dp"
         android:scaleType="centerInside"
-        android:visibility="gone"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
         tools:srcCompat="@tools:sample/avatars" />
 
     <TextView
@@ -105,31 +74,13 @@
         android:layout_height="wrap_content"
         android:text="1"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/receivedMessage2" />
+        app:layout_constraintStart_toEndOf="@+id/img_img" />
 
     <TextView
         android:id="@+id/txt_readcount2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="1"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/sentMessage2" />
-
-    <TextView
-        android:id="@+id/txt_readcount3"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="2"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/img_img" />
-
-    <TextView
-        android:id="@+id/txt_readcount4"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="2"
-        android:visibility="gone"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/img_img2" />
 
