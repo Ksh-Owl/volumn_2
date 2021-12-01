@@ -38,7 +38,7 @@ public class Chat_PreferenceManager {
      * @param msg
      * @param time
      */                                                      //방이름                              //채팅내용
-    public static void setChatArrayPref(Context context, String key, String msg,String time,String img_id ,String read_Count ,JSONArray read_mem) throws JSONException {
+    public static void setChatArrayPref(Context context, String key, String msg,String time,String img_id ) throws JSONException { //,String read_Count ,JSONArray read_mem
 
         //deleteString(context,key);
        String json =  getChatArrayPref(context,key);
@@ -53,8 +53,8 @@ public class Chat_PreferenceManager {
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("msg",msg);
             jsonObject.put("time",time);
-            jsonObject.put("read_Count",read_Count);
-            jsonObject.put("read_mem",read_mem.toString());
+//            jsonObject.put("read_Count",read_Count);
+//            jsonObject.put("read_mem",read_mem.toString());
 
             jsonArray.put(jsonObject);
 
@@ -72,12 +72,12 @@ public class Chat_PreferenceManager {
             jsonObject.put("msg",msg);
             jsonObject.put("time",time);
             jsonObject.put("img_id",img_id);
-            jsonObject.put("read_Count",read_Count);
-            if(read_mem != null)
-            {
-                jsonObject.put("read_mem",read_mem.toString());
-
-            }
+//            jsonObject.put("read_Count",read_Count);
+//            if(read_mem != null)
+//            {
+//                jsonObject.put("read_mem",read_mem.toString());
+//
+//            }
 
             jsonArray.put(jsonObject);
 

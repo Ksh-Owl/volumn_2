@@ -15,12 +15,12 @@ public class msg_Model {
     private JSONArray read_mem = new JSONArray() ;
 
 
-    public msg_Model(String msg, String time, String img_id,String read_count,JSONArray read_mem){
+    public msg_Model(String msg, String time, String img_id){//,String read_count,JSONArray read_mem
         this.msg = msg;
         this.time = time;
         this.img_id = img_id;
-        this.read_count = read_count;
-        this.read_mem = read_mem ;
+       // this.read_count = read_count;
+      //  this.read_mem = read_mem ;
 
     }
 

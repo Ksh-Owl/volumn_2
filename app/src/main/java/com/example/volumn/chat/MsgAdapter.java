@@ -35,12 +35,15 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
     private MsgAdapter.OnItemClickListener mListener = null;
     private MsgAdapter.OnItemClickListener mLongListener = null;
     public static Context context;
+
     public interface OnItemClickListener {
         void onItemClick(View v, int position);
     }
+
     public void setOnItemClickListener(MsgAdapter.OnItemClickListener listener) {
         this.mListener = listener;
     }
+
     public void setOnItemLongClickListener(MsgAdapter.OnItemClickListener listener) {
         this.mLongListener = listener;
     }
@@ -74,128 +77,145 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
         }
 
         Log.v("item", " item ::  " + position);
-       String msg = mData.get(position).getMsg();
+        String msg = mData.get(position).getMsg();
 
-       if(msg == null)
-       {
-           return;
-       }
+        if (msg == null) {
+            return;
+        }
         String time = mData.get(position).getTime();
         String img_id = mData.get(position).getImg_id();
-       String msgs[] = msg.split("▶");
-        msgs[0] = msgs[0].replace("[","").replace("]","");
+        String msgs[] = msg.split("▶");
+        msgs[0] = msgs[0].replace("[", "").replace("]", "");
         String userEmail = PreferenceManager.getString(context.getApplicationContext(), "userEmail");//쉐어드에서 로그인된 아이디 받아오기
 
 
         //읽음 처리
-        int  read_Count = Integer.parseInt(mData.get(position).getRead_count()) ;
-        JSONArray J_read_mem = mData.get(position).getRead_mem();
+        // int  read_Count = Integer.parseInt(mData.get(position).getRead_count()) ;
+        // JSONArray J_read_mem = mData.get(position).getRead_mem();
 
-         left_read = Integer.toString(read_Count -(J_read_mem.length())) ;
-         if(Integer.parseInt(left_read) <=0)
-         {
-             //left_read = "";
-         }
+//         left_read = Integer.toString(read_Count -(J_read_mem.length())) ;
+//         if(Integer.parseInt(left_read) <=0)
+//         {
+//             //left_read = "";
+//         }
 
 
-        if(!img_id.equals("")  ){
-           // holder.img_img2.setVisibility(View.VISIBLE);
+        if (!img_id.equals("")) {
+            // holder.img_img2.setVisibility(View.VISIBLE);
 
 
             holder.receivedMessage2.setVisibility(View.GONE);
             holder.sentMessage2.setVisibility(View.GONE);
             holder.txt_notice.setVisibility(View.GONE);
 
-            Get_img(holder,img_id,userEmail,msgs[0]);
+            Get_img(holder, img_id, userEmail, msgs[0]);
 
 
+            // byte[] bytePlainOrg = Base64.decode();
 
-           // byte[] bytePlainOrg = Base64.decode();
 
-
-        //    holder.img_img2.setImageURI(Uri.parse());
+            //    holder.img_img2.setImageURI(Uri.parse());
 
 
             return;
         }
 
 
-       if(msgs[0].equals("공지사항"))
-       {
-           holder.txt_notice.setVisibility(View.VISIBLE);
-           holder.txt_notice.setText(msgs[1]);
+        if (msgs[0].equals("공지사항")) {
+            holder.txt_notice.setVisibility(View.VISIBLE);
+            holder.txt_notice.setText(msgs[1]);
 
 
-           holder.receivedMessage2.setVisibility(View.GONE);
-           holder.txt_chatName.setVisibility(View.GONE);
-           holder.sentMessage2.setVisibility(View.GONE);
-           holder.circleImageView.setVisibility(View.GONE);
+            holder.receivedMessage2.setVisibility(View.GONE);
+            holder.txt_chatName.setVisibility(View.GONE);
+            holder.sentMessage2.setVisibility(View.GONE);
+            holder.circleImageView.setVisibility(View.GONE);
 
 
-           holder.txt_readcount.setVisibility(View.GONE);
+            holder.txt_readcount.setVisibility(View.GONE);
 
-           holder.txt_readcount2.setVisibility(View.GONE);
-           holder.txt_readcount3.setVisibility(View.GONE);
-           holder.txt_readcount4.setVisibility(View.GONE);
-       }else
-       {
+            holder.txt_readcount2.setVisibility(View.GONE);
+            holder.txt_readcount3.setVisibility(View.GONE);
+            holder.txt_readcount4.setVisibility(View.GONE);
+        } else if (msgs[0].equals("읽음")) {
 
+            holder.txt_notice.setVisibility(View.VISIBLE);
+            holder.txt_notice.setText(msgs[1]);
 
-           if(userEmail.equals(msgs[0])){
-               //내 메시지 이면
+            if (mData.size()-1 <= position){
+                //마지막
+                holder.txt_notice.setVisibility(View.GONE);
 
-               holder.sentMessage2.setText(msgs[1]);
-
-               holder.receivedMessage2.setVisibility(View.GONE);
-               holder.txt_chatName.setVisibility(View.GONE);
-
-               holder.txt_notice.setVisibility(View.GONE);
-               holder.circleImageView.setVisibility(View.GONE);
-               holder.txt_readcount2.setVisibility(View.VISIBLE);
-               holder.txt_readcount2.setText(left_read);
-
-               holder.txt_readcount.setVisibility(View.GONE);
-               holder.txt_readcount3.setVisibility(View.GONE);
-               holder.txt_readcount4.setVisibility(View.GONE);
-
-
-           }else
-           {  //다른사람 메시지 이면
-
-               holder.txt_chatName.setText(msgs[0]);
-               holder.receivedMessage2.setText(msgs[1]);
-
-               holder.circleImageView.setVisibility(View.VISIBLE);
-
-               holder.sentMessage2.setVisibility(View.GONE);
-               holder.txt_notice.setVisibility(View.GONE);
-
-
-
-               holder.txt_readcount.setVisibility(View.VISIBLE);
-               holder.txt_readcount.setText(left_read);
-
-               holder.txt_readcount2.setVisibility(View.GONE);
-               holder.txt_readcount3.setVisibility(View.GONE);
-               holder.txt_readcount4.setVisibility(View.GONE);
-
-
-           }
-
-       }
+            }
 
 
 
 
+            holder.receivedMessage2.setVisibility(View.GONE);
+            holder.txt_chatName.setVisibility(View.GONE);
+            holder.sentMessage2.setVisibility(View.GONE);
+            holder.circleImageView.setVisibility(View.GONE);
+
+
+            holder.txt_readcount.setVisibility(View.GONE);
+
+            holder.txt_readcount2.setVisibility(View.GONE);
+            holder.txt_readcount3.setVisibility(View.GONE);
+            holder.txt_readcount4.setVisibility(View.GONE);
+
+        } else {
+
+
+            if (userEmail.equals(msgs[0])) {
+                //내 메시지 이면
+
+                holder.sentMessage2.setText(msgs[1]);
+
+                holder.receivedMessage2.setVisibility(View.GONE);
+                holder.txt_chatName.setVisibility(View.GONE);
+
+                holder.txt_notice.setVisibility(View.GONE);
+                holder.circleImageView.setVisibility(View.GONE);
+                holder.txt_readcount2.setVisibility(View.GONE);
+                // holder.txt_readcount2.setText(left_read);
+
+                holder.txt_readcount.setVisibility(View.GONE);
+                holder.txt_readcount3.setVisibility(View.GONE);
+                holder.txt_readcount4.setVisibility(View.GONE);
+
+
+            } else {  //다른사람 메시지 이면
+
+                holder.txt_chatName.setText(msgs[0]);
+                holder.receivedMessage2.setText(msgs[1]);
+
+                holder.circleImageView.setVisibility(View.VISIBLE);
+
+                holder.sentMessage2.setVisibility(View.GONE);
+                holder.txt_notice.setVisibility(View.GONE);
+
+
+                holder.txt_readcount.setVisibility(View.GONE);
+                //holder.txt_readcount.setText(left_read);
+
+                holder.txt_readcount2.setVisibility(View.GONE);
+                holder.txt_readcount3.setVisibility(View.GONE);
+                holder.txt_readcount4.setVisibility(View.GONE);
+
+
+            }
+
+        }
 
 
     }
+
     @Override
     public int getItemCount() {
         return mData.size();
     }
 
-    public class  ViewHolder extends RecyclerView.ViewHolder{
+    public class ViewHolder extends RecyclerView.ViewHolder {
 
         TextView receivedMessage2;
         TextView sentMessage2;
@@ -204,7 +224,7 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
         ImageView img_img;
         ImageView img_img2;
 
-        CircleImageView circleImageView ;
+        CircleImageView circleImageView;
 
         TextView txt_readcount;
         TextView txt_readcount2;
@@ -220,7 +240,7 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
 
             receivedMessage2 = (TextView) itemView.findViewById(R.id.receivedMessage2);
             sentMessage2 = (TextView) itemView.findViewById(R.id.sentMessage2);
-            txt_chatName= (TextView) itemView.findViewById(R.id.txt_chatName);
+            txt_chatName = (TextView) itemView.findViewById(R.id.txt_chatName);
             txt_notice = (TextView) itemView.findViewById(R.id.txt_notice);
             circleImageView = (CircleImageView) itemView.findViewById(R.id.circleImageView);
 
@@ -269,7 +289,8 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
 
         }
     }
-    private  void Get_img(ViewHolder holder, String  img_id,String userEmail,String msg_id){
+
+    private void Get_img(ViewHolder holder, String img_id, String userEmail, String msg_id) {
 
 
         Response.Listener<String> responseListner = new Response.Listener<String>() {
@@ -285,15 +306,14 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
 
                         //메시지 보내기 서비스에 전달
                         try {
-                            String  img = jsonObject.getString("img");
+                            String img = jsonObject.getString("img");
 
 
-                            String data =  img; //bitmap 변환
+                            String data = img; //bitmap 변환
 
-                            Bitmap bitmap =  ImageUtil.convert(data);
+                            Bitmap bitmap = ImageUtil.convert(data);
 
-                            if(userEmail.equals(msg_id))
-                            {
+                            if (userEmail.equals(msg_id)) {
                                 //내가 보낸 사진
                                 holder.img_img2.setVisibility(View.VISIBLE);
                                 holder.img_img2.setImageBitmap(bitmap);
@@ -305,12 +325,11 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
 
                                 holder.txt_readcount2.setVisibility(View.GONE);
                                 holder.txt_readcount3.setVisibility(View.GONE);
-                                holder.txt_readcount4.setVisibility(View.VISIBLE);
-                                holder.txt_readcount4.setText(left_read);
+                                holder.txt_readcount4.setVisibility(View.GONE);
+                                //holder.txt_readcount4.setText(left_read);
 
 
-                            }else
-                            {
+                            } else {
                                 //다른사람이 보낸 사진
                                 holder.img_img.setVisibility(View.VISIBLE);
 
@@ -321,15 +340,12 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
                                 holder.txt_readcount.setVisibility(View.GONE);
 
                                 holder.txt_readcount2.setVisibility(View.GONE);
-                                holder.txt_readcount3.setVisibility(View.VISIBLE);
-                                holder.txt_readcount3.setText(left_read);
+                                holder.txt_readcount3.setVisibility(View.GONE);
+                                //holder.txt_readcount3.setText(left_read);
 
                                 holder.txt_readcount4.setVisibility(View.GONE);
 
                             }
-
-
-
 
 
                         } catch (Exception e) {

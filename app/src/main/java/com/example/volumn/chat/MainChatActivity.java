@@ -1,4 +1,5 @@
 package com.example.volumn.chat;
+
 import com.example.volumn.addSet.addSetRequest;
 
 
@@ -97,20 +98,18 @@ public class MainChatActivity extends AppCompatActivity {
                     String response = bundle.getString("response");
                     Log.e("TAG", "MainChatActivity Response::" + response);
 
-                    if(response.equals("160"))
-                    {
+                    if (response.equals("160")) {
                         String roomInwon = bundle.getString("roomInwon");
 
                         String room_i[] = roomInwon.split(",");
 
-                        for (int i = 0; i < room_i.length; i++){
-                            String room_[]  = room_i[i].split("--");
+                        for (int i = 0; i < room_i.length; i++) {
+                            String room_[] = room_i[i].split("--");
 
                             String room_name = room_[0];
                             String inwonCount = room_[1];
 
-                            if(room.equals(room_name))
-                            {
+                            if (room.equals(room_name)) {
                                 //같은방
                                 txt_memCount.setText(inwonCount);
                             }
@@ -129,22 +128,22 @@ public class MainChatActivity extends AppCompatActivity {
                     String response2 = bundle2.getString("response");
                     String time2 = bundle2.getString("time");
 
-                    String read_Count = bundle2.getString("read_Count");
-                    String read_mem = bundle2.getString("read_mem");
-                    JSONArray jsonArray_read_mem = new JSONArray();
+//                    String read_Count = bundle2.getString("read_Count");
+//
+//                       String read_mem = bundle2.getString("read_mem");
+//                   JSONArray jsonArray_read_mem = new JSONArray();
+//                    try {
+//
+//                        jsonArray_read_mem = new JSONArray(read_mem);
+//                    } catch (JSONException e) {
+//                        e.printStackTrace();
+//                    }
                     try {
-
-                        jsonArray_read_mem = new JSONArray(read_mem);
-                    } catch (JSONException e) {
-                        e.printStackTrace();
-                    }
-                    try{
                         String img_id = bundle2.getString("img_id");
-                        if(img_id != null ||!img_id.equals(""))
-                        {
+                        if (img_id != null || !img_id.equals("")) {
                             //사진을 보냈습니다.
 
-                            msg_Model msg_model = new msg_Model(response2,time2,img_id,read_Count,jsonArray_read_mem);
+                            msg_Model msg_model = new msg_Model(response2, time2, img_id);//, read_Count, jsonArray_read_mem
                             clientMsg_list.add(msg_model);
                             adapter.notifyDataSetChanged();
 
@@ -154,29 +153,25 @@ public class MainChatActivity extends AppCompatActivity {
 
 
                         }
-                    }catch (Exception e){
+                    } catch (Exception e) {
                         e.printStackTrace();
 
                     }
-
 
 
                     Log.e("TAG", "MainChatActivity Response::" + response2);
                     //ArrayList<String> Msg_list = new ArrayList<>();
                     if (title.equals(txt_nowRoom.getText().toString())) {
 
-                        msg_Model msg_model = new msg_Model(response2,time2,"", read_Count,jsonArray_read_mem);
+                        msg_Model msg_model = new msg_Model(response2, time2, "");//, read_Count, jsonArray_read_mem
                         clientMsg_list.add(msg_model);
 
 
-                       // adapter = new MsgAdapter(clientMsg_list);
+                        // adapter = new MsgAdapter(clientMsg_list);
                         adapter.notifyDataSetChanged();
                         //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
-                        rv_msgList.scrollToPosition(clientMsg_list.size()-1);
+                        rv_msgList.scrollToPosition(clientMsg_list.size() - 1);
                     }
-
-
-
 
 
                     break;
@@ -193,29 +188,30 @@ public class MainChatActivity extends AppCompatActivity {
                         }
                         JSONArray jsonArray = new JSONArray(response4);
 
-                        int a  = jsonArray.length();
+                        int a = jsonArray.length();
 
                         if (title4.equals(txt_nowRoom.getText().toString())) {
-                            for (int i = jsonArray.length() -1 ; i >= 0 ; i--) {
+                            for (int i = jsonArray.length() - 1; i >= 0; i--) {
                                 JSONObject item = jsonArray.getJSONObject(i);
 
                                 String msg_ = item.getString("msg");
                                 String time_ = item.getString("time");
                                 String img_id_ = item.getString("img_id");
-                                String read_Count_ = item.getString("read_Count");
-                                String read_mem_ = item.getString("read_mem");
+//                                String read_Count_ = item.getString("read_Count");
+//
+//                                String read_mem_ = item.getString("read_mem");
+//
+//                                JSONArray jsonArray_read_mem_ = new JSONArray(read_mem_);
 
-                                JSONArray jsonArray_read_mem_ = new JSONArray(read_mem_);
 
-
-                                msg_Model msg_model = new msg_Model(msg_,time_,img_id_,read_Count_,jsonArray_read_mem_);
+                                msg_Model msg_model = new msg_Model(msg_, time_, img_id_);//, read_Count_, jsonArray_read_mem_
                                 clientMsg_list.add(msg_model);
 
 
                             }
 
                             // adapter = new MsgAdapter(clientMsg_list);
-                            adapter =new MsgAdapter(clientMsg_list);
+                            adapter = new MsgAdapter(clientMsg_list);
 
 
                             rv_msgList.setAdapter(adapter);
@@ -227,7 +223,7 @@ public class MainChatActivity extends AppCompatActivity {
                             //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
                             //rv_msgList.scrollToPosition(rv_msgList.getAdapter().getItemCount() - 1);
                         }
-                        if(!MainChatActivity.this.isFinishing()){
+                        if (!MainChatActivity.this.isFinishing()) {
 //                            ProgressDialog asyncDialog = new ProgressDialog(
 //                                    MainChatActivity.this);
 //                            asyncDialog.setProgressStyle(ProgressDialog.STYLE_SPINNER);
@@ -260,7 +256,7 @@ public class MainChatActivity extends AppCompatActivity {
 
 
                     try {
-                        if (title3 == null ||response3 == null) {
+                        if (title3 == null || response3 == null) {
                             return;
                         }
                         JSONArray jsonArray = new JSONArray(response3);
@@ -273,24 +269,24 @@ public class MainChatActivity extends AppCompatActivity {
 
                                 String msg_ = item.getString("msg");
                                 String time_ = item.getString("time");
-                                try{
+                                try {
                                     img_id_ = item.getString("img_id");
 
-                                }catch (Exception e){
+                                } catch (Exception e) {
 
                                 }
-                                String read_Count2 = item.getString("read_Count");
-                                String read_mem2 = item.getString("read_mem");
-                                JSONArray jsonArray_read_mem2 = new JSONArray();
-                                try {
+//                                String read_Count2 = item.getString("read_Count");
+//                                String read_mem2 = item.getString("read_mem");
+//                                JSONArray jsonArray_read_mem2 = new JSONArray();
+//                                try {
+//
+//                                    jsonArray_read_mem2 = new JSONArray(read_mem2);
+//                                } catch (JSONException e) {
+//                                    e.printStackTrace();
+//                                }
 
-                                    jsonArray_read_mem2 = new JSONArray(read_mem2);
-                                } catch (JSONException e) {
-                                    e.printStackTrace();
-                                }
 
-
-                                msg_Model msg_model = new msg_Model(msg_,time_,img_id_,read_Count2,jsonArray_read_mem2);
+                                msg_Model msg_model = new msg_Model(msg_, time_, img_id_);//, read_Count2, jsonArray_read_mem2
                                 clientMsg_list.add(msg_model);
 
 
@@ -381,8 +377,6 @@ public class MainChatActivity extends AppCompatActivity {
         super.onStart();
 
 
-
-
     }
 
     @Override
@@ -391,7 +385,7 @@ public class MainChatActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main_chat);
         context = this;
 
-        btn_exitRoom = (Button)findViewById(R.id.btn_exitRoom);
+        btn_exitRoom = (Button) findViewById(R.id.btn_exitRoom);
 
         img_addImage = findViewById(R.id.img_addImg);//이미지 보내기
         img_send = findViewById(R.id.img_send);
@@ -447,11 +441,11 @@ public class MainChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 //갤러리 or 사진 앱 실행하여 사진을 선택하도록
-                Intent intent= new Intent(Intent.ACTION_PICK);
+                Intent intent = new Intent(Intent.ACTION_PICK);
                 intent.setType(MediaStore.Images.Media.CONTENT_TYPE);
-                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE,true);
+                intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
                 intent.setData(MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent,10);
+                startActivityForResult(intent, 10);
 
             }
         });
@@ -459,10 +453,10 @@ public class MainChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 try {
-                //서비스(서버에 방 나가기) 메시지 보내기
-                Message msg = Message.obtain(null, ChatService.MSG_OUT_ROOM);
-                Bundle bundle = msg.getData();
-                bundle.putString("title", "" +txt_nowRoom.getText().toString());
+                    //서비스(서버에 방 나가기) 메시지 보내기
+                    Message msg = Message.obtain(null, ChatService.MSG_OUT_ROOM);
+                    Bundle bundle = msg.getData();
+                    bundle.putString("title", "" + txt_nowRoom.getText().toString());
 
                     mService.send(msg);
                 } catch (RemoteException e) {
@@ -488,13 +482,12 @@ public class MainChatActivity extends AppCompatActivity {
                 super.onScrolled(recyclerView, dx, dy);
 
                 //현재 보이는 것 중 마지막 아이템의 포지션 +1
-                int lastVisibleItemPosition = ((LinearLayoutManager) rv_msgList.getLayoutManager()).findFirstVisibleItemPosition() -1;
-               //전체 아이템 갯수
+                int lastVisibleItemPosition = ((LinearLayoutManager) rv_msgList.getLayoutManager()).findFirstVisibleItemPosition() - 1;
+                //전체 아이템 갯수
                 int itemTotalCount = rv_msgList.getAdapter().getItemCount();
-                if(!CheckScroll && itemTotalCount >= 20 &&lastVisibleItemPosition == -1)
-                {
-                    Log.e("전체 아이템 갯수",String.valueOf(itemTotalCount));
-                    Log.e("홈 프레그먼트 ",String.valueOf(lastVisibleItemPosition));
+                if (!CheckScroll && itemTotalCount >= 20 && lastVisibleItemPosition == -1) {
+                    Log.e("전체 아이템 갯수", String.valueOf(itemTotalCount));
+                    Log.e("홈 프레그먼트 ", String.valueOf(lastVisibleItemPosition));
 
                     page++;
 
@@ -502,12 +495,12 @@ public class MainChatActivity extends AppCompatActivity {
                     //서비스에 page,limit 전달
 
                     try {
-                    Message msg = Message.obtain(null, ChatService.MSG_PAGEING_MSGLIST);
-                    Bundle bundle = msg.getData();
-                    bundle.putString("title", "" +txt_nowRoom.getText().toString());
-                    bundle.putString("page", "" + page);
-                    bundle.putString("limit", "" + limit);
-                    mService.send(msg);
+                        Message msg = Message.obtain(null, ChatService.MSG_PAGEING_MSGLIST);
+                        Bundle bundle = msg.getData();
+                        bundle.putString("title", "" + txt_nowRoom.getText().toString());
+                        bundle.putString("page", "" + page);
+                        bundle.putString("limit", "" + limit);
+                        mService.send(msg);
                         CheckScroll = true;
 
                     } catch (RemoteException e) {
@@ -558,8 +551,8 @@ public class MainChatActivity extends AppCompatActivity {
             bundle.putString("send", "" + room);
             bundle.putString("MainChat", "MainChat");
 
-            bundle.putString("page", ""+page);
-            bundle.putString("limit", ""+limit);
+            bundle.putString("page", "" + page);
+            bundle.putString("limit", "" + limit);
 
             Log.e("TAG", "노티피케이션 불가");
 
@@ -571,7 +564,7 @@ public class MainChatActivity extends AppCompatActivity {
             Message msg_yes_read = Message.obtain(null, ChatService.MSG_YES_READ);
             Bundle bundle_yes_read = msg_yes_read.getData();
             bundle_yes_read.putString("send", "" + room);
-           // bundle_yes_read.putString("send", "" + room);
+            // bundle_yes_read.putString("send", "" + room);
 
             mService.send(msg_yes_read);
             Log.e("TAG", "안읽음 메시지 읽음처리");
@@ -614,6 +607,9 @@ public class MainChatActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         try {
+
+
+
             Message msg = Message.obtain(null, ChatService.MSG_YES_READ);
             Bundle bundle = msg.getData();
             bundle.putString("send", "" + room);//방제목
@@ -629,6 +625,17 @@ public class MainChatActivity extends AppCompatActivity {
 
             Log.e("TAG", "노티피케이션 출력 가능");
 
+
+            //여기까지 읽었습니다
+            Message msg_MSG_READ_LINE = Message.obtain(null, ChatService.MSG_READ_LINE);
+            Bundle bundle_MSG_READ_LINET = msg_MSG_READ_LINE.getData();
+            bundle_MSG_READ_LINET.putString("send","" + room);
+
+            mService.send(msg_MSG_READ_LINE);
+
+            Log.e("TAG", "노티피케이션 출력 가능");
+
+
         } catch (RemoteException e) {
             e.printStackTrace();
         }
@@ -640,108 +647,102 @@ public class MainChatActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        switch(requestCode){
-          case  10:
-              if(resultCode == RESULT_OK){
+        switch (requestCode) {
+            case 10:
+                if (resultCode == RESULT_OK) {
 
 
-                  //선택한 사진의 경로(Uri)객체 가져오기
-                 // Uri uri = data.getData();
+                    //선택한 사진의 경로(Uri)객체 가져오기
+                    // Uri uri = data.getData();
 
-                  if(data != null)
-                  {
-                      if(data.getClipData() == null){  // 이미지를 하나만 선택한 경우
-                          Log.e("single choice: ", String.valueOf(data.getData()));
-                          Uri imageUri = data.getData();
+                    if (data != null) {
+                        if (data.getClipData() == null) {  // 이미지를 하나만 선택한 경우
+                            Log.e("single choice: ", String.valueOf(data.getData()));
+                            Uri imageUri = data.getData();
 
-                          //bitmap으로 변환
+                            //bitmap으로 변환
 
-                          try {
-                              encodeUriToBitmap(imageUri);//최종 결과 encodeImageString 값에 이미지 String 값 전달됨
-
-
-                              Upload_img(encodeImageString);//이미지 DB에 저장
-
-                          } catch (FileNotFoundException e) {
-                              e.printStackTrace();
-                          }
-
-                          String imgPath = getRealPathFromUri(imageUri);
-
-                          //서버에 메시지 보내기
+                            try {
+                                encodeUriToBitmap(imageUri);//최종 결과 encodeImageString 값에 이미지 String 값 전달됨
 
 
-                          //clientMsg_list.add( "이미지▶"+imageUri);
-                         // adapter.notifyDataSetChanged();
+                                Upload_img(encodeImageString);//이미지 DB에 저장
+
+                            } catch (FileNotFoundException e) {
+                                e.printStackTrace();
+                            }
+
+                            String imgPath = getRealPathFromUri(imageUri);
+
+                            //서버에 메시지 보내기
 
 
-
-                        //  rv_msgList.scrollToPosition(clientMsg_list.size()-1);
-                          Log.d("이미지 경로", ""+imageUri.toString()+"\n"+imgPath);
-
-                      }else
-                      {
-                          //이미지를 여러장 선택한 경우
-                          ClipData clipData = data.getClipData();
-                          Log.e("clipData", String.valueOf(clipData.getItemCount()));
-
-                          if(clipData.getItemCount() >10){// 선택한 이미지가 11장 이상인 경우
-                              Toast.makeText(getApplicationContext(), "사진은 10장까지 선택 가능합니다.", Toast.LENGTH_LONG).show();
-
-                          }else
-                          {//선택한 이미지가 1장 이상 10장이하인 경우
-                              Log.e("TAG", "multiple choice");
-                              for (int i = 0; i < clipData.getItemCount(); i++){
-                                  Uri imageUri = clipData.getItemAt(i).getUri();  // 선택한 이미지들의 uri를 가져온다.
-                                  try {
-                                     // clientMsg_list.add("이미지▶"+imageUri);  //uri를 list에 담는다.
-
-                                      //서버에 메시지 보내기
-                                      encodeUriToBitmap(imageUri);//최종 결과 encodeImageString 값에 이미지 String 값 전달됨
+                            //clientMsg_list.add( "이미지▶"+imageUri);
+                            // adapter.notifyDataSetChanged();
 
 
-                                      Upload_img(encodeImageString);//이미지 DB에 저장
+                            //  rv_msgList.scrollToPosition(clientMsg_list.size()-1);
+                            Log.d("이미지 경로", "" + imageUri.toString() + "\n" + imgPath);
 
-                                  } catch (Exception e) {
-                                      Log.e("TAG", "File select error", e);
-                                  }
-                              }
-                              adapter.notifyDataSetChanged();
+                        } else {
+                            //이미지를 여러장 선택한 경우
+                            ClipData clipData = data.getClipData();
+                            Log.e("clipData", String.valueOf(clipData.getItemCount()));
 
-                          }
+                            if (clipData.getItemCount() > 10) {// 선택한 이미지가 11장 이상인 경우
+                                Toast.makeText(getApplicationContext(), "사진은 10장까지 선택 가능합니다.", Toast.LENGTH_LONG).show();
 
-                      }
+                            } else {//선택한 이미지가 1장 이상 10장이하인 경우
+                                Log.e("TAG", "multiple choice");
+                                for (int i = 0; i < clipData.getItemCount(); i++) {
+                                    Uri imageUri = clipData.getItemAt(i).getUri();  // 선택한 이미지들의 uri를 가져온다.
+                                    try {
+                                        // clientMsg_list.add("이미지▶"+imageUri);  //uri를 list에 담는다.
 
-                      //이미지뷰의 변수명 . setImageURI(uri);
-
-                      //갤러리앱에서 관리하는 DB정보가 있는데 , 그것이 나온다 [실제 파일 경로가 아님]
-                      //얻어온 Uri는 Gallery앱의 DB번호임
-                      //업로드를 하려면 이미지의 절대경로(실제경로: file:// -----/aaa.png)필요함
-                      //Uri -->절대경로 (String)변환
-
-
-
-
-                      // adapter = new MsgAdapter(clientMsg_list);
-                      //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
+                                        //서버에 메시지 보내기
+                                        encodeUriToBitmap(imageUri);//최종 결과 encodeImageString 값에 이미지 String 값 전달됨
 
 
-                      //이미지 경로 uri 확인해보기
-                  }else
-                  {
-                      Toast.makeText(context, "이미지가 선택되지 않았습니다.", Toast.LENGTH_SHORT).show();
-                  }
-              }
-            break;
+                                        Upload_img(encodeImageString);//이미지 DB에 저장
 
-          default:
-            break;
+                                    } catch (Exception e) {
+                                        Log.e("TAG", "File select error", e);
+                                    }
+                                }
+                                adapter.notifyDataSetChanged();
+
+                            }
+
+                        }
+
+                        //이미지뷰의 변수명 . setImageURI(uri);
+
+                        //갤러리앱에서 관리하는 DB정보가 있는데 , 그것이 나온다 [실제 파일 경로가 아님]
+                        //얻어온 Uri는 Gallery앱의 DB번호임
+                        //업로드를 하려면 이미지의 절대경로(실제경로: file:// -----/aaa.png)필요함
+                        //Uri -->절대경로 (String)변환
+
+
+                        // adapter = new MsgAdapter(clientMsg_list);
+                        //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
+
+
+                        //이미지 경로 uri 확인해보기
+                    } else {
+                        Toast.makeText(context, "이미지가 선택되지 않았습니다.", Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+
+            default:
+                break;
         }
 
     }
-    String getRealPathFromUri(Uri uri){
+
+    String getRealPathFromUri(Uri uri) {
         String[] proj = {MediaStore.Images.Media.DATA};
-        CursorLoader loader= new CursorLoader(this,uri,proj,null,null,null);
+        CursorLoader loader = new CursorLoader(this, uri, proj, null, null, null);
         Cursor cursor = loader.loadInBackground();
         int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
         cursor.moveToFirst();
@@ -749,58 +750,58 @@ public class MainChatActivity extends AppCompatActivity {
         cursor.close();
         return result;
     }
-    private  void Upload_img(String  encodeImageString){
+
+    private void Upload_img(String encodeImageString) {
 
 
         Response.Listener<String> responseListner = new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
+            @Override
+            public void onResponse(String response) {
 
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+
+
+                    boolean success = jsonObject.getBoolean("success");
+
+                    if (success) { // 이미지 업로드에 성공
+
+                        //메시지 보내기 서비스에 전달
                         try {
-                            JSONObject jsonObject = new JSONObject(response);
+                            String lastid = jsonObject.getString("lastid");
+
+                            Toast.makeText(getApplicationContext(), "저장 ID" + lastid, Toast.LENGTH_SHORT).show();
+
+                            Message msg = Message.obtain(null, ChatService.MSG_MSG);
+                            Bundle bundle = msg.getData();
+                            bundle.putString("send", "사진을 보냈습니다.");
+                            bundle.putString("lastid", lastid);
+
+                            mService.send(msg);
+                            Log.e("TAG", "이미지 보냈음을 서비스에 전달");
 
 
-
-                            boolean success = jsonObject.getBoolean("success");
-
-                            if (success) { // 이미지 업로드에 성공
-
-                                            //메시지 보내기 서비스에 전달
-                                            try {
-                                                String lastid = jsonObject.getString("lastid");
-
-                                                Toast.makeText(getApplicationContext(),"저장 ID"+lastid,Toast.LENGTH_SHORT).show();
-
-                                                Message msg = Message.obtain(null, ChatService.MSG_MSG);
-                                                Bundle bundle = msg.getData();
-                                                bundle.putString("send", "사진을 보냈습니다.");
-                                                bundle.putString("lastid", lastid);
-
-                                                mService.send(msg);
-                                                Log.e("TAG", "이미지 보냈음을 서비스에 전달" );
-
-
-                                            } catch (Exception e) {
-                                                e.printStackTrace();
-                                            }
-                                        } else { // 이미지 업로드 실패
-                                            //Toast.makeText(getApplicationContext()," ",Toast.LENGTH_SHORT).show();
-
-                                            return;
-                                        }
-
-
-                        } catch (JSONException e) {
+                        } catch (Exception e) {
                             e.printStackTrace();
                         }
+                    } else { // 이미지 업로드 실패
+                        //Toast.makeText(getApplicationContext()," ",Toast.LENGTH_SHORT).show();
 
+                        return;
                     }
-                };
-                //String userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오기
 
-                Upload_img_Request upload_img_request = new Upload_img_Request(room,room_ID,userEmail ,encodeImageString , responseListner);
-                RequestQueue queue = Volley.newRequestQueue(context);
-                queue.add(upload_img_request);
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        };
+        //String userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오기
+
+        Upload_img_Request upload_img_request = new Upload_img_Request(room, room_ID, userEmail, encodeImageString, responseListner);
+        RequestQueue queue = Volley.newRequestQueue(context);
+        queue.add(upload_img_request);
     }
 
     private void encodeUriToBitmap(Uri uri) throws FileNotFoundException {//최종 결과 encodeImageString 값에 이미지 String 값 전달됨
@@ -809,7 +810,7 @@ public class MainChatActivity extends AppCompatActivity {
         Bitmap bitmap = BitmapFactory.decodeStream(inputStream);
         //encodeBitmapImage(bitmap);
 
-        encodeImageString =  ImageUtil.convert(bitmap);
+        encodeImageString = ImageUtil.convert(bitmap);
 
 
     }
