@@ -170,6 +170,7 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
                 //내 메시지 이면
 
                 holder.sentMessage2.setText(msgs[1]);
+                holder.sentMessage2.setVisibility(View.VISIBLE);
 
                 holder.receivedMessage2.setVisibility(View.GONE);
                 holder.txt_chatName.setVisibility(View.GONE);
@@ -187,6 +188,9 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
             } else {  //다른사람 메시지 이면
 
                 holder.txt_chatName.setText(msgs[0]);
+                holder.txt_chatName.setVisibility(View.VISIBLE);
+                holder.receivedMessage2.setVisibility(View.VISIBLE);
+
                 holder.receivedMessage2.setText(msgs[1]);
 
                 holder.circleImageView.setVisibility(View.VISIBLE);
@@ -332,10 +336,13 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
                             } else {
                                 //다른사람이 보낸 사진
                                 holder.img_img.setVisibility(View.VISIBLE);
+                                holder.circleImageView.setVisibility(View.VISIBLE);
 
                                 holder.img_img.setImageBitmap(bitmap);
                                 holder.txt_chatName.setText(msg_id);
-                                holder.circleImageView.setVisibility(View.VISIBLE);
+
+                                holder.txt_chatName.setVisibility(View.VISIBLE);
+
 
                                 holder.txt_readcount.setVisibility(View.GONE);
 

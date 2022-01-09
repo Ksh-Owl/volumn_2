@@ -196,7 +196,13 @@ public class MainChatActivity extends AppCompatActivity {
 
                                 String msg_ = item.getString("msg");
                                 String time_ = item.getString("time");
-                                String img_id_ = item.getString("img_id");
+                                String img_id_ = "";
+                                try{
+                                    img_id_ = item.getString("img_id");
+
+                                }catch (Exception e){
+
+                                }
 //                                String read_Count_ = item.getString("read_Count");
 //
 //                                String read_mem_ = item.getString("read_mem");
@@ -205,7 +211,7 @@ public class MainChatActivity extends AppCompatActivity {
 
 
                                 msg_Model msg_model = new msg_Model(msg_, time_, img_id_);//, read_Count_, jsonArray_read_mem_
-                                clientMsg_list.add(msg_model);
+                                clientMsg_list.add(0,msg_model);
 
 
                             }
@@ -218,7 +224,7 @@ public class MainChatActivity extends AppCompatActivity {
                             rv_msgList.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
 
                             //adapter.notifyDataSetChanged();
-                            rv_msgList.scrollToPosition(21);
+                            rv_msgList.scrollToPosition(17);
                             CheckScroll = false;
                             //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
                             //rv_msgList.scrollToPosition(rv_msgList.getAdapter().getItemCount() - 1);

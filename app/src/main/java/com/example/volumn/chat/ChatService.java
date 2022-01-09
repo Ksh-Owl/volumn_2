@@ -752,8 +752,9 @@ public class ChatService extends Service {
 
                     //Socket s = new Socket(String host<서버ip>, int port<서비스번호>);
 
-                    Socket s = new Socket("192.168.0.5", 5000);//연결시도 팀노바
-                    // Socket s = new Socket("192.168.219.101", 5000);//연결시도 집
+                    //Socket s = new Socket("192.168.0.5", 5000);//연결시도 팀노바
+                     //Socket s = new Socket("192.168.219.100", 5000);//연결시도 집
+                    Socket s = new Socket("172.30.1.35", 5000);//연결시도 카페
 
                     Log.v("", "클라이언트 : 서버 연결됨.");
 

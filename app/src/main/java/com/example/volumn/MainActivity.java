@@ -40,6 +40,7 @@ import com.example.volumn.home.MainRequest;
 import com.example.volumn.include.PreferenceManager;
 import com.example.volumn.login.loginActivity;
 import com.example.volumn.rank.RankActivity;
+import com.example.volumn.setting.settingActivity;
 import com.google.android.material.navigation.NavigationView;
 
 import org.json.JSONArray;
@@ -299,8 +300,12 @@ public class MainActivity extends AppCompatActivity {
                    // Toast.makeText(getApplicationContext(), "채팅", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(MainActivity.this, ChatRoomActivity.class);//명시적 인텐트
                     startActivity(intent);
+
+
                 } else if (id == R.id.menu_item3) {
-                    Toast.makeText(getApplicationContext(), "프로필설정", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(getApplicationContext(), "프로필설정", Toast.LENGTH_SHORT).show();
+                    Intent intent = new Intent(MainActivity.this, settingActivity.class);//명시적 인텐트
+                    startActivity(intent);
                 }
 
 
