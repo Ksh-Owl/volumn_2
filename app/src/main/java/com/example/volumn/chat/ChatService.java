@@ -1154,13 +1154,33 @@ public class ChatService extends Service {
 
                                 break;
 
-//                            case "180"://대기실 인원정보
-//
-//                                String waitNames[] = msgs[1].split(",");
-//
-//                                waitInfo.setListData(waitNames);
-//
-//                                break;
+                            case "180"://대기실 인원정보
+
+                                String get = msgs[1];
+
+                                Message message_inwonName = Message.obtain(null, MSG_RESPONSE);//ChatRoomActivity에서 받아가기 아직
+                                Bundle bundle_inwonName = message_inwonName.getData();
+                                bundle_inwonName.putString("response", "180");
+                                bundle_inwonName.putString("roomInwonName", get);
+                                try{
+                                    if (chatRoom_clientList.size() > 0) {
+                                        for (int i = 0; i < chatRoom_clientList.size(); i++) {
+
+
+                                            chatRoom_clientList.get(i).send(message_inwonName);
+                                        }
+
+                                    }
+                                    if (clientList.size() > 0) {
+                                        clientList.get(0).send(message_inwonName);
+
+                                    }
+                                }catch (Exception e){
+
+                                }
+
+
+                                break;
 
                             case "200"://대화방 입장
                                 try {

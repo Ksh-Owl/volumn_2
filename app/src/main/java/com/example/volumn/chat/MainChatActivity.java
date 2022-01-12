@@ -1,5 +1,6 @@
 package com.example.volumn.chat;
 
+
 import com.example.volumn.addSet.addSetRequest;
 
 
@@ -50,6 +51,7 @@ import com.example.volumn.include.ChatCount_PreferenceManager;
 import com.example.volumn.include.Chat_PreferenceManager;
 import com.example.volumn.include.PreferenceManager;
 import com.example.volumn.include.myRoom_PreferenceManager;
+import com.example.volumn.setting.get_ProfileIMG_Request;
 
 import org.jetbrains.annotations.NotNull;
 import org.json.JSONArray;
@@ -68,15 +70,18 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 public class MainChatActivity extends AppCompatActivity {
 
-    Context context;
+    public static Context context;
     //소켓 입출력객체
     BufferedReader in;
     private DataOutputStream out;
 
-
+    public String in_name[];
+    public Map<String,String> userIMG = new HashMap<>();
     boolean CheckScroll = false;
 
     //서비스
@@ -105,7 +110,6 @@ public class MainChatActivity extends AppCompatActivity {
 
                         for (int i = 0; i < room_i.length; i++) {
                             String room_[] = room_i[i].split("--");
-
                             String room_name = room_[0];
                             String inwonCount = room_[1];
 
@@ -115,6 +119,60 @@ public class MainChatActivity extends AppCompatActivity {
                             }
 
                         }
+
+                    }
+                    if(response.equals("180"))
+                    {//방인원 이름
+                        String roomInwonName = bundle.getString("roomInwonName");
+
+                        in_name = roomInwonName.split(",");
+                        //in_name = new String[room_i.length];
+
+                        for (int i = 0; i < in_name.length ; i++){
+
+                            //프로필 이미지 데이터베이스에서 받아오기
+
+                            int finalI = i;
+                            Response.Listener<String> responseListner = new Response.Listener<String>() {
+                                        @Override
+                                        public void onResponse(String response) {
+
+                                            try {
+                                                JSONObject jsonObject = new JSONObject(response);
+
+                                                boolean success = jsonObject.getBoolean("success");
+                                                            if (success) { // 운동기록에 성공
+                                                                //Toast.makeText(getApplicationContext(),"운동저장이 완료되었습니다.",Toast.LENGTH_SHORT).show();
+
+                                                                String img = jsonObject.getString("img");
+
+
+                                                                String data = img; //bitmap 변환
+
+                                                                userIMG.put(in_name[finalI],img);
+                                                                //Bitmap bitmap = ImageUtil.convert(data);
+                                                                adapter.notifyDataSetChanged();
+                                                            } else { // 운동저장에 실패했습니다.
+                                                                //Toast.makeText(getApplicationContext()," ",Toast.LENGTH_SHORT).show();
+
+                                                                return;
+                                                            }
+
+
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+
+                                        }
+                                    };
+                                    //String userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오기
+
+                                    get_ProfileIMG_Request get_profileIMG_request = new get_ProfileIMG_Request(in_name[i],  responseListner);
+                                    RequestQueue queue = Volley.newRequestQueue(context);
+                                    queue.add(get_profileIMG_request);
+                        }
+
+
 
                     }
 
@@ -274,6 +332,12 @@ public class MainChatActivity extends AppCompatActivity {
                                 String img_id_ = "";
 
                                 String msg_ = item.getString("msg");
+//                                String msgs[] = msg_.split("▶");
+//                                msgs[0] = msgs[0].replace("[", "").replace("]", "");
+                                //split으로 아이디 받아오기
+                                //in_name.add(msgs[0]);
+                                //아이디 배열에 중복값 없으면 넣기및 이미지 받아오기
+                                //
                                 String time_ = item.getString("time");
                                 try {
                                     img_id_ = item.getString("img_id");

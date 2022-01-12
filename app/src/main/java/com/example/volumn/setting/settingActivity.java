@@ -12,6 +12,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Message;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
@@ -20,8 +21,18 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.Volley;
 import com.example.volumn.R;
+import com.example.volumn.chat.ChatService;
+import com.example.volumn.chat.Get_img_Request;
 import com.example.volumn.chat.ImageUtil;
+import com.example.volumn.chat.Upload_img_Request;
+import com.example.volumn.include.PreferenceManager;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -51,10 +62,51 @@ public class settingActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
+                String userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오기
+
+                //비밀번호 변경
+
+
 
                 if (encodeImageString != null) {
-                    //데이터 베이스에 저장
 
+                    //데이터 베이스에 저장
+                    Response.Listener<String> responseListner = new Response.Listener<String>() {
+                        @Override
+                        public void onResponse(String response) {
+
+                            try {
+                                JSONObject jsonObject = new JSONObject(response);
+
+
+                                boolean success = jsonObject.getBoolean("success");
+
+                                if (success) { // 이미지 업로드에 성공
+
+                                    //메시지 보내기 서비스에 전달
+
+                                        Toast.makeText(getApplicationContext(), "프로필 사진이 변경되었습니다．" , Toast.LENGTH_SHORT).show();
+
+
+
+                                } else { // 이미지 업로드 실패
+                                    //Toast.makeText(getApplicationContext()," ",Toast.LENGTH_SHORT).show();
+
+                                    return;
+                                }
+
+
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    };
+                    //String userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오기
+
+                    Upload_ProfileIMG_Request upload_profileIMG_request = new Upload_ProfileIMG_Request(userEmail, encodeImageString, responseListner);
+                    RequestQueue queue = Volley.newRequestQueue(context);
+                    queue.add(upload_profileIMG_request);
                 }
 
             }
@@ -79,6 +131,55 @@ public class settingActivity extends AppCompatActivity {
                 finish();
             }
         });
+
+        getProfileIMG();//프로필 받아오기
+    }
+    //프로필 사진 받아오기
+    private void getProfileIMG()
+    {
+        Response.Listener<String> responseListner = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+
+
+                    boolean success = jsonObject.getBoolean("success");
+
+                    if (success) { // 이미지 받아오기 성공
+
+                        //메시지 보내기 서비스에 전달
+                        try {
+                            String img = jsonObject.getString("img");
+
+
+                            String data = img; //bitmap 변환
+                           Bitmap bitmap = ImageUtil.convert(data);
+                            img_profile_img.setImageBitmap(bitmap);
+
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else { // 이미지 받아오기 실패
+                        //Toast.makeText(getApplicationContext()," ",Toast.LENGTH_SHORT).show();
+
+                        return ;
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        };
+        String userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오기
+
+        get_ProfileIMG_Request get_profileIMG_request = new get_ProfileIMG_Request(userEmail, responseListner);
+        RequestQueue queue = Volley.newRequestQueue(context);
+        queue.add(get_profileIMG_request);
+
+
     }
 
     private void encodeUriToBitmap(Uri uri) throws FileNotFoundException {//최종 결과 encodeImageString 값에 이미지 String 값 전달됨
@@ -92,16 +193,6 @@ public class settingActivity extends AppCompatActivity {
 
     }
 
-    String getRealPathFromUri(Uri uri) {
-        String[] proj = {MediaStore.Images.Media.DATA};
-        CursorLoader loader = new CursorLoader(this, uri, proj, null, null, null);
-        Cursor cursor = loader.loadInBackground();
-        int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
-        cursor.moveToFirst();
-        String result = cursor.getString(column_index);
-        cursor.close();
-        return result;
-    }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {

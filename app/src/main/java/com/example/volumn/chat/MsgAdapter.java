@@ -26,6 +26,7 @@ import org.json.JSONObject;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Base64;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -100,7 +101,7 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
 //         }
 
 
-        if (!img_id.equals("")) {
+        if (!img_id.equals("")) {//사진이 없으면
             // holder.img_img2.setVisibility(View.VISIBLE);
 
 
@@ -187,14 +188,24 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
 
             } else {  //다른사람 메시지 이면
 
-                holder.txt_chatName.setText(msgs[0]);
+
+                holder.txt_chatName.setText(msgs[0]);//사용자 아이디
                 holder.txt_chatName.setVisibility(View.VISIBLE);
                 holder.receivedMessage2.setVisibility(View.VISIBLE);
 
                 holder.receivedMessage2.setText(msgs[1]);
 
                 holder.circleImageView.setVisibility(View.VISIBLE);
+                try{
+                    Map<String,String> user_IMG =  ((MainChatActivity)MainChatActivity.context).userIMG;
 
+                    String img = user_IMG.get(msgs[0]);
+                    Bitmap bitmap = ImageUtil.convert(img);
+                    holder.circleImageView.setImageBitmap(bitmap);
+
+                }catch (Exception e){
+
+                }
                 holder.sentMessage2.setVisibility(View.GONE);
                 holder.txt_notice.setVisibility(View.GONE);
 
@@ -340,7 +351,16 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
 
                                 holder.img_img.setImageBitmap(bitmap);
                                 holder.txt_chatName.setText(msg_id);
+                                try{
+                                    Map<String,String> user_IMG =  ((MainChatActivity)MainChatActivity.context).userIMG;
 
+                                    String imgA = user_IMG.get(msg_id);
+                                    Bitmap bitmapA = ImageUtil.convert(imgA);
+                                    holder.circleImageView.setImageBitmap(bitmapA);
+
+                                }catch (Exception e){
+
+                                }
                                 holder.txt_chatName.setVisibility(View.VISIBLE);
 
 
