@@ -300,8 +300,18 @@ public class MainChatActivity extends AppCompatActivity {
 
                             // adapter = new MsgAdapter(clientMsg_list);
                             adapter.notifyDataSetChanged();
-                            //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
                             rv_msgList.scrollToPosition(rv_msgList.getAdapter().getItemCount() - 1);
+                            for (int i = 0; i < clientMsg_list.size(); i++){
+
+                                if(clientMsg_list.get(i).getMsg().equals("읽음▶=========여기까지 읽었습니다.=========")){
+                                    rv_msgList.scrollToPosition(i-1);
+
+                                }
+
+                            }
+
+                            //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
+
                         }
 
 
@@ -367,6 +377,8 @@ public class MainChatActivity extends AppCompatActivity {
                 mService.send(msg);
 
                 inRoom();
+
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -584,6 +596,20 @@ public class MainChatActivity extends AppCompatActivity {
     protected void onResume() {
         super.onResume();
         bindService(new Intent(this, ChatService.class), conn, Context.BIND_AUTO_CREATE);
+
+
+        if(mService !=null)
+        {
+            try {
+                Message msg_MAIN_CHAT = Message.obtain(null, ChatService.MSG_MAINCHAT);
+                Bundle bundle_MAIN_CHAT = msg_MAIN_CHAT.getData();
+                bundle_MAIN_CHAT.putString("MainChat", "MainChat");
+                mService.send(msg_MAIN_CHAT);
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            }
+
+        }
 
         //메시지 읽어다 메시지 보내기
 

@@ -289,12 +289,72 @@ public class ChatService extends Service {
                         myRoom_PreferenceManager.setString(getApplicationContext(), "ROOM", send);
                         Log.e("TAG", "입장한 방 등록:" + send);
 
+                        //읽음이 마지막이면 제거
+                        try {
 
-                        //메시지 리스트 전달
-                        String json = Chat_PreferenceManager.getChatArrayPref(getApplicationContext(), send);
+                            //메시지 리스트 전달
+                            String json = Chat_PreferenceManager.getChatArrayPref(getApplicationContext(), send);
+                            if(json !=null)
+                            {
+                                JSONArray jsonArray = new JSONArray(json);
+                                Chat_PreferenceManager.deleteString(getApplicationContext(), send);
+                                for (int i = 0; i < jsonArray.length(); i++) {
+                                    JSONObject item = jsonArray.getJSONObject(i);
 
+                                    String msg_ = item.getString("msg");
+                                    String time = item.getString("time");
+                                    String img_id = "";
+
+                                    try {
+                                        img_id = item.getString("img_id");
+
+                                    }catch (Exception e){
+
+                                    }
+
+                                    String data_[] = msg_.split("▶");
+
+                                    // String msgs[] = msg.split("▶");
+                                    if (!data_[0].equals("읽음")) { //읽음이 아니면
+                                        Log.e("TAG", "메시지 저장 :" + data_[0]);
+                                        //메시지 저장
+                                        Chat_PreferenceManager.setChatArrayPref(getApplicationContext(), send, msg_, time, img_id);
+
+                                    }//읽음이 아닌 메시지 만 다시저장
+                                    else {//읽음 ==  여기까지 읽었습니다.
+                                        //읽음인데 마지막인경우
+                                        if(i+1 == jsonArray.length())
+                                        {
+                                            //마지막일 경우
+
+                                        }else {
+                                            //마지막이 아닐경우
+                                            String noti = "읽음▶=========여기까지 읽었습니다.=========";
+
+                                            try {
+                                                //if(!MainChat.equals("MainChat")){
+                                                Chat_PreferenceManager.setChatArrayPref(getApplicationContext(), send, noti, "", "");
+                                                //}
+
+                                                //여기까지 읽었습니다. 저장되는 위치
+                                            } catch (JSONException e) {
+                                                e.printStackTrace();
+                                            }
+                                        }
+                                    }
+                                }
+
+                            }
+
+
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
 
                         if (clientList.size() > 0) {
+
+
+
 
                             //   boolean save_check = false;
                             Message message = Message.obtain(null, MSG_MSGLIST);
@@ -304,7 +364,8 @@ public class ChatService extends Service {
 
                             JSONArray jsonArray_send = new JSONArray();
 
-
+                            //메시지 리스트 전달
+                            String json = Chat_PreferenceManager.getChatArrayPref(getApplicationContext(), send);
                             if (json != null) {
                                 JSONArray jsonArray = new JSONArray(json);
                                 int k = 0;
@@ -557,34 +618,38 @@ public class ChatService extends Service {
                     String json = Chat_PreferenceManager.getChatArrayPref(getApplicationContext(), send);
                     try {
 
+                        if(json  != null)
+                        {
+                            JSONArray jsonArray = new JSONArray(json);
+                            JSONArray jsonArray_newChat = new JSONArray();
+                            Chat_PreferenceManager.deleteString(getApplicationContext(), send);
+                            for (int i = 0; i < jsonArray.length(); i++) {
+                                JSONObject item = jsonArray.getJSONObject(i);
 
-                        JSONArray jsonArray = new JSONArray(json);
-                        JSONArray jsonArray_newChat = new JSONArray();
-                        Chat_PreferenceManager.deleteString(getApplicationContext(), send);
-                        for (int i = 0; i < jsonArray.length(); i++) {
-                            JSONObject item = jsonArray.getJSONObject(i);
+                                String msg_ = item.getString("msg");
+                                String time = item.getString("time");
+                                String img_id = "";
 
-                            String msg_ = item.getString("msg");
-                            String time = item.getString("time");
-                            String img_id = "";
+                                try {
+                                    img_id = item.getString("img_id");
 
-                            try {
-                                img_id = item.getString("img_id");
+                                }catch (Exception e){
 
-                            }catch (Exception e){
+                                }
 
-                            }
+                                String data_[] = msg_.split("▶");
 
-                            String data_[] = msg_.split("▶");
+                                // String msgs[] = msg.split("▶");
+                                if (!data_[0].equals("읽음")) { //읽음이 아니면
+                                    Log.e("TAG", "메시지 저장 :" + data_[0]);
+                                    //메시지 저장
+                                    Chat_PreferenceManager.setChatArrayPref(getApplicationContext(), send, msg_, time, img_id);
 
-                            // String msgs[] = msg.split("▶");
-                            if (!data_[0].equals("읽음")) {
-                                Log.e("TAG", "메시지 저장 :" + data_[0]);
-
-                                Chat_PreferenceManager.setChatArrayPref(getApplicationContext(), send, msg_, time, img_id);
-
+                                }//읽음이 아닌 메시지 만 다시저장
                             }
                         }
+
+
 
 
                     } catch (JSONException e) {
@@ -595,7 +660,11 @@ public class ChatService extends Service {
                     String noti = "읽음▶=========여기까지 읽었습니다.=========";
 
                     try {
-                        Chat_PreferenceManager.setChatArrayPref(getApplicationContext(), send, noti, "", "");
+                        //if(!MainChat.equals("MainChat")){
+                            Chat_PreferenceManager.setChatArrayPref(getApplicationContext(), send, noti, "", "");
+                        //}
+
+                        //여기까지 읽었습니다. 저장되는 위치
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
@@ -752,9 +821,9 @@ public class ChatService extends Service {
 
                     //Socket s = new Socket(String host<서버ip>, int port<서비스번호>);
 
-                    //Socket s = new Socket("192.168.0.5", 5000);//연결시도 팀노바
-                     //Socket s = new Socket("192.168.219.100", 5000);//연결시도 집
-                    Socket s = new Socket("172.30.1.35", 5000);//연결시도 카페
+                    Socket s = new Socket("192.168.0.91", 5000);//연결시도 팀노바
+                    //Socket s = new Socket("192.168.219.100", 5000);//연결시도 집
+                    //Socket s = new Socket("172.30.1.35", 5000);//연결시도 카페
 
                     Log.v("", "클라이언트 : 서버 연결됨.");
 
@@ -974,7 +1043,7 @@ public class ChatService extends Service {
 
                                         // sendMsg("303|" + NowRoom_name + "|" + userEmail); //방제목을 서버에게 전달
 
-                                        Log.v("읽었다고 서버에 보냄 case300", "303|" + NowRoom_name + "|" + userEmail);
+                                        //Log.v("읽었다고 서버에 보냄 case300", "303|" + NowRoom_name + "|" + userEmail);
 
                                     }
 
