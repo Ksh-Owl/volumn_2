@@ -48,6 +48,7 @@ public class settingActivity extends AppCompatActivity {
     TextView txt_profil_img;
 
     Button btn_setting_save;
+    Button btn_pw_save;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,6 +58,14 @@ public class settingActivity extends AppCompatActivity {
         txt_profil_img = (TextView) findViewById(R.id.txt_profil_img);
         img_profile_img = (ImageView) findViewById(R.id.img_profile_img);
         btn_setting_save = (Button) findViewById(R.id.btn_setting_save);
+        btn_pw_save = (Button)findViewById(R.id.btn_pw_save);
+
+        btn_pw_save.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
 
         btn_setting_save.setOnClickListener(new View.OnClickListener() {
             @Override

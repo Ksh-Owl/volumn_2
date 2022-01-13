@@ -88,6 +88,7 @@ public class MainChatActivity extends AppCompatActivity {
     private Messenger mService;
     private final Messenger mMessenger = new Messenger(new IncomingHandelr());
 
+    int position =0;
 
     String img;
 
@@ -363,16 +364,26 @@ public class MainChatActivity extends AppCompatActivity {
                             }
 
                             // adapter = new MsgAdapter(clientMsg_list);
-                            adapter.notifyDataSetChanged();
-                            rv_msgList.scrollToPosition(rv_msgList.getAdapter().getItemCount() - 1);
-                            for (int i = 0; i < clientMsg_list.size(); i++){
+                            try{
+                                adapter.notifyDataSetChanged();
 
-                                if(clientMsg_list.get(i).getMsg().equals("읽음▶=========여기까지 읽었습니다.=========")){
-                                    rv_msgList.scrollToPosition(i-1);
+
+                                rv_msgList.smoothScrollToPosition(clientMsg_list.size()-1);
+
+
+                                for (int i = 0; i < clientMsg_list.size(); i++){
+                                    //rv_msgList.smoothScrollToPosition(clientMsg_list.size());
+
+                                    if(clientMsg_list.get(i).getMsg().equals("읽음▶=========여기까지 읽었습니다.=========")){
+                                        rv_msgList.scrollToPosition(i-1);
+                                        position = i;
+                                    }
 
                                 }
+                            }catch (Exception e){
 
                             }
+
 
                             //Toast.makeText(context, "메시지", Toast.LENGTH_SHORT).show();
 
@@ -459,6 +470,27 @@ public class MainChatActivity extends AppCompatActivity {
         super.onStart();
 
 
+    }
+    int scrollCount = 0;
+    public void rvPosition(){
+        if(scrollCount >2){
+            return;
+
+        }
+
+        rv_msgList.scrollToPosition(clientMsg_list.size()-1);
+
+
+        for (int i = 0; i < clientMsg_list.size(); i++){
+            //rv_msgList.smoothScrollToPosition(clientMsg_list.size());
+
+            if(clientMsg_list.get(i).getMsg().equals("읽음▶=========여기까지 읽었습니다.=========")){
+                rv_msgList.scrollToPosition(i-1);
+                position = i;
+            }
+
+        }
+        scrollCount++;
     }
 
     @Override
@@ -674,6 +706,18 @@ public class MainChatActivity extends AppCompatActivity {
             }
 
         }
+        if(clientMsg_list != null)
+        {
+
+            try{
+                //rv_msgList.scrollToPosition(0);
+                rv_msgList.scrollToPosition(clientMsg_list.size() - 1);
+
+            }catch (Exception e){
+
+            }
+
+        }
 
         //메시지 읽어다 메시지 보내기
 
@@ -806,6 +850,9 @@ public class MainChatActivity extends AppCompatActivity {
                                     }
                                 }
                                 adapter.notifyDataSetChanged();
+                                rv_msgList.scrollToPosition(clientMsg_list.size());
+
+                                //이미지가 어댑터에서 작업 되어지면서 그때
 
                             }
 
@@ -866,7 +913,7 @@ public class MainChatActivity extends AppCompatActivity {
                         try {
                             String lastid = jsonObject.getString("lastid");
 
-                            Toast.makeText(getApplicationContext(), "저장 ID" + lastid, Toast.LENGTH_SHORT).show();
+                           // Toast.makeText(getApplicationContext(), "저장 ID" + lastid, Toast.LENGTH_SHORT).show();
 
                             Message msg = Message.obtain(null, ChatService.MSG_MSG);
                             Bundle bundle = msg.getData();
@@ -912,76 +959,6 @@ public class MainChatActivity extends AppCompatActivity {
     }
 
 
-    private void inRoom(String room_ID, String addMem) {
 
-        Response.Listener<String> responseListner = new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-
-
-                    boolean success = jsonObject.getBoolean("success");
-                    if (success) { //방 인원수 업데이트
-                        //Toast.makeText(getApplicationContext(),"운동저장이 완료되었습니다.",Toast.LENGTH_SHORT).show();
-
-                        // finish();//액티비티 종료
-                    } else { // 운동저장에 실패했습니다.
-                        //Toast.makeText(getApplicationContext()," ",Toast.LENGTH_SHORT).show();
-
-                        return;
-                    }
-
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        };
-        //String userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오기
-
-        inRoom_Request inRoom_Request = new inRoom_Request(room_ID, addMem, responseListner);
-        RequestQueue queue = Volley.newRequestQueue(context);
-        queue.add(inRoom_Request);
-
-    }
-
-    private void outRoom(String room_ID, String addMem) {
-
-        Response.Listener<String> responseListner = new Response.Listener<String>() {
-            @Override
-            public void onResponse(String response) {
-
-                try {
-                    JSONObject jsonObject = new JSONObject(response);
-
-
-                    boolean success = jsonObject.getBoolean("success");
-                    if (success) { //방 인원수 업데이트
-                        //Toast.makeText(getApplicationContext(),"운동저장이 완료되었습니다.",Toast.LENGTH_SHORT).show();
-
-                        // finish();//액티비티 종료
-                    } else { // 운동저장에 실패했습니다.
-                        //Toast.makeText(getApplicationContext()," ",Toast.LENGTH_SHORT).show();
-
-                        return;
-                    }
-
-
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
-
-            }
-        };
-        //String userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오기
-
-        outRoom_Request outRoom_Request = new outRoom_Request(room_ID, addMem, responseListner);
-        RequestQueue queue = Volley.newRequestQueue(context);
-        queue.add(outRoom_Request);
-
-    }
 
 }

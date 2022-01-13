@@ -2,7 +2,6 @@ package com.example.volumn.chat;
 
 import android.content.Context;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,13 +18,10 @@ import com.android.volley.toolbox.Volley;
 import com.example.volumn.R;
 import com.example.volumn.include.PreferenceManager;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
@@ -101,7 +97,7 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
 //         }
 
 
-        if (!img_id.equals("")) {//사진이 없으면
+        if (!img_id.equals("")) {//사진이 있으면
             // holder.img_img2.setVisibility(View.VISIBLE);
 
 
@@ -111,6 +107,7 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
 
             Get_img(holder, img_id, userEmail, msgs[0]);
 
+           // holder.sentMessage2.setVisibility(View.GONE);
 
             // byte[] bytePlainOrg = Base64.decode();
 
@@ -133,11 +130,11 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
             holder.circleImageView.setVisibility(View.GONE);
 
 
-            holder.txt_readcount.setVisibility(View.GONE);
+            holder.txt_time.setVisibility(View.GONE);
 
-            holder.txt_readcount2.setVisibility(View.GONE);
-            holder.txt_readcount3.setVisibility(View.GONE);
-            holder.txt_readcount4.setVisibility(View.GONE);
+            holder.txt_time2.setVisibility(View.GONE);
+            holder.txt_time3.setVisibility(View.GONE);
+            holder.txt_time4.setVisibility(View.GONE);
         } else if (msgs[0].equals("읽음")) {
 
             holder.txt_notice.setVisibility(View.VISIBLE);
@@ -158,11 +155,11 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
             holder.circleImageView.setVisibility(View.GONE);
 
 
-            holder.txt_readcount.setVisibility(View.GONE);
+            holder.txt_time.setVisibility(View.GONE);
 
-            holder.txt_readcount2.setVisibility(View.GONE);
-            holder.txt_readcount3.setVisibility(View.GONE);
-            holder.txt_readcount4.setVisibility(View.GONE);
+            holder.txt_time2.setVisibility(View.GONE);
+            holder.txt_time3.setVisibility(View.GONE);
+            holder.txt_time4.setVisibility(View.GONE);
 
         } else {
 
@@ -171,6 +168,7 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
                 //내 메시지 이면
 
                 holder.sentMessage2.setText(msgs[1]);
+               // holder.txt_time2.setText(time);
                 holder.sentMessage2.setVisibility(View.VISIBLE);
 
                 holder.receivedMessage2.setVisibility(View.GONE);
@@ -178,12 +176,13 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
 
                 holder.txt_notice.setVisibility(View.GONE);
                 holder.circleImageView.setVisibility(View.GONE);
-                holder.txt_readcount2.setVisibility(View.GONE);
                 // holder.txt_readcount2.setText(left_read);
 
-                holder.txt_readcount.setVisibility(View.GONE);
-                holder.txt_readcount3.setVisibility(View.GONE);
-                holder.txt_readcount4.setVisibility(View.GONE);
+                holder.txt_time.setVisibility(View.GONE);
+
+                holder.txt_time2.setVisibility(View.GONE);
+                holder.txt_time3.setVisibility(View.GONE);
+                holder.txt_time4.setVisibility(View.GONE);
 
 
             } else {  //다른사람 메시지 이면
@@ -210,12 +209,10 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
                 holder.txt_notice.setVisibility(View.GONE);
 
 
-                holder.txt_readcount.setVisibility(View.GONE);
-                //holder.txt_readcount.setText(left_read);
-
-                holder.txt_readcount2.setVisibility(View.GONE);
-                holder.txt_readcount3.setVisibility(View.GONE);
-                holder.txt_readcount4.setVisibility(View.GONE);
+                holder.txt_time.setVisibility(View.GONE);
+                holder.txt_time2.setVisibility(View.GONE);
+                holder.txt_time3.setVisibility(View.GONE);
+                holder.txt_time4.setVisibility(View.GONE);
 
 
             }
@@ -241,10 +238,10 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
 
         CircleImageView circleImageView;
 
-        TextView txt_readcount;
-        TextView txt_readcount2;
-        TextView txt_readcount3;
-        TextView txt_readcount4;
+        TextView txt_time;
+        TextView txt_time2;
+        TextView txt_time3;
+        TextView txt_time4;
 
 
         ViewHolder(View itemView) {
@@ -259,10 +256,10 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
             txt_notice = (TextView) itemView.findViewById(R.id.txt_notice);
             circleImageView = (CircleImageView) itemView.findViewById(R.id.circleImageView);
 
-            txt_readcount = (TextView) itemView.findViewById(R.id.txt_readcount);
-            txt_readcount2 = (TextView) itemView.findViewById(R.id.txt_readcount2);
-            txt_readcount3 = (TextView) itemView.findViewById(R.id.txt_readcount3);
-            txt_readcount4 = (TextView) itemView.findViewById(R.id.txt_readcount4);
+            txt_time = (TextView) itemView.findViewById(R.id.txt_time);
+            txt_time2 = (TextView) itemView.findViewById(R.id.txt_time2);
+            txt_time3 = (TextView) itemView.findViewById(R.id.txt_time3);
+            txt_time4 = (TextView) itemView.findViewById(R.id.txt_time4);
 
             itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -336,11 +333,10 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
 
                                 holder.circleImageView.setVisibility(View.GONE);
 
-                                holder.txt_readcount.setVisibility(View.GONE);
-
-                                holder.txt_readcount2.setVisibility(View.GONE);
-                                holder.txt_readcount3.setVisibility(View.GONE);
-                                holder.txt_readcount4.setVisibility(View.GONE);
+                                holder.txt_time.setVisibility(View.GONE);
+                                holder.txt_time2.setVisibility(View.GONE);
+                                holder.txt_time3.setVisibility(View.GONE);
+                                holder.txt_time4.setVisibility(View.GONE);
                                 //holder.txt_readcount4.setText(left_read);
 
 
@@ -364,13 +360,19 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
                                 holder.txt_chatName.setVisibility(View.VISIBLE);
 
 
-                                holder.txt_readcount.setVisibility(View.GONE);
+                                holder.txt_time.setVisibility(View.GONE);
+                                holder.txt_time2.setVisibility(View.GONE);
+                                holder.txt_time3.setVisibility(View.GONE);
+                                holder.txt_time4.setVisibility(View.GONE);
+                            }
+                            //포지션 이동
+                            try{
 
-                                holder.txt_readcount2.setVisibility(View.GONE);
-                                holder.txt_readcount3.setVisibility(View.GONE);
-                                //holder.txt_readcount3.setText(left_read);
+                                    ((MainChatActivity)MainChatActivity.context).rvPosition();
 
-                                holder.txt_readcount4.setVisibility(View.GONE);
+
+
+                            }catch (Exception e){
 
                             }
 

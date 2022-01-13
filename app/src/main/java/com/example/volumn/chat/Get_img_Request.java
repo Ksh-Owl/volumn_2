@@ -10,7 +10,7 @@ import java.util.Map;
 public class Get_img_Request extends StringRequest {
 
     // 서버 URL 설정 ( PHP 파일 연동 )
-    final static private String URL = "http://13.209.66.177/volumn/Select_ChatIMG.php";
+    final static private String URL = "http://15.164.50.211/volumn/Select_ChatIMG.php";
     private Map<String, String> map;
 
 

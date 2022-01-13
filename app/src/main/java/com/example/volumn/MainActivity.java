@@ -4,6 +4,7 @@ import android.app.DatePickerDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.icu.util.Calendar;
 import android.os.Build;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,6 +35,7 @@ import com.android.volley.toolbox.Volley;
 import com.example.volumn.calendar.CalendarActivity;
 import com.example.volumn.chat.ChatRoomActivity;
 import com.example.volumn.chat.ChatService;
+import com.example.volumn.chat.ImageUtil;
 import com.example.volumn.chat.MainChatActivity;
 import com.example.volumn.chat.RestartService;
 import com.example.volumn.chat.chatActivity;
@@ -40,6 +43,7 @@ import com.example.volumn.home.MainRequest;
 import com.example.volumn.include.PreferenceManager;
 import com.example.volumn.login.loginActivity;
 import com.example.volumn.rank.RankActivity;
+import com.example.volumn.setting.get_ProfileIMG_Request;
 import com.example.volumn.setting.settingActivity;
 import com.google.android.material.navigation.NavigationView;
 
@@ -61,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
     EditText etxt_Date;
     EditText etxt_Date2;
     Context context;
+    ImageView img_header;
 
     TextView txt_chest;
     TextView txt_back;
@@ -103,12 +108,11 @@ public class MainActivity extends AppCompatActivity {
         context = this;
 
 
-
         this.settingSideNavBar();
 
         btn_logout = findViewById(R.id.btn_logout);
         btn_log = findViewById(R.id.btn_log);
-
+        img_header = (ImageView) findViewById(R.id.img_header);
 
         etxt_Date = (EditText) findViewById(R.id.etxt_Date);
         etxt_Date2 = (EditText) findViewById(R.id.etxt_Date2);
@@ -340,6 +344,56 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
 
         search_Volumn();
+        getProfileIMG();
+
+
+
+    }
+    private void getProfileIMG()
+    {
+        Response.Listener<String> responseListner = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                try {
+                    JSONObject jsonObject = new JSONObject(response);
+
+
+                    boolean success = jsonObject.getBoolean("success");
+
+                    if (success) { // 이미지 받아오기 성공
+
+                        //메시지 보내기 서비스에 전달
+                        try {
+                            String img = jsonObject.getString("img");
+
+
+                            String data = img; //bitmap 변환
+                            Bitmap bitmap = ImageUtil.convert(data);
+                            img_header = (ImageView) findViewById(R.id.img_header);
+
+                            img_header.setImageBitmap(bitmap);
+
+
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else { // 이미지 받아오기 실패
+                        //Toast.makeText(getApplicationContext()," ",Toast.LENGTH_SHORT).show();
+
+                        return ;
+                    }
+
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        };
+        String userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오기
+
+        get_ProfileIMG_Request get_profileIMG_request = new get_ProfileIMG_Request(userEmail, responseListner);
+        RequestQueue queue = Volley.newRequestQueue(context);
+        queue.add(get_profileIMG_request);
 
 
     }
