@@ -131,32 +131,32 @@ public class ChatRoomActivity extends AppCompatActivity {
 
                         }
 
-                        RoomAdapter adapter = new RoomAdapter(room_list_new);
-
-
-                        adapter.setOnItemClickListener(new RoomAdapter.OnItemClickListener() {
-                            @Override
-                            public void onItemClick(View v, int position) {
-
-
-                                String roomName = room_list_new.get(position).getRoom_nm();
-                                String room_ID = room_list_new.get(position).getRoom_ID();
-
-
-                                Intent intent = new Intent(context, MainChatActivity.class);
-                                intent.putExtra("roomName", roomName);
-                                intent.putExtra("room_ID", room_ID);
-
-                                startActivity(intent);
-
-
-                            }
-                        });
-
-                        rv_room.setAdapter(adapter);
-
-                        rv_room.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
-                        adapter.notifyDataSetChanged();
+//                        RoomAdapter adapter = new RoomAdapter(room_list_new);
+//
+//
+//                        adapter.setOnItemClickListener(new RoomAdapter.OnItemClickListener() {
+//                            @Override
+//                            public void onItemClick(View v, int position) {
+//
+//
+//                                String roomName = room_list_new.get(position).getRoom_nm();
+//                                String room_ID = room_list_new.get(position).getRoom_ID();
+//
+//
+//                                Intent intent = new Intent(context, MainChatActivity.class);
+//                                intent.putExtra("roomName", roomName);
+//                                intent.putExtra("room_ID", room_ID);
+//
+//                                startActivity(intent);
+//
+//
+//                            }
+//                        });
+//
+//                        rv_room.setAdapter(adapter);
+//
+//                        rv_room.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, false));
+//                        adapter.notifyDataSetChanged();
 
 
                     }
@@ -375,12 +375,34 @@ public class ChatRoomActivity extends AppCompatActivity {
                     }
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/mm/dd/HH:mm:ss");
 
+                    for (int i = 0; i < room_list.size(); i++){
+                        chatRoom_Model chatRoom_Model_swap = room_list.get(i);// 모델 객체 생성
+                        String time = chatRoom_Model_swap.getLastTime();
+                        Date date = null;
+                        if(time.equals("")){//시간이 공백이면 마지막으로 이동
+                            for (int j = 0; j <room_list.size() ; j++){
+                                String index_0 =room_list.get(j).getLastTime();
+                                if(!index_0.equals(""))
+                                {
+                                    Collections.swap(room_list, i, j);
+                                    j =room_list.size()+1;
+                                }
+                            }
+
+
+                        }
+                    }
+
                     for (int i = 0; i < room_list.size(); i++) {
                         int minindex =i; //가장 작은 시간 인덱스
 
                         chatRoom_Model chatRoom_Model_swap = room_list.get(i);// 모델 객체 생성
                         String time = chatRoom_Model_swap.getLastTime();
-                        Date date = dateFormat.parse(time);
+                        Date date = null;
+                        if(!time.equals("")){
+                            date = dateFormat.parse(time);
+
+                        }
 
                         for (int j = i+1; j < room_list.size(); j++){
 
@@ -388,13 +410,23 @@ public class ChatRoomActivity extends AppCompatActivity {
 
                                 chatRoom_Model chatRoom_Model_swap2 = room_list.get(j);// 모델 객체 생성
                                 String time2 = chatRoom_Model_swap2.getLastTime();
-                                Date date2 = dateFormat.parse(time2);
+                                Date date2 = null;
+                                if(!time2.equals("")){
+                                    date2 = dateFormat.parse(time2);
 
+                                }
 
+                            boolean afterTime = false;
                                 //비교할시간.after(기준시간)
                                 //비교할 시간이 기준시간을 지났을 경우 true를 반환
                                 //지났지 않을 경우에는 false를 반환
-                                boolean afterTime = date.after(date2);
+                                if(date !=null && date2 != null){
+                                    afterTime = date.after(date2);
+
+                                }else
+                                {
+                                    //날짜가 비어있는 방은 밑으로
+                                }
 
                                 //false 이면 좀더 최신 유지
                                 //true 이면 기준시간이 더  최신 기준시간을 앞으로
