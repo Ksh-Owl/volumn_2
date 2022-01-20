@@ -396,15 +396,18 @@ public class ChatRoomActivity extends AppCompatActivity {
                     for (int i = 0; i < room_list.size(); i++) {
                         int minindex =i; //가장 작은 시간 인덱스
 
-                        chatRoom_Model chatRoom_Model_swap = room_list.get(i);// 모델 객체 생성
-                        String time = chatRoom_Model_swap.getLastTime();
-                        Date date = null;
-                        if(!time.equals("")){
-                            date = dateFormat.parse(time);
 
-                        }
 
                         for (int j = i+1; j < room_list.size(); j++){
+
+                            chatRoom_Model chatRoom_Model_swap = room_list.get(minindex);// 모델 객체 생성
+                            String time = chatRoom_Model_swap.getLastTime();
+                            Date date = null;
+                            if(!time.equals("")){
+                                date = dateFormat.parse(time);
+
+                            }
+
 
                             //if (i + 1 < room_list.size()) {
 
