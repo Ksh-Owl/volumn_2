@@ -24,6 +24,8 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
     private RoomAdapter.OnItemClickListener mListener = null;
     private RoomAdapter.OnItemClickListener mLongListener = null;
     public static Context context;
+
+
     public interface OnItemClickListener {
         void onItemClick(View v, int position);
     }
@@ -124,6 +126,14 @@ public class RoomAdapter extends RecyclerView.Adapter<RoomAdapter.ViewHolder> {
         if(mData.get(position).getMsg_count()> 0){
             String  msgCount = Integer.toString(mData.get(position).getMsg_count());
             holder.txt_msgCount.setText(msgCount);
+            //테스트
+            //holder.txt_msgCount.setVisibility(View.GONE);
+//            if( mData.get(position).getRoom_nm().equals(((ChatRoomActivity)ChatRoomActivity.context).inRoom_name))//들어간방과 같으면
+//            {
+//                holder.txt_msgCount.setVisibility(View.GONE);
+//
+//            }
+
 
         }else
         {

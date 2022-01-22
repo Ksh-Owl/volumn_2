@@ -17,7 +17,7 @@ public class PreferenceManager {
 
 
     private static SharedPreferences getPreferences(Context context) {
-        return context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
+        return context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_MULTI_PROCESS);
     }
 
     /**

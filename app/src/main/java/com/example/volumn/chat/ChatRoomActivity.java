@@ -41,6 +41,7 @@ import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
 import com.example.volumn.R;
+import com.example.volumn.include.myRoom_PreferenceManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -57,7 +58,7 @@ import java.util.Date;
 
 public class ChatRoomActivity extends AppCompatActivity {
 
-    public Context context;
+    public static Context context;
 
     public BufferedReader in;
     public DataOutputStream out;
@@ -66,6 +67,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     RecyclerView rv_room;
     public ArrayList<chatRoom_Model> room_list;
     public ArrayList<chatRoom_Model> room_list_new;
+    public static String inRoom_name ="";
 
     ImageView img_back4;
     //서비스
@@ -160,7 +162,19 @@ public class ChatRoomActivity extends AppCompatActivity {
 
 
                     }
+                    try {
+                        Message msg2 = Message.obtain(null, ChatService.MSG_REQUEST_NO_READ_COUNT);
+                        Bundle bundle2 = msg2.getData();
+                        bundle2.putString("send", "");
+                        if (mService != null) {
+                            //방업데이트 요청
 
+                            mService.send(msg2);
+                        }
+
+                    } catch (RemoteException e) {
+                        e.printStackTrace();
+                    }
 
                     break;
 //                case ChatService.MSG_SENDMSG:
@@ -189,6 +203,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                     //방 메시지 증가
                     setRoom(NO_READ_Data);
                     //여기서 방순서 변경할것
+
 
                     break;
 
@@ -267,27 +282,62 @@ public class ChatRoomActivity extends AppCompatActivity {
 
 
     }
+    private void noReadCount() throws JSONException {
+        String json_myRoom = myRoom_PreferenceManager.getString(getApplicationContext(), "ROOM");
 
+        JSONArray jsonArray_myRoom = new JSONArray(json_myRoom);//저장된 나의방 jsonArray변환
+
+        JSONObject room_Object = new JSONObject(); //각방 안읽을 메시지 넣을 오브젝트
+        for (int j = 0; j < jsonArray_myRoom.length(); j++) {
+            JSONObject itme_myRoom = jsonArray_myRoom.getJSONObject(j);//방이름 추출
+
+            String myRoom = itme_myRoom.getString("value");
+            Log.e("TAG", "방이름 :" + myRoom);
+
+
+            String json_NO_READ = ChatCount_PreferenceManager.getChatCount(getApplicationContext(), myRoom);
+            Log.e("TAG", myRoom + " 읽지안은 카운트 :" + json_NO_READ);
+            if (json_NO_READ != null) {
+                JSONArray jsonArray_NO_READ = new JSONArray(json_NO_READ);
+
+                room_Object.put(myRoom, jsonArray_NO_READ);
+            }
+
+
+        }
+        String NO_READ_Data = room_Object.toString();
+        setRoom(NO_READ_Data);
+    }
     @Override
     protected void onResume() {
         super.onResume();
 
         bindService(new Intent(this, ChatService.class), conn, Context.BIND_AUTO_CREATE);
+        try{
+            noReadCount();
 
-        try {
-            Message msg = Message.obtain(null, ChatService.MSG_REQUEST_NO_READ_COUNT);
-            Bundle bundle = msg.getData();
-            bundle.putString("send", "");
-            if (mService != null) {
-                //방업데이트 요청
+        }catch (Exception e){
 
-                mService.send(msg);
-            }
-
-        } catch (RemoteException e) {
-            e.printStackTrace();
         }
 
+
+
+
+
+//        try {
+//            Message msg = Message.obtain(null, ChatService.MSG_REQUEST_NO_READ_COUNT);
+//            Bundle bundle = msg.getData();
+//            bundle.putString("send", "");
+//            if (mService != null) {
+//                //방업데이트 요청
+//
+//                mService.send(msg);
+//
+//            }
+//
+//        } catch (RemoteException e) {
+//            e.printStackTrace();
+//        }
 
     }
 
@@ -459,7 +509,7 @@ public class ChatRoomActivity extends AppCompatActivity {
 
                             String roomName = room_list.get(position).getRoom_nm();
                             String room_ID = room_list.get(position).getRoom_ID();
-
+                            inRoom_name = roomName;//들어간 방 이름
 
                             Intent intent = new Intent(context, MainChatActivity.class);
                             intent.putExtra("roomName", roomName);
@@ -483,6 +533,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                    // rv_room.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, true));
 
                     adapter.notifyDataSetChanged();
+
 
                 } catch (JSONException | ParseException e) {
                     e.printStackTrace();

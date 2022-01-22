@@ -81,14 +81,14 @@ public class MainChatActivity extends AppCompatActivity {
     private DataOutputStream out;
 
     public String in_name[];
-    public Map<String,String> userIMG = new HashMap<>();
+    public Map<String, String> userIMG = new HashMap<>();
     boolean CheckScroll = false;
 
     //서비스
     private Messenger mService;
     private final Messenger mMessenger = new Messenger(new IncomingHandelr());
 
-    int position =0;
+    int position = 0;
 
     String img;
 
@@ -122,63 +122,75 @@ public class MainChatActivity extends AppCompatActivity {
                         }
 
                     }
-                    if(response.equals("180"))
-                    {//방인원 이름
+                    if (response.equals("180")) {//방인원 이름
                         String roomInwonName = bundle.getString("roomInwonName");
 
                         in_name = roomInwonName.split(",");
                         //in_name = new String[room_i.length];
 
-                        for (int i = 0; i < in_name.length ; i++){
+                        for (int i = 0; i < in_name.length; i++) {
 
                             //프로필 이미지 데이터베이스에서 받아오기
 
                             int finalI = i;
                             Response.Listener<String> responseListner = new Response.Listener<String>() {
-                                        @Override
-                                        public void onResponse(String response) {
+                                @Override
+                                public void onResponse(String response) {
 
-                                            try {
-                                                JSONObject jsonObject = new JSONObject(response);
+                                    try {
+                                        JSONObject jsonObject = new JSONObject(response);
 
-                                                boolean success = jsonObject.getBoolean("success");
-                                                            if (success) { // 운동기록에 성공
-                                                                //Toast.makeText(getApplicationContext(),"운동저장이 완료되었습니다.",Toast.LENGTH_SHORT).show();
+                                        boolean success = jsonObject.getBoolean("success");
+                                        if (success) { // 운동기록에 성공
+                                            //Toast.makeText(getApplicationContext(),"운동저장이 완료되었습니다.",Toast.LENGTH_SHORT).show();
 
-                                                                String img = jsonObject.getString("img");
-
-
-                                                                String data = img; //bitmap 변환
-
-                                                                userIMG.put(in_name[finalI],img);
-                                                                //Bitmap bitmap = ImageUtil.convert(data);
-                                                                adapter.notifyDataSetChanged();
-                                                            } else { // 운동저장에 실패했습니다.
-                                                                //Toast.makeText(getApplicationContext()," ",Toast.LENGTH_SHORT).show();
-
-                                                                return;
-                                                            }
+                                            String img = jsonObject.getString("img");
 
 
-                                            } catch (JSONException e) {
-                                                e.printStackTrace();
-                                            }
+                                            String data = img; //bitmap 변환
 
+                                            userIMG.put(in_name[finalI], img);
+                                            //Bitmap bitmap = ImageUtil.convert(data);
+                                            adapter.notifyDataSetChanged();
+                                        } else { // 운동저장에 실패했습니다.
+                                            //Toast.makeText(getApplicationContext()," ",Toast.LENGTH_SHORT).show();
+
+                                            return;
                                         }
-                                    };
-                                    //String userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오기
 
-                                    get_ProfileIMG_Request get_profileIMG_request = new get_ProfileIMG_Request(in_name[i],  responseListner);
-                                    RequestQueue queue = Volley.newRequestQueue(context);
-                                    queue.add(get_profileIMG_request);
+
+                                    } catch (JSONException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                }
+                            };
+                            //String userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오기
+
+                            get_ProfileIMG_Request get_profileIMG_request = new get_ProfileIMG_Request(in_name[i], responseListner);
+                            RequestQueue queue = Volley.newRequestQueue(context);
+                            queue.add(get_profileIMG_request);
                         }
-
 
 
                     }
 
                     //editText2.setText(response);
 
+                    //테스트
+//                    try {
+//                        Message msg_yes_read = Message.obtain(null, ChatService.MSG_YES_READ);
+//                        Bundle bundle_yes_read = msg_yes_read.getData();
+//                        bundle_yes_read.putString("send", "" + room);
+//                        // bundle_yes_read.putString("send", "" + room);
+//
+//
+//                        mService.send(msg_yes_read);
+//                    } catch (RemoteException e) {
+//                        e.printStackTrace();
+//                    }
+//                    Log.e("TAG", "안읽음 메시지 읽음처리");
+                    //테스트
 
                     break;
                 case ChatService.MSG_SENDMSG:
@@ -256,10 +268,10 @@ public class MainChatActivity extends AppCompatActivity {
                                 String msg_ = item.getString("msg");
                                 String time_ = item.getString("time");
                                 String img_id_ = "";
-                                try{
+                                try {
                                     img_id_ = item.getString("img_id");
 
-                                }catch (Exception e){
+                                } catch (Exception e) {
 
                                 }
 //                                String read_Count_ = item.getString("read_Count");
@@ -270,7 +282,7 @@ public class MainChatActivity extends AppCompatActivity {
 
 
                                 msg_Model msg_model = new msg_Model(msg_, time_, img_id_);//, read_Count_, jsonArray_read_mem_
-                                clientMsg_list.add(0,msg_model);
+                                clientMsg_list.add(0, msg_model);
 
 
                             }
@@ -364,23 +376,23 @@ public class MainChatActivity extends AppCompatActivity {
                             }
 
                             // adapter = new MsgAdapter(clientMsg_list);
-                            try{
+                            try {
                                 adapter.notifyDataSetChanged();
 
 
-                                rv_msgList.smoothScrollToPosition(clientMsg_list.size()-1);
+                                rv_msgList.smoothScrollToPosition(clientMsg_list.size() - 1);
 
 
-                                for (int i = 0; i < clientMsg_list.size(); i++){
+                                for (int i = 0; i < clientMsg_list.size(); i++) {
                                     //rv_msgList.smoothScrollToPosition(clientMsg_list.size());
 
-                                    if(clientMsg_list.get(i).getMsg().equals("읽음▶=========여기까지 읽었습니다.=========")){
-                                        rv_msgList.scrollToPosition(i-1);
+                                    if (clientMsg_list.get(i).getMsg().equals("읽음▶=========여기까지 읽었습니다.=========")) {
+                                        rv_msgList.scrollToPosition(i - 1);
                                         position = i;
                                     }
 
                                 }
-                            }catch (Exception e){
+                            } catch (Exception e) {
 
                             }
 
@@ -471,21 +483,23 @@ public class MainChatActivity extends AppCompatActivity {
 
 
     }
+
     int scrollCount = 0;
-    public void rvPosition(){
-        if(scrollCount >2){
+
+    public void rvPosition() {
+        if (scrollCount > 2) {
             return;
 
         }
 
-        rv_msgList.scrollToPosition(clientMsg_list.size()-1);
+        rv_msgList.scrollToPosition(clientMsg_list.size() - 1);
 
 
-        for (int i = 0; i < clientMsg_list.size(); i++){
+        for (int i = 0; i < clientMsg_list.size(); i++) {
             //rv_msgList.smoothScrollToPosition(clientMsg_list.size());
 
-            if(clientMsg_list.get(i).getMsg().equals("읽음▶=========여기까지 읽었습니다.=========")){
-                rv_msgList.scrollToPosition(i-1);
+            if (clientMsg_list.get(i).getMsg().equals("읽음▶=========여기까지 읽었습니다.=========")) {
+                rv_msgList.scrollToPosition(i - 1);
                 position = i;
             }
 
@@ -567,12 +581,34 @@ public class MainChatActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 try {
+
+                    //테스트
+
+//                    Message msg_yes_read = Message.obtain(null, ChatService.MSG_YES_READ);
+//                    Bundle bundle_yes_read = msg_yes_read.getData();
+//                    bundle_yes_read.putString("send", "" + room);
+//                    mService.send(msg_yes_read);
+
+                    // bundle_yes_read.putString("send", "" + room);
+
+
+
+
                     //서비스(서버에 방 나가기) 메시지 보내기
                     Message msg = Message.obtain(null, ChatService.MSG_OUT_ROOM);
                     Bundle bundle = msg.getData();
                     bundle.putString("title", "" + txt_nowRoom.getText().toString());
 
                     mService.send(msg);
+
+
+
+
+
+
+                    Log.e("TAG", "안읽음 메시지 읽음처리");
+                    //테스트
+
                 } catch (RemoteException e) {
                     e.printStackTrace();
                 }
@@ -636,11 +672,24 @@ public class MainChatActivity extends AppCompatActivity {
                     if (msg_txt.equals("")) {
                         msg_txt = " ";
                     }
+
                     Message msg = Message.obtain(null, ChatService.MSG_MSG);
                     Bundle bundle = msg.getData();
                     bundle.putString("send", "" + msg_txt);
                     mService.send(msg);
                     Log.e("TAG", "채팅메시지 서비스에 전달 :" + "" + msg_txt);
+                    //테스트
+
+//                    Message msg_yes_read = Message.obtain(null, ChatService.MSG_YES_READ);
+//                    Bundle bundle_yes_read = msg_yes_read.getData();
+//                    bundle_yes_read.putString("send", "" + room);
+                    // bundle_yes_read.putString("send", "" + room);
+
+
+                    //mService.send(msg_yes_read);
+
+                    //Log.e("TAG", "안읽음 메시지 읽음처리");
+                    //테스트
 
 
                 } catch (Exception e) {
@@ -694,8 +743,7 @@ public class MainChatActivity extends AppCompatActivity {
         bindService(new Intent(this, ChatService.class), conn, Context.BIND_AUTO_CREATE);
 
 
-        if(mService !=null)
-        {
+        if (mService != null) {
             try {
                 Message msg_MAIN_CHAT = Message.obtain(null, ChatService.MSG_MAINCHAT);
                 Bundle bundle_MAIN_CHAT = msg_MAIN_CHAT.getData();
@@ -706,14 +754,13 @@ public class MainChatActivity extends AppCompatActivity {
             }
 
         }
-        if(clientMsg_list != null)
-        {
+        if (clientMsg_list != null) {
 
-            try{
+            try {
                 //rv_msgList.scrollToPosition(0);
                 rv_msgList.scrollToPosition(clientMsg_list.size() - 1);
 
-            }catch (Exception e){
+            } catch (Exception e) {
 
             }
 
@@ -749,13 +796,15 @@ public class MainChatActivity extends AppCompatActivity {
         try {
 
 
-
             Message msg = Message.obtain(null, ChatService.MSG_YES_READ);
             Bundle bundle = msg.getData();
             bundle.putString("send", "" + room);//방제목
             //bundle.putString("userEmail", "" + userEmail);
             mService.send(msg);
             Log.e("TAG", "안읽음 메시지 읽음처리");
+
+            //ChatCount_PreferenceManager.resetChatCount(getApplicationContext(), room);//메시지 읽음 처리
+
 
             Message msg_MAIN_CHAT = Message.obtain(null, ChatService.MSG_MAINCHAT);
             Bundle bundle_MAIN_CHAT = msg_MAIN_CHAT.getData();
@@ -769,7 +818,7 @@ public class MainChatActivity extends AppCompatActivity {
             //여기까지 읽었습니다
             Message msg_MSG_READ_LINE = Message.obtain(null, ChatService.MSG_READ_LINE);
             Bundle bundle_MSG_READ_LINET = msg_MSG_READ_LINE.getData();
-            bundle_MSG_READ_LINET.putString("send","" + room);
+            bundle_MSG_READ_LINET.putString("send", "" + room);
 
             mService.send(msg_MSG_READ_LINE);
 
@@ -913,7 +962,7 @@ public class MainChatActivity extends AppCompatActivity {
                         try {
                             String lastid = jsonObject.getString("lastid");
 
-                           // Toast.makeText(getApplicationContext(), "저장 ID" + lastid, Toast.LENGTH_SHORT).show();
+                            // Toast.makeText(getApplicationContext(), "저장 ID" + lastid, Toast.LENGTH_SHORT).show();
 
                             Message msg = Message.obtain(null, ChatService.MSG_MSG);
                             Bundle bundle = msg.getData();
@@ -957,8 +1006,6 @@ public class MainChatActivity extends AppCompatActivity {
 
 
     }
-
-
 
 
 }

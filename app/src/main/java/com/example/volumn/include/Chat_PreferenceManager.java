@@ -27,7 +27,7 @@ public class Chat_PreferenceManager {
 
 
     private static SharedPreferences Chat_PreferenceManager(Context context) {
-        return context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
+        return context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_MULTI_PROCESS);
     }
 
     /**

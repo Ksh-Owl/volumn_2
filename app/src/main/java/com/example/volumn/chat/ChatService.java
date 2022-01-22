@@ -63,7 +63,6 @@ public class ChatService extends Service {
     //소켓 입출력객체
     BufferedReader in;
     private DataOutputStream out;
-    TextView txt_nowRoom;//현재 방이름
 
     //
 
@@ -455,7 +454,6 @@ public class ChatService extends Service {
                     //방제목 받아오기
                     try {
 
-
                         Bundle bundle_OUT_ROOM = msg.getData();
 
                         String title2 = bundle_OUT_ROOM.getString("title");
@@ -512,7 +510,13 @@ public class ChatService extends Service {
                     try {
                         Message msg_NO_READ = noReadCount();
 
-                        chatRoom_clientList.get(0).send(msg_NO_READ);
+                        if(chatRoom_clientList.size() >0)
+                        {
+                            chatRoom_clientList.get(0).send(msg_NO_READ);
+                        }
+
+
+
 
 //                        if (clientList.size() > 0 || chatRoom_clientList.size() > 0) {
 //
@@ -607,6 +611,13 @@ public class ChatService extends Service {
                     break;
 
                 case MSG_READ_LINE:
+
+                    //채팅방 나갔음을 의미
+                    Log.v("방나갔을때", "방나갔을때");
+
+                    NowRoom_name ="";
+
+
                     //여기까지 읽었습니다. 공지사항 모드로 채팅저장
 
 
@@ -821,8 +832,8 @@ public class ChatService extends Service {
 
                     //Socket s = new Socket(String host<서버ip>, int port<서비스번호>);
 
-                    //Socket s = new Socket("192.168.0.3", 5000);//연결시도 팀노바
-                    Socket s = new Socket("192.168.219.101", 5000);//연결시도 집
+                    //Socket s = new Socket("192.168.0.2", 5000);//연결시도 팀노바
+                    Socket s = new Socket("192.168.219.100", 5000);//연결시도 집
                     //Socket s = new Socket("172.30.1.35", 5000);//연결시도 카페
                     //Socket s = new Socket("15.164.50.211", 5000);//연결시도 우분투
 
@@ -1004,9 +1015,12 @@ public class ChatService extends Service {
 
                                     }
                                     if (chatRoom_clientList.size() > 0) {
-                                        Message message_NO_READ = noReadCount();
 
-                                        chatRoom_clientList.get(0).send(message_NO_READ);
+                                            Message message_NO_READ = noReadCount();
+
+                                            chatRoom_clientList.get(0).send(message_NO_READ);
+
+
                                     }
 
                                     createNotification(getApplicationContext(), msgs[1], msgs[3]);
@@ -1035,6 +1049,26 @@ public class ChatService extends Service {
 //                                    JSONArray jsonArray2 = new JSONArray();
 //                                    jsonArray2.put(your_id[0]);
                                     ChatCount_PreferenceManager.setChatCount(getApplicationContext(), msgs[1], msgs[3], msgs[2], msgs[4]);
+                                    try{
+                                        Log.v(" 1월22일", "시작");
+                                     //   if(((ChatRoomActivity)ChatRoomActivity.context).inRoom_name== null){
+                                         //   Log.v(" 1월22일", "inRoom null");
+
+                                     //   }
+                                       // String inRoom =  ((ChatRoomActivity)ChatRoomActivity.context).inRoom_name; //들어간 방이름
+                                        Log.v(" 1월22일", "inRoom :"+NowRoom_name);
+                                        Log.v(" 1월22일", "msgs[1]:"+msgs[1]);
+
+                                        if(NowRoom_name.equals(msgs[1]))
+                                        {
+                                            //들어간 방에서의 메시지
+                                            //읽음처리
+                                            ChatCount_PreferenceManager.resetChatCount(getApplicationContext(), NowRoom_name);//메시지 읽음 처리
+
+                                        }
+                                    }catch (Exception e){
+                                        e.printStackTrace();
+                                    }
 
                                     if (MainChat.equals("MainChat") || NowRoom_name.equals(msgs[1])) {//현재 채팅 화면에 있으면
                                         String userEmail = PreferenceManager.getString(getApplicationContext(), "userEmail");
