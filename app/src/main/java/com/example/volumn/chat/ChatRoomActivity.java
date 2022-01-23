@@ -313,12 +313,7 @@ public class ChatRoomActivity extends AppCompatActivity {
         super.onResume();
 
         bindService(new Intent(this, ChatService.class), conn, Context.BIND_AUTO_CREATE);
-        try{
-            noReadCount();
 
-        }catch (Exception e){
-
-        }
 
 
 
@@ -344,24 +339,13 @@ public class ChatRoomActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        // bindService(new Intent(this, ChatService.class), conn, Context.BIND_AUTO_CREATE);
 
-        if (mService == null) {
+        try{
+            noReadCount();
+
+        }catch (Exception e){
 
         }
-//        try{
-//            Message msg =Message.obtain(null,ChatService.SEND);
-//            Bundle bundle = msg.getData();
-//            bundle.putString("send","Start");
-//            msg.replyTo = mMessenger;
-//
-//            Log.e("TAG", "msg :"+msg);
-//
-//            mService.send(msg);
-//        }catch (Exception e){
-//            e.printStackTrace();
-//
-//        }
     }
 
     private void setRoom(String NO_READ_Data) {
