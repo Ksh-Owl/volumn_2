@@ -381,7 +381,6 @@ public class ChatRoomActivity extends AppCompatActivity {
                             JSONObject jsonObject_NO_READ = new JSONObject(NO_READ_Data);
 
 
-                            // for (int j = 0; j < jsonObject_NO_READ.length(); j++) {
 
 
                             try {
@@ -399,7 +398,7 @@ public class ChatRoomActivity extends AppCompatActivity {
                             }
 
 
-                            //}
+
 
                         }
 

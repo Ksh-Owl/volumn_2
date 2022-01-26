@@ -17,6 +17,8 @@ import com.android.volley.Response;
 import com.android.volley.toolbox.Volley;
 import com.example.volumn.R;
 import com.example.volumn.include.PreferenceManager;
+import com.example.volumn.include.myRoom_PreferenceManager;
+import com.example.volumn.include.profileIMG_PreferenceManager;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -163,59 +165,78 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
 
         } else {
 
+            try{
+                if (userEmail.equals(msgs[0])) {
+                    //내 메시지 이면
 
-            if (userEmail.equals(msgs[0])) {
-                //내 메시지 이면
+                    holder.sentMessage2.setText(msgs[1]);
+                    // holder.txt_time2.setText(time);
 
-                holder.sentMessage2.setText(msgs[1]);
-               // holder.txt_time2.setText(time);
-                holder.sentMessage2.setVisibility(View.VISIBLE);
+                    holder.receivedMessage2.setVisibility(View.GONE);
+                    holder.txt_chatName.setVisibility(View.GONE);
 
-                holder.receivedMessage2.setVisibility(View.GONE);
-                holder.txt_chatName.setVisibility(View.GONE);
+                    holder.txt_notice.setVisibility(View.GONE);
+                    holder.circleImageView.setVisibility(View.GONE);
+                    // holder.txt_readcount2.setText(left_read);
 
-                holder.txt_notice.setVisibility(View.GONE);
-                holder.circleImageView.setVisibility(View.GONE);
-                // holder.txt_readcount2.setText(left_read);
+                    holder.txt_time.setVisibility(View.GONE);
 
-                holder.txt_time.setVisibility(View.GONE);
+                    holder.txt_time2.setVisibility(View.GONE);
+                    holder.txt_time3.setVisibility(View.GONE);
+                    holder.txt_time4.setVisibility(View.GONE);
 
-                holder.txt_time2.setVisibility(View.GONE);
-                holder.txt_time3.setVisibility(View.GONE);
-                holder.txt_time4.setVisibility(View.GONE);
+                    holder.sentMessage2.setVisibility(View.VISIBLE);
 
-
-            } else {  //다른사람 메시지 이면
+                } else {  //다른사람 메시지 이면
 
 
-                holder.txt_chatName.setText(msgs[0]);//사용자 아이디
-                holder.txt_chatName.setVisibility(View.VISIBLE);
-                holder.receivedMessage2.setVisibility(View.VISIBLE);
 
-                holder.receivedMessage2.setText(msgs[1]);
+                    try{
+                        Map<String,String> user_IMG =  ((MainChatActivity)MainChatActivity.context).userIMG;
 
-                holder.circleImageView.setVisibility(View.VISIBLE);
-                try{
-                    Map<String,String> user_IMG =  ((MainChatActivity)MainChatActivity.context).userIMG;
+                        String img = user_IMG.get(msgs[0]);
+                        if(img == null)
+                        {
+                            //이미지가 없으면 저장된 쉐어드 이미지 사용함
+                            //userEmail 값으로 쉐어드
+                            img = profileIMG_PreferenceManager.getProfileIMG(context, msgs[0]);
 
-                    String img = user_IMG.get(msgs[0]);
-                    Bitmap bitmap = ImageUtil.convert(img);
-                    holder.circleImageView.setImageBitmap(bitmap);
 
-                }catch (Exception e){
+                        }else
+                        {
+                            //쉐어드에 이미지 저장
+                            profileIMG_PreferenceManager.setProfileIMG(context,msgs[0],img);
+
+                        }
+                        Bitmap bitmap = ImageUtil.convert(img);
+                        holder.circleImageView.setImageBitmap(bitmap);
+                        holder.circleImageView.setVisibility(View.VISIBLE);
+
+
+
+                        holder.txt_chatName.setText(msgs[0]);//사용자 아이디
+                        holder.txt_chatName.setVisibility(View.VISIBLE);
+                        holder.receivedMessage2.setVisibility(View.VISIBLE);
+
+                        holder.receivedMessage2.setText(msgs[1]);
+                    }catch (Exception e){
+
+                    }
+                    holder.sentMessage2.setVisibility(View.GONE);
+                    holder.txt_notice.setVisibility(View.GONE);
+
+
+                    holder.txt_time.setVisibility(View.GONE);
+                    holder.txt_time2.setVisibility(View.GONE);
+                    holder.txt_time3.setVisibility(View.GONE);
+                    holder.txt_time4.setVisibility(View.GONE);
+
 
                 }
-                holder.sentMessage2.setVisibility(View.GONE);
-                holder.txt_notice.setVisibility(View.GONE);
-
-
-                holder.txt_time.setVisibility(View.GONE);
-                holder.txt_time2.setVisibility(View.GONE);
-                holder.txt_time3.setVisibility(View.GONE);
-                holder.txt_time4.setVisibility(View.GONE);
-
-
+            }catch (Exception e){
+              e.printStackTrace();
             }
+
 
         }
 
@@ -342,18 +363,20 @@ public class MsgAdapter extends RecyclerView.Adapter<MsgAdapter.ViewHolder> {
 
                             } else {
                                 //다른사람이 보낸 사진
-                                holder.img_img.setVisibility(View.VISIBLE);
-                                holder.circleImageView.setVisibility(View.VISIBLE);
 
-                                holder.img_img.setImageBitmap(bitmap);
-                                holder.txt_chatName.setText(msg_id);
                                 try{
+                                    holder.img_img.setImageBitmap(bitmap);
+                                    holder.img_img.setVisibility(View.VISIBLE);
+
                                     Map<String,String> user_IMG =  ((MainChatActivity)MainChatActivity.context).userIMG;
 
                                     String imgA = user_IMG.get(msg_id);
                                     Bitmap bitmapA = ImageUtil.convert(imgA);
                                     holder.circleImageView.setImageBitmap(bitmapA);
+                                    holder.circleImageView.setVisibility(View.VISIBLE);
 
+
+                                    holder.txt_chatName.setText(msg_id);
                                 }catch (Exception e){
 
                                 }

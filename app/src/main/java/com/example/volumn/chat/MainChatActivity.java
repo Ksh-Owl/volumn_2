@@ -147,7 +147,6 @@ public class MainChatActivity extends AppCompatActivity {
                                             String img = jsonObject.getString("img");
 
 
-                                            String data = img; //bitmap 변환
 
                                             userIMG.put(in_name[finalI], img);
                                             //Bitmap bitmap = ImageUtil.convert(data);
@@ -477,12 +476,6 @@ public class MainChatActivity extends AppCompatActivity {
         }
     };
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-
-    }
 
     int scrollCount = 0;
 
@@ -512,6 +505,7 @@ public class MainChatActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main_chat);
         context = this;
+        bindService(new Intent(this, ChatService.class), conn, Context.BIND_AUTO_CREATE);
 
         btn_exitRoom = (Button) findViewById(R.id.btn_exitRoom);
 
@@ -738,16 +732,21 @@ public class MainChatActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStart() {
+        super.onStart();
+
+    }
+
+    @Override
     protected void onResume() {
         super.onResume();
-        bindService(new Intent(this, ChatService.class), conn, Context.BIND_AUTO_CREATE);
 
 
         if (mService != null) {
             try {
                 Message msg_MAIN_CHAT = Message.obtain(null, ChatService.MSG_MAINCHAT);
                 Bundle bundle_MAIN_CHAT = msg_MAIN_CHAT.getData();
-                bundle_MAIN_CHAT.putString("MainChat", "MainChat");
+                bundle_MAIN_CHAT.putString("MainChat", "MainChat");//채팅화면으로 들어갔다고 알림
                 mService.send(msg_MAIN_CHAT);
             } catch (RemoteException e) {
                 e.printStackTrace();
@@ -758,7 +757,7 @@ public class MainChatActivity extends AppCompatActivity {
 
             try {
                 //rv_msgList.scrollToPosition(0);
-                rv_msgList.scrollToPosition(clientMsg_list.size() - 1);
+                rv_msgList.scrollToPosition(clientMsg_list.size());
 
             } catch (Exception e) {
 
@@ -807,7 +806,7 @@ public class MainChatActivity extends AppCompatActivity {
 
 
             Message msg_MAIN_CHAT = Message.obtain(null, ChatService.MSG_MAINCHAT);
-            Bundle bundle_MAIN_CHAT = msg_MAIN_CHAT.getData();
+            Bundle bundle_MAIN_CHAT = msg_MAIN_CHAT.getData();//메시지 화면에서 나갔다고 알림
             bundle_MAIN_CHAT.putString("MainChat", "");
 
             mService.send(msg_MAIN_CHAT);
