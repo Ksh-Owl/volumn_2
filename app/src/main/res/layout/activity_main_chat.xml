@@ -84,6 +84,7 @@
         android:layout_marginStart="10dp"
         android:layout_marginLeft="10dp"
         android:text="방인원수"
+        android:visibility="invisible"
         app:layout_constraintBottom_toTopOf="@+id/rv_msgList"
         app:layout_constraintStart_toEndOf="@+id/txt_nowRoom"
         app:layout_constraintTop_toTopOf="parent" />

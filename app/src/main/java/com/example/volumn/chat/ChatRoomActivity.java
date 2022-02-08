@@ -11,6 +11,9 @@ import org.json.JSONArray;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.Lifecycle;
+import androidx.lifecycle.LifecycleOwner;
+import androidx.lifecycle.LifecycleRegistry;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -56,7 +59,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 
-public class ChatRoomActivity extends AppCompatActivity {
+public class ChatRoomActivity extends AppCompatActivity implements LifecycleOwner {
 
     public static Context context;
 
@@ -246,6 +249,7 @@ public class ChatRoomActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
+        getLifecycle().addObserver(new Observer());
 
         btn_newRoom = (Button) findViewById(R.id.btn_newRoom);
         rv_room = (RecyclerView) findViewById(R.id.rv_room);
@@ -280,33 +284,8 @@ public class ChatRoomActivity extends AppCompatActivity {
 //
 //        startService(intent);
 
+        //LifeCycle aware
 
-    }
-    private void noReadCount() throws JSONException {
-        String json_myRoom = myRoom_PreferenceManager.getString(getApplicationContext(), "ROOM");
-
-        JSONArray jsonArray_myRoom = new JSONArray(json_myRoom);//저장된 나의방 jsonArray변환
-
-        JSONObject room_Object = new JSONObject(); //각방 안읽을 메시지 넣을 오브젝트
-        for (int j = 0; j < jsonArray_myRoom.length(); j++) {
-            JSONObject itme_myRoom = jsonArray_myRoom.getJSONObject(j);//방이름 추출
-
-            String myRoom = itme_myRoom.getString("value");
-            Log.e("TAG", "방이름 :" + myRoom);
-
-
-            String json_NO_READ = ChatCount_PreferenceManager.getChatCount(getApplicationContext(), myRoom);
-            Log.e("TAG", myRoom + " 읽지안은 카운트 :" + json_NO_READ);
-            if (json_NO_READ != null) {
-                JSONArray jsonArray_NO_READ = new JSONArray(json_NO_READ);
-
-                room_Object.put(myRoom, jsonArray_NO_READ);
-            }
-
-
-        }
-        String NO_READ_Data = room_Object.toString();
-        setRoom(NO_READ_Data);
     }
     @Override
     protected void onResume() {
@@ -341,11 +320,37 @@ public class ChatRoomActivity extends AppCompatActivity {
         super.onStart();
 
         try{
-            noReadCount();
+          //  noReadCount();
 
         }catch (Exception e){
 
         }
+    }
+    public void noReadCount() throws JSONException {
+        String json_myRoom = myRoom_PreferenceManager.getString(getApplicationContext(), "ROOM");
+
+        JSONArray jsonArray_myRoom = new JSONArray(json_myRoom);//저장된 나의방 jsonArray변환
+
+        JSONObject room_Object = new JSONObject(); //각방 안읽을 메시지 넣을 오브젝트
+        for (int j = 0; j < jsonArray_myRoom.length(); j++) {
+            JSONObject itme_myRoom = jsonArray_myRoom.getJSONObject(j);//방이름 추출
+
+            String myRoom = itme_myRoom.getString("value");
+            Log.e("TAG", "방이름 :" + myRoom);
+
+
+            String json_NO_READ = ChatCount_PreferenceManager.getChatCount(getApplicationContext(), myRoom);
+            Log.e("TAG", myRoom + " 읽지안은 카운트 :" + json_NO_READ);
+            if (json_NO_READ != null) {
+                JSONArray jsonArray_NO_READ = new JSONArray(json_NO_READ);
+
+                room_Object.put(myRoom, jsonArray_NO_READ);
+            }
+
+
+        }
+        String NO_READ_Data = room_Object.toString();
+        setRoom(NO_READ_Data);
     }
 
     private void setRoom(String NO_READ_Data) {

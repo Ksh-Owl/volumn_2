@@ -117,6 +117,7 @@ public class MainChatActivity extends AppCompatActivity {
                             if (room.equals(room_name)) {
                                 //같은방
                                 txt_memCount.setText(inwonCount);
+                                txt_memCount.setVisibility(View.VISIBLE);
                             }
 
                         }
@@ -738,6 +739,14 @@ public class MainChatActivity extends AppCompatActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+
+    }
+
+
+
+    @Override
     protected void onResume() {
         super.onResume();
 
@@ -822,6 +831,9 @@ public class MainChatActivity extends AppCompatActivity {
             mService.send(msg_MSG_READ_LINE);
 
             Log.e("TAG", "노티피케이션 출력 가능");
+
+
+
 
 
         } catch (RemoteException e) {
