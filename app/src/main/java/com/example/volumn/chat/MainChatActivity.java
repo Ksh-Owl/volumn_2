@@ -69,7 +69,11 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -804,14 +808,14 @@ public class MainChatActivity extends AppCompatActivity {
         try {
 
 
-            Message msg = Message.obtain(null, ChatService.MSG_YES_READ);
-            Bundle bundle = msg.getData();
-            bundle.putString("send", "" + room);//방제목
-            //bundle.putString("userEmail", "" + userEmail);
-            mService.send(msg);
+//            Message msg = Message.obtain(null, ChatService.MSG_YES_READ);
+//            Bundle bundle = msg.getData();
+//            bundle.putString("send", "" + room);//방제목
+//            //bundle.putString("userEmail", "" + userEmail);
+//            mService.send(msg);
             Log.e("TAG", "안읽음 메시지 읽음처리");
 
-            //ChatCount_PreferenceManager.resetChatCount(getApplicationContext(), room);//메시지 읽음 처리
+            ChatCount_PreferenceManager.resetChatCount(getApplicationContext(), room);//메시지 읽음 처리
 
 
             Message msg_MAIN_CHAT = Message.obtain(null, ChatService.MSG_MAINCHAT);
@@ -835,14 +839,189 @@ public class MainChatActivity extends AppCompatActivity {
 
 
 
+            noReadCount();
 
-        } catch (RemoteException e) {
+        } catch (RemoteException | JSONException e) {
             e.printStackTrace();
         }
 
 
     }
+    public void noReadCount() throws JSONException {
+        try {
+            String json_myRoom = myRoom_PreferenceManager.getString(getApplicationContext(), "ROOM");
 
+            JSONArray jsonArray_myRoom = new JSONArray(json_myRoom);//저장된 나의방 jsonArray변환
+
+            JSONObject room_Object = new JSONObject(); //각방 안읽을 메시지 넣을 오브젝트
+            for (int j = 0; j < jsonArray_myRoom.length(); j++) {
+                JSONObject itme_myRoom = jsonArray_myRoom.getJSONObject(j);//방이름 추출
+
+                String myRoom = itme_myRoom.getString("value");
+                Log.e("TAG", "방이름 :" + myRoom);
+
+
+                String json_NO_READ = ChatCount_PreferenceManager.getChatCount(getApplicationContext(), myRoom);
+                Log.e("TAG", myRoom + " 읽지안은 카운트 :" + json_NO_READ);
+                if (json_NO_READ != null) {
+                    JSONArray jsonArray_NO_READ = new JSONArray(json_NO_READ);
+
+                    room_Object.put(myRoom, jsonArray_NO_READ);
+                }
+
+
+            }
+            String NO_READ_Data = room_Object.toString();
+            setRoom(NO_READ_Data);
+        } catch (Exception e) {
+
+        }
+
+    }
+
+    private void setRoom(String NO_READ_Data) {
+
+        Response.Listener<String> responseListner = new Response.Listener<String>() {
+            @Override
+            public void onResponse(String response) {
+                ArrayList<chatRoom_Model> room_list;
+
+                try {
+                    Log.e("방 업데이트", "방 업데이트");
+
+                    JSONObject jsonObject = new JSONObject(response);
+                    JSONArray jsonArray = jsonObject.getJSONArray("chat");
+                    chatRoom_Model chatRoom_Model;// 모델 객체 생성
+                    room_list = new ArrayList<>();
+
+                    for (int i = 0; i < jsonArray.length(); i++) {
+
+                        JSONObject item = jsonArray.getJSONObject(i);
+
+                        String room_ID = item.getString("room_ID");
+                        String room_nm = item.getString("room_nm");
+                        String member = item.getString("member");
+                        //item.getString("mem_count");
+                        //String CREATE_DATE = item.getString("CREATE_DATE");
+                        int msg_count = 0;
+                        String msg = "";
+                        String lastTime = "";
+                        String mem_count = "";
+
+
+                        if (NO_READ_Data != null && !NO_READ_Data.equals("")) {
+                            JSONObject jsonObject_NO_READ = new JSONObject(NO_READ_Data);
+
+
+                            try {
+                                JSONArray jsonArray1 = jsonObject_NO_READ.getJSONArray(room_nm);
+                                JSONObject jsonObject1 = jsonArray1.getJSONObject(0);
+                                msg_count = Integer.parseInt(jsonObject1.getString("count"));
+                                msg = jsonObject1.getString("msg");
+                                lastTime = jsonObject1.getString("lastTime");
+                                mem_count = jsonObject1.getString("mem_count");
+
+
+                            } catch (Exception e) {
+                                Log.e("TAG", "jsonObject_NO_READ 에 이름이 없어서 오류 발생");
+
+                            }
+
+
+                        }
+
+                        chatRoom_Model = new chatRoom_Model(room_ID, room_nm, member, mem_count, lastTime, msg_count, msg);// 모델 객체 생성
+                        room_list.add(chatRoom_Model);
+
+                    }
+                    SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/mm/dd/HH:mm:ss");
+
+                    for (int i = 0; i < room_list.size(); i++) {
+                        chatRoom_Model chatRoom_Model_swap = room_list.get(i);// 모델 객체 생성
+                        String time = chatRoom_Model_swap.getLastTime();
+                        Date date = null;
+                        if (time.equals("")) {//시간이 공백이면 마지막으로 이동
+                            for (int j = 0; j < room_list.size(); j++) {
+                                String index_0 = room_list.get(j).getLastTime();
+                                if (!index_0.equals("")) {
+                                    Collections.swap(room_list, i, j);
+                                    j = room_list.size() + 1;
+                                }
+                            }
+
+
+                        }
+                    }
+
+                    for (int i = 0; i < room_list.size(); i++) {
+                        int minindex = i; //가장 작은 시간 인덱스
+
+
+                        for (int j = i + 1; j < room_list.size(); j++) {
+
+                            chatRoom_Model chatRoom_Model_swap = room_list.get(minindex);// 모델 객체 생성
+                            String time = chatRoom_Model_swap.getLastTime();
+                            Date date = null;
+                            if (!time.equals("")) {
+                                date = dateFormat.parse(time);
+
+                            }
+
+
+                            //if (i + 1 < room_list.size()) {
+
+                            chatRoom_Model chatRoom_Model_swap2 = room_list.get(j);// 모델 객체 생성
+                            String time2 = chatRoom_Model_swap2.getLastTime();
+                            Date date2 = null;
+                            if (!time2.equals("")) {
+                                date2 = dateFormat.parse(time2);
+
+                            }
+
+                            boolean afterTime = false;
+                            //비교할시간.after(기준시간)
+                            //비교할 시간이 기준시간을 지났을 경우 true를 반환
+                            //지났지 않을 경우에는 false를 반환
+                            if (date != null && date2 != null) {
+                                afterTime = date.after(date2);
+
+                            } else {
+                                //날짜가 비어있는 방은 밑으로
+                            }
+
+                            //false 이면 좀더 최신 유지
+                            //true 이면 기준시간이 더  최신 기준시간을 앞으로
+
+                            if (afterTime) {
+                                try {
+                                    minindex = j;
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                            //  }
+                        }
+                        Collections.swap(room_list, i, minindex);
+
+                    }
+                    ((ChatRoomActivity)ChatRoomActivity.context).model.getChatRoom().setValue(room_list);//viewModel 업데이트
+
+
+
+
+                } catch (JSONException | ParseException e) {
+                    e.printStackTrace();
+                }
+
+            }
+        };
+        //String userEmail = PreferenceManager.getString(context, "userEmail");//쉐어드에서 로그인된 아이디 받아오
+
+        getRoomRequest getRoomRequest = new getRoomRequest(responseListner);
+        RequestQueue queue = Volley.newRequestQueue(context);
+        queue.add(getRoomRequest);
+    }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable @org.jetbrains.annotations.Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

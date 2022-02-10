@@ -1,31 +1,21 @@
 package com.example.volumn.chat;
 
-import com.example.volumn.MainActivity;
-import com.example.volumn.addSet.addSetRequest;
-import com.example.volumn.addWorkout.Model;
 import com.example.volumn.include.ChatCount_PreferenceManager;
-import com.example.volumn.include.PreferenceManager;
 
 import org.json.JSONArray;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NotificationCompat;
-import androidx.lifecycle.Lifecycle;
 import androidx.lifecycle.LifecycleOwner;
-import androidx.lifecycle.LifecycleRegistry;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.app.NotificationChannel;
-import android.app.NotificationManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.graphics.Color;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -36,9 +26,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.Toast;
-
-import com.example.volumn.chat.chatRoom_Model;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -51,7 +38,6 @@ import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.net.Socket;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -68,14 +54,21 @@ public class ChatRoomActivity extends AppCompatActivity implements LifecycleOwne
     public Socket s;
     Button btn_newRoom;
     RecyclerView rv_room;
+    private ChatRoom_list_model chatRoom_list;
     public ArrayList<chatRoom_Model> room_list;
-    public ArrayList<chatRoom_Model> room_list_new;
-    public static String inRoom_name ="";
+    public ArrayList<chatRoom_Model> room_list_new;//새로온 메시지
+    public ChatRoom_list_model chatRoomList;
+    public static String inRoom_name = "";
 
     ImageView img_back4;
     //서비스
     private Messenger mService;
     private final Messenger mMessenger = new Messenger(new IncomingHandelr());
+
+
+    //라이브 데이터
+    //private MutableLiveData<ArrayList<chatRoom_Model>> liveData = new MutableLiveData<>();
+    public ChatRoom_list_model model;
 
     private class IncomingHandelr extends Handler {
         @Override
@@ -101,6 +94,7 @@ public class ChatRoomActivity extends AppCompatActivity implements LifecycleOwne
                         String inwon[] = roomInwon.split(",");
 
                         room_list_new = new ArrayList<>();
+                        //room_list = new ArrayList<>();
 
                         for (int i = 0; i < inwon.length; i++) {
                             String room_inwon[] = inwon[i].split("--");
@@ -131,7 +125,9 @@ public class ChatRoomActivity extends AppCompatActivity implements LifecycleOwne
 
 
                                 chatRoom_Model chatRoom_Model = new chatRoom_Model(room_ID, room_nm, member, mem_count, lastTime, msg_count, msgs);// 모델 객체 생성
-                                room_list_new.add(chatRoom_Model);
+                             //   room_list_new.add(chatRoom_Model);
+                               // roo.add(chatRoom_Model);
+
                             }
 
                         }
@@ -249,11 +245,66 @@ public class ChatRoomActivity extends AppCompatActivity implements LifecycleOwne
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_chat_room);
-        getLifecycle().addObserver(new Observer());
+        chatRoomList = new ChatRoom_list_model();
+        //데이터 바인딩
+        //ActivityMainBinding binding = ActivityMainBinding.inflate(getLayoutInflater());
 
-        btn_newRoom = (Button) findViewById(R.id.btn_newRoom);
+       // setContentView(binding.getRoot());
+
+        model = new ViewModelProvider(this).get(ChatRoom_list_model.class);
+
+        final androidx.lifecycle.Observer<ArrayList<chatRoom_Model>> roomObserver = new androidx.lifecycle.Observer<ArrayList<chatRoom_Model>>() {
+            @Override
+            public void onChanged(ArrayList<chatRoom_Model> chatRoom) {
+
+                Log.d("LiveData","방리스트 변경");
+
+                RoomAdapter adapter = new RoomAdapter(chatRoom);
+
+
+                adapter.setOnItemClickListener(new RoomAdapter.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View v, int position) {
+
+
+                        String roomName = chatRoom.get(position).getRoom_nm();
+                        String room_ID = chatRoom.get(position).getRoom_ID();
+                        inRoom_name = roomName;//들어간 방 이름
+
+                        Intent intent = new Intent(context, MainChatActivity.class);
+                        intent.putExtra("roomName", roomName);
+                        intent.putExtra("room_ID", room_ID);
+
+                        startActivity(intent);
+
+
+                    }
+                });
+
+                LinearLayoutManager mLayoutManager = new LinearLayoutManager(context);
+                mLayoutManager.setReverseLayout(true);
+                mLayoutManager.setStackFromEnd(true);
+
+                rv_room.setLayoutManager(mLayoutManager);
+
+
+                rv_room.setAdapter(adapter);
+                // rv_room.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, true));
+
+                adapter.notifyDataSetChanged();
+            }
+        };
+
+        model.getChatRoom().observe(this,roomObserver);
+
+
+
+        getLifecycle().addObserver(new Observer());
         rv_room = (RecyclerView) findViewById(R.id.rv_room);
         rv_room.addItemDecoration(new DividerItemDecoration(getApplicationContext(), DividerItemDecoration.VERTICAL));
+
+
+        btn_newRoom = (Button) findViewById(R.id.btn_newRoom);
         context = this;
         img_back4 = (ImageView) findViewById(R.id.img_back4);
         img_back4.setOnClickListener(new View.OnClickListener() {
@@ -287,15 +338,12 @@ public class ChatRoomActivity extends AppCompatActivity implements LifecycleOwne
         //LifeCycle aware
 
     }
+
     @Override
     protected void onResume() {
         super.onResume();
 
         bindService(new Intent(this, ChatService.class), conn, Context.BIND_AUTO_CREATE);
-
-
-
-
 
 
 //        try {
@@ -319,38 +367,44 @@ public class ChatRoomActivity extends AppCompatActivity implements LifecycleOwne
     protected void onStart() {
         super.onStart();
 
-        try{
-          //  noReadCount();
+        try {
+            //  noReadCount();
 
-        }catch (Exception e){
+        } catch (Exception e) {
 
         }
     }
+
     public void noReadCount() throws JSONException {
-        String json_myRoom = myRoom_PreferenceManager.getString(getApplicationContext(), "ROOM");
+        try {
+            String json_myRoom = myRoom_PreferenceManager.getString(getApplicationContext(), "ROOM");
 
-        JSONArray jsonArray_myRoom = new JSONArray(json_myRoom);//저장된 나의방 jsonArray변환
+            JSONArray jsonArray_myRoom = new JSONArray(json_myRoom);//저장된 나의방 jsonArray변환
 
-        JSONObject room_Object = new JSONObject(); //각방 안읽을 메시지 넣을 오브젝트
-        for (int j = 0; j < jsonArray_myRoom.length(); j++) {
-            JSONObject itme_myRoom = jsonArray_myRoom.getJSONObject(j);//방이름 추출
+            JSONObject room_Object = new JSONObject(); //각방 안읽을 메시지 넣을 오브젝트
+            for (int j = 0; j < jsonArray_myRoom.length(); j++) {
+                JSONObject itme_myRoom = jsonArray_myRoom.getJSONObject(j);//방이름 추출
 
-            String myRoom = itme_myRoom.getString("value");
-            Log.e("TAG", "방이름 :" + myRoom);
+                String myRoom = itme_myRoom.getString("value");
+                Log.e("TAG", "방이름 :" + myRoom);
 
 
-            String json_NO_READ = ChatCount_PreferenceManager.getChatCount(getApplicationContext(), myRoom);
-            Log.e("TAG", myRoom + " 읽지안은 카운트 :" + json_NO_READ);
-            if (json_NO_READ != null) {
-                JSONArray jsonArray_NO_READ = new JSONArray(json_NO_READ);
+                String json_NO_READ = ChatCount_PreferenceManager.getChatCount(getApplicationContext(), myRoom);
+                Log.e("TAG", myRoom + " 읽지안은 카운트 :" + json_NO_READ);
+                if (json_NO_READ != null) {
+                    JSONArray jsonArray_NO_READ = new JSONArray(json_NO_READ);
 
-                room_Object.put(myRoom, jsonArray_NO_READ);
+                    room_Object.put(myRoom, jsonArray_NO_READ);
+                }
+
+
             }
-
+            String NO_READ_Data = room_Object.toString();
+            setRoom(NO_READ_Data);
+        } catch (Exception e) {
 
         }
-        String NO_READ_Data = room_Object.toString();
-        setRoom(NO_READ_Data);
+
     }
 
     private void setRoom(String NO_READ_Data) {
@@ -386,8 +440,6 @@ public class ChatRoomActivity extends AppCompatActivity implements LifecycleOwne
                             JSONObject jsonObject_NO_READ = new JSONObject(NO_READ_Data);
 
 
-
-
                             try {
                                 JSONArray jsonArray1 = jsonObject_NO_READ.getJSONArray(room_nm);
                                 JSONObject jsonObject1 = jsonArray1.getJSONObject(0);
@@ -403,8 +455,6 @@ public class ChatRoomActivity extends AppCompatActivity implements LifecycleOwne
                             }
 
 
-
-
                         }
 
                         chatRoom_Model = new chatRoom_Model(room_ID, room_nm, member, mem_count, lastTime, msg_count, msg);// 모델 객체 생성
@@ -413,17 +463,16 @@ public class ChatRoomActivity extends AppCompatActivity implements LifecycleOwne
                     }
                     SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy/mm/dd/HH:mm:ss");
 
-                    for (int i = 0; i < room_list.size(); i++){
+                    for (int i = 0; i < room_list.size(); i++) {
                         chatRoom_Model chatRoom_Model_swap = room_list.get(i);// 모델 객체 생성
                         String time = chatRoom_Model_swap.getLastTime();
                         Date date = null;
-                        if(time.equals("")){//시간이 공백이면 마지막으로 이동
-                            for (int j = 0; j <room_list.size() ; j++){
-                                String index_0 =room_list.get(j).getLastTime();
-                                if(!index_0.equals(""))
-                                {
+                        if (time.equals("")) {//시간이 공백이면 마지막으로 이동
+                            for (int j = 0; j < room_list.size(); j++) {
+                                String index_0 = room_list.get(j).getLastTime();
+                                if (!index_0.equals("")) {
                                     Collections.swap(room_list, i, j);
-                                    j =room_list.size()+1;
+                                    j = room_list.size() + 1;
                                 }
                             }
 
@@ -432,16 +481,15 @@ public class ChatRoomActivity extends AppCompatActivity implements LifecycleOwne
                     }
 
                     for (int i = 0; i < room_list.size(); i++) {
-                        int minindex =i; //가장 작은 시간 인덱스
+                        int minindex = i; //가장 작은 시간 인덱스
 
 
-
-                        for (int j = i+1; j < room_list.size(); j++){
+                        for (int j = i + 1; j < room_list.size(); j++) {
 
                             chatRoom_Model chatRoom_Model_swap = room_list.get(minindex);// 모델 객체 생성
                             String time = chatRoom_Model_swap.getLastTime();
                             Date date = null;
-                            if(!time.equals("")){
+                            if (!time.equals("")) {
                                 date = dateFormat.parse(time);
 
                             }
@@ -449,38 +497,37 @@ public class ChatRoomActivity extends AppCompatActivity implements LifecycleOwne
 
                             //if (i + 1 < room_list.size()) {
 
-                                chatRoom_Model chatRoom_Model_swap2 = room_list.get(j);// 모델 객체 생성
-                                String time2 = chatRoom_Model_swap2.getLastTime();
-                                Date date2 = null;
-                                if(!time2.equals("")){
-                                    date2 = dateFormat.parse(time2);
+                            chatRoom_Model chatRoom_Model_swap2 = room_list.get(j);// 모델 객체 생성
+                            String time2 = chatRoom_Model_swap2.getLastTime();
+                            Date date2 = null;
+                            if (!time2.equals("")) {
+                                date2 = dateFormat.parse(time2);
 
-                                }
+                            }
 
                             boolean afterTime = false;
-                                //비교할시간.after(기준시간)
-                                //비교할 시간이 기준시간을 지났을 경우 true를 반환
-                                //지났지 않을 경우에는 false를 반환
-                                if(date !=null && date2 != null){
-                                    afterTime = date.after(date2);
+                            //비교할시간.after(기준시간)
+                            //비교할 시간이 기준시간을 지났을 경우 true를 반환
+                            //지났지 않을 경우에는 false를 반환
+                            if (date != null && date2 != null) {
+                                afterTime = date.after(date2);
 
-                                }else
-                                {
-                                    //날짜가 비어있는 방은 밑으로
+                            } else {
+                                //날짜가 비어있는 방은 밑으로
+                            }
+
+                            //false 이면 좀더 최신 유지
+                            //true 이면 기준시간이 더  최신 기준시간을 앞으로
+
+                            if (afterTime) {
+                                try {
+                                    minindex = j;
+
+                                } catch (Exception e) {
+                                    e.printStackTrace();
                                 }
-
-                                //false 이면 좀더 최신 유지
-                                //true 이면 기준시간이 더  최신 기준시간을 앞으로
-
-                                if (afterTime) {
-                                    try {
-                                        minindex = j;
-
-                                    } catch (Exception e) {
-                                        e.printStackTrace();
-                                    }
-                                }
-                          //  }
+                            }
+                            //  }
                         }
                         Collections.swap(room_list, i, minindex);
 
@@ -516,9 +563,8 @@ public class ChatRoomActivity extends AppCompatActivity implements LifecycleOwne
                     rv_room.setLayoutManager(mLayoutManager);
 
 
-
                     rv_room.setAdapter(adapter);
-                   // rv_room.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, true));
+                    // rv_room.setLayoutManager(new LinearLayoutManager(context, RecyclerView.VERTICAL, true));
 
                     adapter.notifyDataSetChanged();
 

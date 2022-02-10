@@ -1064,6 +1064,7 @@ public class ChatService extends Service {
                                         {
                                             //들어간 방에서의 메시지
                                             //읽음처리
+                                            //응용1단계 12주차 예외처리
                                             ChatCount_PreferenceManager.resetChatCount(getApplicationContext(), NowRoom_name);//메시지 읽음 처리
 
                                         }

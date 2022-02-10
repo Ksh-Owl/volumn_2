@@ -50,11 +50,11 @@ public class Observer implements DefaultLifecycleObserver {
     @Override
     public void onResume(@NonNull @NotNull LifecycleOwner owner) {
         Log.d(owner.toString(), "onResume");
-        try {
-            ((ChatRoomActivity)ChatRoomActivity.context).noReadCount();
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            ((ChatRoomActivity)ChatRoomActivity.context).noReadCount();
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
 
     }
 
