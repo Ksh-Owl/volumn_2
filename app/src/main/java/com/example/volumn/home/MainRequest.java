@@ -11,7 +11,7 @@ import java.util.Map;
 public class MainRequest extends StringRequest {
 
     // 서버 URL 설정 ( PHP 파일 연동 )
-    final static private String URL = "http://15.164.50.211/volumn/Select_Volumn.php";
+    final static private String URL = "http://54.180.2.213/volumn/Select_Volumn.php";
     private Map<String, String> map;
 
 

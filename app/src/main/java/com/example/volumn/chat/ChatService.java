@@ -832,11 +832,11 @@ public class ChatService extends Service {
 
                     //Socket s = new Socket(String host<서버ip>, int port<서비스번호>);
 
-                    //Socket s = new Socket("192.168.0.91", 5000);//연결시도 팀노바
+                    //Socket s = new Socket("192.168.0.3", 5000);//연결시도 팀노바
                     //Socket s = new Socket("192.168.219.100", 5000);//연결시도 집
-                    //Socket s = new Socket("172.30.1.35", 5000);//연결시도 카페
-                    //Socket s = new Socket("15.164.50.211", 5000);//연결시도 우분투
-                    Socket s = new Socket("192.168.42.85", 5000);//연결시도 5G
+                    Socket s = new Socket("172.30.94.82", 5000);//연결시도 카페
+                    //Socket s = new Socket("54.180.2.213", 5000);//연결시도 우분투
+                    //Socket s = new Socket("192.168.42.85", 5000);//연결시도 5G
 
                     Log.v("", "클라이언트 : 서버 연결됨.");
 

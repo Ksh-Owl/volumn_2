@@ -98,7 +98,7 @@ public class chatActivity extends AppCompatActivity {
 
 
         //replace x.x.x.x with your machine's IP Address
-        Request request = new Request.Builder().url("ws://15.164.50.211:8080").build();
+        Request request = new Request.Builder().url("ws://54.180.2.213:8080").build();
 
 
         SocketListener socketListener = new SocketListener(this);

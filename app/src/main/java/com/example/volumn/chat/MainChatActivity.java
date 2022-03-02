@@ -817,6 +817,7 @@ public class MainChatActivity extends AppCompatActivity {
 
             ChatCount_PreferenceManager.resetChatCount(getApplicationContext(), room);//메시지 읽음 처리
 
+            noReadCount();
 
             Message msg_MAIN_CHAT = Message.obtain(null, ChatService.MSG_MAINCHAT);
             Bundle bundle_MAIN_CHAT = msg_MAIN_CHAT.getData();//메시지 화면에서 나갔다고 알림
@@ -839,7 +840,6 @@ public class MainChatActivity extends AppCompatActivity {
 
 
 
-            noReadCount();
 
         } catch (RemoteException | JSONException e) {
             e.printStackTrace();

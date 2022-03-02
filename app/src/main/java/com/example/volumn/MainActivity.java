@@ -211,7 +211,12 @@ public class MainActivity extends AppCompatActivity {
         setDate();
         // 첫번째 날짜 오늘부터 1주일전
 
-        etxt_Date.setText(year_ + "-" + (month_ + 1) + "-" + (dayofMonth_ - 7));
+
+
+
+        //etxt_Date.setText(year_ + "-" + (month_ + 1) + "-" + (dayofMonth_ - 7));
+        etxt_Date.setText(get7DayAgoDate(year_,month_ + 1,dayofMonth_));
+
         etxt_Date2.setText(year_ + "-" + (month_ + 1) + "-" + dayofMonth_);
 
         etxt_Date.addTextChangedListener(new TextWatcher() {
@@ -554,6 +559,23 @@ public class MainActivity extends AppCompatActivity {
         MainRequest mainRequest = new MainRequest(userEmail, etxt_Date.getText().toString().trim(), etxt_Date2.getText().toString().trim(), calday1, calday2, responseListner);
         RequestQueue queue = Volley.newRequestQueue(context);
         queue.add(mainRequest);
+    }
+    @RequiresApi(api = Build.VERSION_CODES.N)
+    private String get7DayAgoDate(int year , int month , int day){
+        Calendar cal = Calendar.getInstance();
+
+        cal.set(year, month-1, day);
+
+        cal.add(Calendar.DATE, -7);
+
+        java.util.Date weekago = cal.getTime();
+
+        SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd",
+
+                Locale.getDefault());
+
+        return formatter.format(weekago);
+
     }
 
     public void setDate() {
