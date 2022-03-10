@@ -214,7 +214,6 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-        //etxt_Date.setText(year_ + "-" + (month_ + 1) + "-" + (dayofMonth_ - 7));
         etxt_Date.setText(get7DayAgoDate(year_,month_ + 1,dayofMonth_));
 
         etxt_Date2.setText(year_ + "-" + (month_ + 1) + "-" + dayofMonth_);

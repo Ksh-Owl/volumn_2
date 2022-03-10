@@ -9,13 +9,11 @@
     }
 
 
-    // mysqli_query($con,'SET NAMES utf8');
 
     $userEmail = $_POST["userEmail"];
     $userPw = $_POST["userPw"];
 
-    //$sql ="insert into user(userEmail,userPw,userName) VALUES ('{$userEmail}', SHA2('{$userPw}',256),'{$userName}' );";
-    $sql = "UPDATE user SET userPw = SHA2('{$userPw}',256),UPDATE_DATE = NOW()  WHERE userEmail ='{$userEmail}';";
+    $sql = "UPDATE user SET userPw = SHA2('{$userPw}',256),CREATE_DATE = NOW()  WHERE userEmail ='{$userEmail}';";
      
 
     if($con -> query($sql))
@@ -36,6 +34,8 @@
 
     $response = array();
     $response["success"] = $state;
+    $response["sql"] = $sql;
+
 
 
     echo json_encode($response);
